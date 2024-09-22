@@ -22,7 +22,7 @@ func print_settings(settings *utils.Settings) {
 	fmt.Println(string(settings_json))
 }
 
-func main() {
+func _main() {
 	// Print Settings
 	var settings = utils.GetSettings()
 	print_settings(settings)
