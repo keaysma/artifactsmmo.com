@@ -7,6 +7,7 @@ import (
 
 type Settings struct {
 	Api_token string
+	Character string
 	Debug     bool
 	Raw       map[string]string
 	// character_name string
@@ -31,11 +32,13 @@ func GetEnvironMap() map[string]string {
 func GetSettings() *Settings {
 	var raw = GetEnvironMap()
 
-	var api_token = raw["token"]
-	var _, debug = raw["debug"]
+	api_token := raw["token"]
+	character := raw["character"]
+	_, debug := raw["debug"]
 
 	var settings = Settings{
 		Api_token: api_token,
+		Character: character,
 		Debug:     debug,
 		Raw:       raw,
 	}
