@@ -1,9 +1,8 @@
-package main
+package gui
 
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"sync"
@@ -26,12 +25,14 @@ func prompt_line() {
 }
 
 func loop_line(content string) {
-	fmt.Println()
-	print_out(fmt.Sprintf("> %s\n", content))
-	prompt_line()
+	// fmt.Println()
+	// print_out(fmt.Sprintf("> %s\n", content))
+	// prompt_line()
+
+	utils.Log(content) // this is what happens at 3am
 }
 
-func scan_line(scanner *bufio.Scanner) bool {
+func Scan_line(scanner *bufio.Scanner) bool {
 	prompt_line()
 	return scanner.Scan()
 }
@@ -44,16 +45,34 @@ func dummy_generator(last string) string {
 	return "sleep 1"
 }
 
-var running bool
+func gather_ash_wood(last string) string {
+	if last != "gather" && last != "move -1 0" {
+		return "move -1 0"
+	}
 
-type SharedState struct {
-	Lock     sync.Mutex
-	Commands []string
+	return "gather"
 }
 
-var sharedState SharedState = SharedState{
-	Lock:     sync.Mutex{},
-	Commands: []string{},
+func fight_blue_slimes(last string) string {
+	if last != "fight" && last != "move 2 -1" {
+		return "move 2 -1"
+	}
+
+	return "fight"
+}
+
+var running bool
+
+type SharedStateType struct {
+	Lock                   sync.Mutex
+	Current_Generator_Name string
+	Commands               []string
+}
+
+var SharedState = SharedStateType{
+	Lock:                   sync.Mutex{},
+	Current_Generator_Name: "",
+	Commands:               []string{},
 }
 
 type Generator func(ctx string) string
@@ -71,24 +90,24 @@ var reMoveXY = regexp.MustCompile("move (?P<X>[-0-9]+) (?P<Y>[-0-9]+)")
 var reSleep = regexp.MustCompile("sleep (?P<Time>.+)")
 var reGenerator = regexp.MustCompile("set gen (?P<GeneratorName>.+)")
 
-func gameloop() {
+func Gameloop() {
 	running = true
 	for running {
 
-		sharedState.Lock.Lock()
-		if len(sharedState.Commands) == 0 {
-			sharedState.Lock.Unlock()
+		SharedState.Lock.Lock()
+		if len(SharedState.Commands) == 0 {
+			SharedState.Lock.Unlock()
 
 			if internalState.Current_Generator != nil {
 				var c = internalState.Current_Generator(internalState.Last_command)
-				sharedState.Lock.Lock()
-				sharedState.Commands = append(sharedState.Commands, c)
-				sharedState.Lock.Unlock()
+				SharedState.Lock.Lock()
+				SharedState.Commands = append(SharedState.Commands, c)
+				SharedState.Lock.Unlock()
 			}
 		} else {
-			cmd, commands := sharedState.Commands[0], sharedState.Commands[1:]
-			sharedState.Commands = commands
-			sharedState.Lock.Unlock()
+			cmd, commands := SharedState.Commands[0], SharedState.Commands[1:]
+			SharedState.Commands = commands
+			SharedState.Lock.Unlock()
 			internalState.Last_command = cmd
 
 			if internalState.Last_command == "ping" {
@@ -135,30 +154,28 @@ func gameloop() {
 					continue
 				}
 
-				loop_line(fmt.Sprintf("moving to (%d, %d)", x, y))
+				// loop_line(fmt.Sprintf("moving to (%d, %d)", x, y))
 				err = steps.Move(s.Character, coords.Coord{X: int(x), Y: int(y), Name: "<place>"})
-				if err != nil {
-					loop_line(fmt.Sprintf("moved to (%d, %d)", x, y))
+				if err == nil {
+					// loop_line(fmt.Sprintf("moved to (%d, %d)", x, y))
 				} else {
 					loop_line(fmt.Sprintf("failed to move to (%d, %d): %s", x, y, err))
 				}
 			}
 
 			if internalState.Last_command == "fight" {
-				loop_line("fighting!")
 				_, err := steps.Fight(s.Character, 0)
 				if err == nil {
-					loop_line("done fighting")
+					// loop_line("done fighting")
 				} else {
 					loop_line(fmt.Sprintf("failed to fight: %s", err))
 				}
 			}
 
 			if internalState.Last_command == "gather" {
-				loop_line("gathering!")
 				_, err := steps.Gather(s.Character)
 				if err == nil {
-					loop_line("done gathering")
+					// loop_line("done gathering")
 				} else {
 					loop_line(fmt.Sprintf("failed to gather: %s", err))
 				}
@@ -169,16 +186,29 @@ func gameloop() {
 				generator_name_index := reGenerator.SubexpIndex("GeneratorName")
 				generator_name := matches[generator_name_index]
 
-				if generator_name == "dummy" {
+				switch generator_name {
+				case "fight blue slimes":
+					internalState.Current_Generator = fight_blue_slimes
+					SharedState.Current_Generator_Name = "fight blue slimes"
+				case "ashwood":
+					internalState.Current_Generator = gather_ash_wood
+					SharedState.Current_Generator_Name = "gather ash wood"
+				case "dummy":
 					internalState.Current_Generator = dummy_generator
-					loop_line("generator set to dummy")
-				} else {
+					SharedState.Current_Generator_Name = "dummy"
+				default:
 					loop_line("unknown generator")
+
+				}
+
+				if SharedState.Current_Generator_Name != "" {
+					loop_line(fmt.Sprintf("generator set to %s", SharedState.Current_Generator_Name))
 				}
 			}
 
 			if internalState.Last_command == "clear gen" {
 				internalState.Current_Generator = nil
+				SharedState.Current_Generator_Name = ""
 				loop_line("generator cleared")
 			}
 
@@ -192,33 +222,4 @@ func gameloop() {
 		time.Sleep(100_000_000) // 100ms (0.1s)
 		// time.Sleep(100_000) // 0.1ms
 	}
-}
-
-func main() {
-	if s.Character == "" {
-		fmt.Println("Missing env var: character")
-		os.Exit(1)
-	}
-
-	if s.Api_token == "" {
-		fmt.Println("Missing env var: token")
-		os.Exit(1)
-	}
-
-	go gameloop()
-
-	scanner := bufio.NewScanner(os.Stdin)
-
-	for scan_line(scanner) {
-		cmd := scanner.Text()
-		sharedState.Lock.Lock()
-		sharedState.Commands = append(sharedState.Commands, cmd)
-		sharedState.Lock.Unlock()
-
-		if cmd == "exit" {
-			break
-		}
-	}
-
-	os.Exit(0)
 }

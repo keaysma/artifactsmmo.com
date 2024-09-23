@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -18,7 +19,7 @@ type BlockedHits struct {
 type FightDetails struct {
 	Xp                   int
 	Gold                 int
-	Drops                []api.InventoryItem
+	Drops                []types.InventoryItem
 	Turns                int
 	Monster_blocked_hits BlockedHits
 	Player_blocked_hits  BlockedHits
@@ -27,9 +28,9 @@ type FightDetails struct {
 }
 
 type FightResponse struct {
-	Cooldown  api.Cooldown  `json:"cooldown"`
-	Fight     FightDetails  `json:"destination"`
-	Character api.Character `json:"character"`
+	Cooldown  types.Cooldown `json:"cooldown"`
+	Fight     FightDetails   `json:"destination"`
+	Character api.Character  `json:"character"`
 }
 
 func Fight(character string) (*FightResponse, error) {

@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
 type MoveResponse struct {
-	Cooldown    api.Cooldown    `json:"cooldown"`
-	Destination api.Destination `json:"destination"`
-	Character   api.Character   `json:"character"`
+	Cooldown    types.Cooldown    `json:"cooldown"`
+	Destination types.Destination `json:"destination"`
+	Character   api.Character     `json:"character"`
 }
 
 func Move(character string, x int, y int) (*MoveResponse, error) {

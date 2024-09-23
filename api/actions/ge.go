@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -15,7 +16,7 @@ type TransactionDetails struct {
 }
 
 type TransactionResponse struct {
-	Cooldown    api.Cooldown       `json:"cooldown"`
+	Cooldown    types.Cooldown     `json:"cooldown"`
 	Transaction TransactionDetails `json:"transaction"`
 	Character   api.Character      `json:"character"`
 }
@@ -72,7 +73,7 @@ func BuyUnsafe(character string, code string, quantity int, price int) (*Transac
 	return &out, nil
 }
 
-func GetGrandExchangeItemDetails(code string) (*api.GrandExchangeItemData, error) {
+func GetGrandExchangeItemDetails(code string) (*types.GrandExchangeItemData, error) {
 	res, err := api.GetDataResponse(
 		fmt.Sprintf("ge/%s", code),
 		nil,
@@ -82,7 +83,7 @@ func GetGrandExchangeItemDetails(code string) (*api.GrandExchangeItemData, error
 		return nil, err
 	}
 
-	var out api.GrandExchangeItemData
+	var out types.GrandExchangeItemData
 	uerr := mapstructure.Decode(res.Data, &out)
 
 	if uerr != nil {

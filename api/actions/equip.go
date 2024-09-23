@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
 type EquipResponse struct {
-	Cooldown  api.Cooldown    `json:"cooldown"`
+	Cooldown  types.Cooldown  `json:"cooldown"`
 	Slot      string          `json:"slot"`
 	Item      api.ItemDetails `json:"item"`
 	Character api.Character   `json:"character"`

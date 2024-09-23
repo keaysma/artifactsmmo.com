@@ -9,11 +9,11 @@ import (
 )
 
 func FightUnsafe(character string) (*api.Character, error) {
-	fmt.Printf("[%s][fight]: Fighting!\n", character)
+	utils.DebugLog(fmt.Sprintf("[%s]<fight>: Fighting (unsafe call)!", character))
 
 	mres, err := actions.Fight(character)
 	if err != nil {
-		fmt.Printf("[%s][fight]: Failed to fight\n", character)
+		utils.DebugLog(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
 		return nil, err
 	}
 
@@ -24,35 +24,35 @@ func FightUnsafe(character string) (*api.Character, error) {
 		"drops":  mres.Fight.Drops,
 		"hp":     mres.Character.Hp,
 	}
-	fmt.Println(utils.PrettyPrint(custom_details))
+	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
 
 	api.WaitForDown(mres.Cooldown)
 
 	if mres.Fight.Result != "win" {
-		fmt.Printf("[%s][fight]: Result is not win: %s\n", character, mres.Fight.Result)
-		return nil, fmt.Errorf("[%s][fight]: result is %s", character, mres.Fight.Result)
+		utils.Log(fmt.Sprintf("[%s]<fight>: Result is not win: %s\n", character, mres.Fight.Result))
+		return nil, fmt.Errorf("[%s]<fight>: result is %s", character, mres.Fight.Result)
 	}
 
 	return &mres.Character, nil
 }
 
 func Fight(character string, hpSafety int) (*api.Character, error) {
-	fmt.Printf("[%s][fight]: Fighting!\n", character)
+	utils.Log(fmt.Sprintf("[%s]<fight>: Fighting", character))
 
 	char_start, err := api.GetCharacterByName(character)
-	if err != nil {
-		fmt.Printf("[%s][fight]: Failed to get character info\n", character)
+	if err != nil || char_start == nil {
+		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to get character info", character))
 		return nil, err
 	}
 
 	if char_start.Hp < hpSafety {
-		fmt.Printf("[%s][fight]: Will not fight, HP below safety (%d < %d)\n", character, char_start.Hp, hpSafety)
+		utils.Log(fmt.Sprintf("[%s]<fight>: Will not fight, HP below safety (%d < %d)", character, char_start.Hp, hpSafety))
 		return char_start, nil
 	}
 
 	char_end, err := FightUnsafe(character)
 	if err != nil {
-		fmt.Printf("[%s][fight]: Failed to fight\n", character)
+		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
 		return nil, err
 	}
 

@@ -15,26 +15,26 @@ func Move(character string, coord coords.Coord) error {
 		place = fmt.Sprintf("%s (%d, %d)", coord.Name, coord.X, coord.Y)
 	}
 
-	fmt.Printf("[%s][move]: Moving to %s\n", character, place)
+	utils.Log(fmt.Sprintf("[%s]<move>: Moving to %s", character, place))
 
 	char_start, err := api.GetCharacterByName(character)
 	if err != nil {
-		fmt.Printf("[%s][move]: Failed to get character info\n", character)
+		utils.Log(fmt.Sprintf("[%s]<move>: Failed to get character info", character))
 		return err
 	}
 
 	if char_start.X == coord.X && char_start.Y == coord.Y {
-		fmt.Printf("[%s][move]: Already at %s\n", character, place)
+		utils.Log(fmt.Sprintf("[%s]<move>: Already at %s", character, place))
 		return nil
 	}
 
 	mres, err := actions.Move(character, coord.X, coord.Y)
 	if err != nil {
-		fmt.Printf("[%s][move]: Failed to move to %s\n", character, place)
+		utils.Log(fmt.Sprintf("[%s]<move>: Failed to move to %s", character, place))
 		return err
 	}
 
-	fmt.Println(utils.PrettyPrint(mres.Destination))
+	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Destination)))
 	api.WaitForDown(mres.Cooldown)
 	return nil
 }

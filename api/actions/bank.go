@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
 type BankItemResponse struct {
-	Cooldown  api.Cooldown        `json:"cooldown"`
-	Item      api.ItemDetails     `json:"item"`
-	Bank      []api.InventoryItem `json:"bank"`
-	Character api.Character       `json:"character"`
+	Cooldown  types.Cooldown        `json:"cooldown"`
+	Item      api.ItemDetails       `json:"item"`
+	Bank      []types.InventoryItem `json:"bank"`
+	Character api.Character         `json:"character"`
 }
 
 func BankDeposit(character string, code string, quantity int) (*BankItemResponse, error) {

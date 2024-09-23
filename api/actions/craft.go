@@ -4,16 +4,17 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
 type CraftingDetails struct {
 	Xp    int
-	Items []api.InventoryItem
+	Items []types.InventoryItem
 }
 
 type CraftingResponse struct {
-	Cooldown  api.Cooldown    `json:"cooldown"`
+	Cooldown  types.Cooldown  `json:"cooldown"`
 	Details   CraftingDetails `json:"details"`
 	Character api.Character   `json:"character"`
 }

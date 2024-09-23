@@ -11,14 +11,14 @@ import (
 func Gather(character string) (*api.Character, error) {
 	// Inventory check?
 
-	fmt.Printf("[%s]: Gathering ", character)
+	utils.Log(fmt.Sprintf("[%s]<gather>: Gathering ", character))
 	res, err := actions.Gather(character)
 	if err != nil {
-		fmt.Printf("[%s][gather]: Failed to gather", character)
+		utils.Log(fmt.Sprintf("[%s]<gather>: Failed to gather", character))
 		return nil, err
 	}
 
-	fmt.Println(utils.PrettyPrint(res.Details))
+	utils.DebugLog(utils.PrettyPrint(res.Details))
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }

@@ -1,4 +1,4 @@
-package api
+package types
 
 type Cooldown struct {
 	Total_seconds     int

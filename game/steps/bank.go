@@ -4,6 +4,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/types"
 )
 
 type BankDepositCodeCb func(item api.InventorySlot) bool
@@ -54,11 +55,11 @@ func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySele
 	return char, nil
 }
 
-type BankWithdrawCodeCb func(item api.InventoryItem) bool
-type BankWithdrawQuantityCb func(item api.InventoryItem) int
+type BankWithdrawCodeCb func(item types.InventoryItem) bool
+type BankWithdrawQuantityCb func(item types.InventoryItem) int
 
 func ItemMaxQuantity() BankWithdrawQuantityCb {
-	return func(item api.InventoryItem) int {
+	return func(item types.InventoryItem) int {
 		return item.Quantity
 	}
 }

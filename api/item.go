@@ -3,13 +3,14 @@ package api
 import (
 	"fmt"
 
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
 type ItemCraftDetails struct {
 	Skill    string
 	Level    int
-	Items    []InventoryItem
+	Items    []types.InventoryItem
 	Quantity int
 }
 
@@ -20,13 +21,13 @@ type ItemDetails struct {
 	Type        string
 	Subtype     string
 	Description string
-	Effects     []Effect
+	Effects     []types.Effect
 	Craft       ItemCraftDetails
 }
 
 type ItemDetailResponse struct {
-	Item ItemDetails           `json:"item"`
-	Ge   GrandExchangeItemData `json:"ge"`
+	Item ItemDetails                 `json:"item"`
+	Ge   types.GrandExchangeItemData `json:"ge"`
 }
 
 func GetItemDetails(code string) (*ItemDetailResponse, error) {
