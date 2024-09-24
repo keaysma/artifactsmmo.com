@@ -12,7 +12,7 @@ type EquipResponse struct {
 	Cooldown  types.Cooldown  `json:"cooldown"`
 	Slot      string          `json:"slot"`
 	Item      api.ItemDetails `json:"item"`
-	Character api.Character   `json:"character"`
+	Character types.Character `json:"character"`
 }
 
 func EquipItem(character string, code string, slot string, quantity int) (*EquipResponse, error) {

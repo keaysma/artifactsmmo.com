@@ -1,16 +1,17 @@
 package api
 
 import (
+	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
 
-func GetAllMyCharacters() (*[]Character, error) {
+func GetAllMyCharacters() (*[]types.Character, error) {
 	res, err := GetDataResponse("my/characters", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var out []Character
+	var out []types.Character
 	uerr := mapstructure.Decode(res.Data, &out)
 	if uerr != nil {
 		return nil, uerr

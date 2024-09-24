@@ -11,7 +11,7 @@ import (
 type MoveResponse struct {
 	Cooldown    types.Cooldown    `json:"cooldown"`
 	Destination types.Destination `json:"destination"`
-	Character   api.Character     `json:"character"`
+	Character   types.Character   `json:"character"`
 }
 
 func Move(character string, x int, y int) (*MoveResponse, error) {

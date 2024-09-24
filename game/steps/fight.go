@@ -5,10 +5,12 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/state"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func FightUnsafe(character string) (*api.Character, error) {
+func FightUnsafe(character string) (*types.Character, error) {
 	utils.DebugLog(fmt.Sprintf("[%s]<fight>: Fighting (unsafe call)!", character))
 
 	mres, err := actions.Fight(character)
@@ -36,7 +38,7 @@ func FightUnsafe(character string) (*api.Character, error) {
 	return &mres.Character, nil
 }
 
-func Fight(character string, hpSafety int) (*api.Character, error) {
+func Fight(character string, hpSafety int) (*types.Character, error) {
 	utils.Log(fmt.Sprintf("[%s]<fight>: Fighting", character))
 
 	char_start, err := api.GetCharacterByName(character)
@@ -44,6 +46,10 @@ func Fight(character string, hpSafety int) (*api.Character, error) {
 		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to get character info", character))
 		return nil, err
 	}
+
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return char_start
+	})
 
 	if char_start.Hp < hpSafety {
 		utils.Log(fmt.Sprintf("[%s]<fight>: Will not fight, HP below safety (%d < %d)", character, char_start.Hp, hpSafety))
@@ -55,6 +61,10 @@ func Fight(character string, hpSafety int) (*api.Character, error) {
 		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
 		return nil, err
 	}
+
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return char_end
+	})
 
 	return char_end, nil
 }

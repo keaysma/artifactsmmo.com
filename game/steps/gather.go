@@ -5,10 +5,12 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/state"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func Gather(character string) (*api.Character, error) {
+func Gather(character string) (*types.Character, error) {
 	// Inventory check?
 
 	utils.Log(fmt.Sprintf("[%s]<gather>: Gathering ", character))
@@ -19,6 +21,9 @@ func Gather(character string) (*api.Character, error) {
 	}
 
 	utils.DebugLog(utils.PrettyPrint(res.Details))
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return &res.Character
+	})
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }

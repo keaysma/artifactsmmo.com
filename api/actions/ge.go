@@ -18,7 +18,7 @@ type TransactionDetails struct {
 type TransactionResponse struct {
 	Cooldown    types.Cooldown     `json:"cooldown"`
 	Transaction TransactionDetails `json:"transaction"`
-	Character   api.Character      `json:"character"`
+	Character   types.Character    `json:"character"`
 }
 
 func SellUnsafe(character string, code string, quantity int, price int) (*TransactionResponse, error) {

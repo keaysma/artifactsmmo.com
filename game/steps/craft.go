@@ -6,11 +6,12 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
 // Just craft
-func Craft(character string, code string, quantity int) (*api.Character, error) {
+func Craft(character string, code string, quantity int) (*types.Character, error) {
 	mres, err := actions.Craft(character, code, quantity)
 	if err != nil {
 		fmt.Printf("[%s][craft]: Failed to craft %s\n", character, code)
@@ -23,7 +24,7 @@ func Craft(character string, code string, quantity int) (*api.Character, error) 
 }
 
 // Automatically handles inventory check, getting to location, and Crafting
-func AutoCraft(character string, code string, quantity int) (*api.Character, error) {
+func AutoCraft(character string, code string, quantity int) (*types.Character, error) {
 	res, err := api.GetItemDetails(code)
 	if err != nil {
 		fmt.Printf("[%s][craft]: Failed to get details on %s\n", character, code)
@@ -65,7 +66,7 @@ func AutoCraft(character string, code string, quantity int) (*api.Character, err
 	var tile = (*tiles)[0]
 	var place *coords.Coord = &coords.Coord{X: tile.X, Y: tile.Y, Name: tile.Name}
 
-	move_err := Move(character, *place)
+	_, move_err := Move(character, *place)
 	if move_err != nil {
 		fmt.Printf("[%s][craft]: Failed to move character\n", character)
 		return nil, err

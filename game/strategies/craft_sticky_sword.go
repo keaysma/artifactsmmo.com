@@ -6,6 +6,7 @@ import (
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
+	"artifactsmmo.com/m/types"
 )
 
 /*
@@ -30,32 +31,32 @@ func GetToWeaponCraftingLevel5(char string) {
 	game.DoAtUntil(
 		char,
 		coords.CopperRocks,
-		func(character string) (*api.Character, error) {
-			game.DoAtUntil(char, coords.CopperRocks, steps.Gather, func(character *api.Character) bool {
+		func(character string) (*types.Character, error) {
+			game.DoAtUntil(char, coords.CopperRocks, steps.Gather, func(character *types.Character) bool {
 				return steps.CountInventory(character, items.Copper_ore) >= 104
 			})
 
-			game.DoAtUntil(char, coords.MiningWorkshop, func(character string) (*api.Character, error) {
+			game.DoAtUntil(char, coords.MiningWorkshop, func(character string) (*types.Character, error) {
 				return steps.Craft(char, items.Copper, 4)
-			}, func(character *api.Character) bool {
+			}, func(character *types.Character) bool {
 				return steps.CountInventory(character, items.Copper_ore) < 8
 			})
 
-			game.DoAtUntil(char, coords.WeaponCrafting_City, func(character string) (*api.Character, error) {
+			game.DoAtUntil(char, coords.WeaponCrafting_City, func(character string) (*types.Character, error) {
 				return steps.Craft(char, items.Copper_dagger, 1)
-			}, func(character *api.Character) bool {
+			}, func(character *types.Character) bool {
 				return steps.CountInventory(character, items.Copper) < 6
 			})
 
-			game.DoAtUntil(char, coords.GrandExchange, func(character string) (*api.Character, error) {
+			game.DoAtUntil(char, coords.GrandExchange, func(character string) (*types.Character, error) {
 				return steps.Sell(char, items.Copper_dagger, steps.Amount(1), 45)
-			}, func(character *api.Character) bool {
+			}, func(character *types.Character) bool {
 				return steps.CountInventory(character, items.Copper_dagger) == 0
 			})
 
 			return api.GetCharacterByName(char)
 		},
-		func(character *api.Character) bool {
+		func(character *types.Character) bool {
 			return character.Weaponcrafting_level >= 5
 		},
 	)

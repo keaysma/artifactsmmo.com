@@ -5,6 +5,7 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
@@ -21,7 +22,7 @@ func LeaveAtleast(amount int) QuantityCb {
 	}
 }
 
-func CountInventory(character *api.Character, code string) int {
+func CountInventory(character *types.Character, code string) int {
 	var total_quantity = 0
 	if character == nil {
 		return total_quantity
@@ -36,7 +37,7 @@ func CountInventory(character *api.Character, code string) int {
 	return total_quantity
 }
 
-func Sell(character string, code string, quantity_func QuantityCb, min_price int) (*api.Character, error) {
+func Sell(character string, code string, quantity_func QuantityCb, min_price int) (*types.Character, error) {
 	char, err := api.GetCharacterByName(character)
 	if err != nil {
 		fmt.Printf("[%s][ge/sell]: Failed to get character details for %s\n", character, character)
@@ -78,7 +79,7 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 	return &res.Character, nil
 }
 
-func Buy(character string, code string, quantity int, max_price int) (*api.Character, error) {
+func Buy(character string, code string, quantity int, max_price int) (*types.Character, error) {
 	// Inventory check?
 
 	// Price Check

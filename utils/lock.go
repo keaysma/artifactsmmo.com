@@ -3,7 +3,7 @@ package utils
 import "sync"
 
 type SyncData[T any] struct {
-	value T
+	Value T
 	lock  sync.Mutex
 }
 
@@ -14,10 +14,16 @@ type Sync[T any] interface {
 
 func (t *SyncData[T]) Ref() *T {
 	t.lock.Lock()
-	return &t.value
+	return &t.Value
 }
 
 func (t *SyncData[T]) Unlock() {
+	t.lock.Unlock()
+}
+
+func (t *SyncData[T]) With(f func(value *T) *T) {
+	t.lock.Lock()
+	t.Value = *f(&t.Value)
 	t.lock.Unlock()
 }
 

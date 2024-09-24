@@ -1,23 +1,23 @@
 package utils
 
 import (
-	"strings"
-	"sync"
+	"fmt"
+	"time"
 )
 
 var s = GetSettings()
 
-type LockedLogsType struct {
-	Lock sync.Mutex
-	Logs []string
-}
-
-var LockedLogs = LockedLogsType{}
+var LogsChannel = make(chan string)
 
 func Log(content string) {
-	LockedLogs.Lock.Lock()
-	LockedLogs.Logs = append(LockedLogs.Logs, content)
-	LockedLogs.Lock.Unlock()
+	t := time.Now()
+	LogsChannel <- fmt.Sprintf("[%s] %s", t.Format(time.DateTime), content)
+}
+
+func LogPre(pre string) func(string) {
+	return func(content string) {
+		Log(fmt.Sprintf("%s%s", pre, content))
+	}
 }
 
 func DebugLog(content string) {
@@ -25,12 +25,4 @@ func DebugLog(content string) {
 		return
 	}
 	Log(content)
-}
-
-func LogsAsString() string {
-	LockedLogs.Lock.Lock()
-	output := strings.Join(LockedLogs.Logs, "\n")
-	LockedLogs.Lock.Unlock()
-
-	return output
 }

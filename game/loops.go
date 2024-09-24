@@ -4,14 +4,15 @@ import (
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game/steps"
+	"artifactsmmo.com/m/types"
 )
 
-type UntilCb func(character *api.Character) bool
+type UntilCb func(character *types.Character) bool
 
-type ActionCb func(character string) (*api.Character, error)
+type ActionCb func(character string) (*types.Character, error)
 
 func GatherAt(character string, coord coords.Coord, count int) error {
-	err := steps.Move(character, coord)
+	_, err := steps.Move(character, coord)
 	if err != nil {
 		return err
 	}
@@ -24,7 +25,7 @@ func GatherAt(character string, coord coords.Coord, count int) error {
 }
 
 func GatherAtUntil(character string, coord coords.Coord, until UntilCb) error {
-	move_err := steps.Move(character, coord)
+	_, move_err := steps.Move(character, coord)
 	if move_err != nil {
 		return move_err
 	}
@@ -41,7 +42,7 @@ func GatherAtUntil(character string, coord coords.Coord, until UntilCb) error {
 }
 
 func FightAt(character string, coord coords.Coord, count int, hpSafety int) error {
-	err := steps.Move(character, coord)
+	_, err := steps.Move(character, coord)
 	if err != nil {
 		return err
 	}
@@ -78,7 +79,7 @@ func DoAtUntil(character string, coord coords.Coord, do ActionCb, until UntilCb)
 		return nil
 	}
 
-	move_err := steps.Move(character, coord)
+	_, move_err := steps.Move(character, coord)
 	if move_err != nil {
 		return move_err
 	}

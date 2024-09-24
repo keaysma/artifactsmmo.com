@@ -7,16 +7,16 @@ import (
 	"artifactsmmo.com/m/types"
 )
 
-type BankDepositCodeCb func(item api.InventorySlot) bool
-type BankDepositQuantityCb func(item api.InventorySlot) int
+type BankDepositCodeCb func(item types.InventorySlot) bool
+type BankDepositQuantityCb func(item types.InventorySlot) int
 
 func SlotMaxQuantity() BankDepositQuantityCb {
-	return func(item api.InventorySlot) int {
+	return func(item types.InventorySlot) int {
 		return item.Quantity
 	}
 }
 
-func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*api.Character, error) {
+func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
 	char, err := api.GetCharacterByName(character)
@@ -36,7 +36,7 @@ func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySele
 
 		// We have something to do, so go to the bank one time
 		if !moved_to_bank {
-			err := Move(character, coords.Bank)
+			_, err := Move(character, coords.Bank)
 			if err != nil {
 				return nil, err
 			}
@@ -64,7 +64,7 @@ func ItemMaxQuantity() BankWithdrawQuantityCb {
 	}
 }
 
-func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*api.Character, error) {
+func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
 	bank, err := api.GetBankItems()
@@ -72,7 +72,7 @@ func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySe
 		return nil, err
 	}
 
-	var char *api.Character
+	var char *types.Character
 	for _, slot := range *bank {
 		if slot.Code == "" || !codeSelct(slot) {
 			continue
@@ -85,7 +85,7 @@ func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySe
 
 		// We have something to do, so go to the bank one time
 		if !moved_to_bank {
-			err := Move(character, coords.Bank)
+			_, err := Move(character, coords.Bank)
 			if err != nil {
 				return nil, err
 			}

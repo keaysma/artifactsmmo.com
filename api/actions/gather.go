@@ -16,7 +16,7 @@ type GatheringDetails struct {
 type GatherResponse struct {
 	Cooldown  types.Cooldown   `json:"cooldown"`
 	Details   GatheringDetails `json:"destination"`
-	Character api.Character    `json:"character"`
+	Character types.Character  `json:"character"`
 }
 
 func Gather(character string) (*GatherResponse, error) {

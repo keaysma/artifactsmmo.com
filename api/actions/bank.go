@@ -12,7 +12,7 @@ type BankItemResponse struct {
 	Cooldown  types.Cooldown        `json:"cooldown"`
 	Item      api.ItemDetails       `json:"item"`
 	Bank      []types.InventoryItem `json:"bank"`
-	Character api.Character         `json:"character"`
+	Character types.Character       `json:"character"`
 }
 
 func BankDeposit(character string, code string, quantity int) (*BankItemResponse, error) {

@@ -16,7 +16,7 @@ type CraftingDetails struct {
 type CraftingResponse struct {
 	Cooldown  types.Cooldown  `json:"cooldown"`
 	Details   CraftingDetails `json:"details"`
-	Character api.Character   `json:"character"`
+	Character types.Character `json:"character"`
 }
 
 func Craft(character string, code string, quantity int) (*CraftingResponse, error) {

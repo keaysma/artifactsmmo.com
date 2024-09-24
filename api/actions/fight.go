@@ -28,9 +28,9 @@ type FightDetails struct {
 }
 
 type FightResponse struct {
-	Cooldown  types.Cooldown `json:"cooldown"`
-	Fight     FightDetails   `json:"destination"`
-	Character api.Character  `json:"character"`
+	Cooldown  types.Cooldown  `json:"cooldown"`
+	Fight     FightDetails    `json:"destination"`
+	Character types.Character `json:"character"`
 }
 
 func Fight(character string) (*FightResponse, error) {
