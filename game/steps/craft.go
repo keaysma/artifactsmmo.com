@@ -6,29 +6,37 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
 // Just craft
 func Craft(character string, code string, quantity int) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<craft>: ", character))
+
 	mres, err := actions.Craft(character, code, quantity)
 	if err != nil {
-		fmt.Printf("[%s][craft]: Failed to craft %s\n", character, code)
+		log(fmt.Sprintf("Failed to craft %s", code))
 		return nil, err
 	}
 
-	fmt.Println(utils.PrettyPrint(mres.Details))
+	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Details)))
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return &mres.Character
+	})
 	api.WaitForDown(mres.Cooldown)
 	return &mres.Character, nil
 }
 
 // Automatically handles inventory check, getting to location, and Crafting
 func AutoCraft(character string, code string, quantity int) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<autocraft>: ", character))
+
 	res, err := api.GetItemDetails(code)
 	if err != nil {
-		fmt.Printf("[%s][craft]: Failed to get details on %s\n", character, code)
-		return nil, fmt.Errorf("[%s][craft]: failed to get details on %s", character, code)
+		log(fmt.Sprintf("failed to get details on %s: %s", code, err))
+		return nil, err // fmt.Errorf("failed to get details on %s: %s", code, err)
 	}
 
 	if utils.GetSettings().Debug {
@@ -37,16 +45,20 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 
 	char, err := api.GetCharacterByName(character)
 	if err != nil {
-		fmt.Printf("[%s][craft]: Failed to get character info\n", character)
-		return nil, fmt.Errorf("[%s][craft]: Failed to get character info", character)
+		log("failed to get character info")
+		return nil, err
 	}
+
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return char
+	})
 
 	for _, component := range res.Item.Craft.Items {
 		cur_count := CountInventory(char, component.Code)
 		needed_count := component.Quantity
 		if cur_count < needed_count {
-			fmt.Printf("[%s][craft]: Doesn't have enough %s, has: %d, needs: %d\n", character, component.Code, cur_count, needed_count)
-			return nil, fmt.Errorf("[%s][craft]: Doesn't have enough %s, has: %d, needs: %d", character, component.Code, cur_count, needed_count)
+			log(fmt.Sprintf("doesn't have enough %s, has: %d, needs: %d", component.Code, cur_count, needed_count))
+			return nil, fmt.Errorf("doesn't have enough %s, has: %d, needs: %d", component.Code, cur_count, needed_count)
 		}
 	}
 
@@ -54,12 +66,12 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 
 	tiles, err := api.GetAllMapsByContentType("workshop", skill)
 	if err != nil {
-		fmt.Printf("[%s][craft]: Failed to get map info\n", character)
-		return nil, fmt.Errorf("[%s][craft]: Failed to get map info", character)
+		log("failed to get map info")
+		return nil, fmt.Errorf("failed to get map info")
 	}
 	if len(*tiles) == 0 {
-		fmt.Printf("[%s][craft]: Failed to find place to do %s\n", character, skill)
-		return nil, fmt.Errorf("[%s][craft]: Failed to find place to do %s", character, skill)
+		log(fmt.Sprintf("failed to find place to do %s", skill))
+		return nil, fmt.Errorf("failed to find place to do %s", skill)
 	}
 
 	// TODO: Pick closest one instead of just [0]
@@ -68,7 +80,7 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 
 	_, move_err := Move(character, *place)
 	if move_err != nil {
-		fmt.Printf("[%s][craft]: Failed to move character\n", character)
+		log("failed to move character")
 		return nil, err
 	}
 

@@ -16,18 +16,22 @@ var s = utils.GetSettings()
 
 var running bool
 
-type Generator func(ctx string) string
+type Generator func(ctx string, success bool) string
 type InternalState struct {
-	Current_Generator Generator
-	Last_command      string
+	Current_Generator    Generator
+	Last_command         string
+	Last_command_success bool
 }
 
 var internalState = InternalState{
-	Current_Generator: nil,
-	Last_command:      "",
+	Current_Generator:    nil,
+	Last_command:         "",
+	Last_command_success: false,
 }
 
 var reMoveXY = regexp.MustCompile("move (?P<X>[-0-9]+) (?P<Y>[-0-9]+)")
+var reCraft = regexp.MustCompile("^craft (?P<Code>.+) (?P<Quantity>[0-9]+)")
+var reAutoCraft = regexp.MustCompile("auto-craft (?P<Code>.+) (?P<Quantity>[0-9]+)")
 var reSleep = regexp.MustCompile("sleep (?P<Time>.+)")
 var reGenerator = regexp.MustCompile("set gen (?P<GeneratorName>.+)")
 
@@ -40,7 +44,7 @@ func Gameloop() {
 			SharedState.Unlock()
 
 			if internalState.Current_Generator != nil {
-				var c = internalState.Current_Generator(internalState.Last_command)
+				var c = internalState.Current_Generator(internalState.Last_command, internalState.Last_command_success)
 				shared = SharedState.Ref()
 				shared.Commands = append(shared.Commands, c)
 				SharedState.Unlock()
@@ -49,25 +53,28 @@ func Gameloop() {
 			cmd, commands := shared.Commands[0], shared.Commands[1:]
 			shared.Commands = commands
 			SharedState.Unlock()
+
 			internalState.Last_command = cmd
 
 			if internalState.Last_command == "ping" {
 				fmt.Println()
 				utils.Log("pong")
+				internalState.Last_command_success = true
 			}
 
 			matches := reSleep.FindStringSubmatch(internalState.Last_command)
 			if len(matches) != 0 {
 				log := utils.LogPre("sleep: ")
 
-				timeIndex := reSleep.SubexpIndex("Time")
-				sleep_time_str := matches[timeIndex]
+				sleep_time_str := matches[1]
 				sleep_time, err := strconv.ParseFloat(sleep_time_str, 64)
 				if err != nil {
 					log(fmt.Sprintf("bad time value: %s", sleep_time_str))
+					internalState.Last_command_success = false
 				} else {
 					time.Sleep(time.Duration(sleep_time * 1_000_000_000))
 					log(fmt.Sprintf("slept %f", sleep_time))
+					internalState.Last_command_success = true
 				}
 			}
 
@@ -75,33 +82,70 @@ func Gameloop() {
 			if len(matches) != 0 {
 				log := utils.LogPre("move: ")
 
-				x_index := reMoveXY.SubexpIndex("X")
-				if x_index < 0 {
-					log("can't match x")
-					continue
-				}
-				x_str := matches[x_index]
+				x_str := matches[1]
 				x, err := strconv.ParseInt(x_str, 10, 64)
 				if err != nil {
 					log(fmt.Sprintf("can't parse x: %s", x_str))
+					internalState.Last_command_success = false
 					continue
 				}
 
-				y_index := reMoveXY.SubexpIndex("Y")
-				if y_index < 0 {
-					log("can't match y")
-					continue
-				}
-				y_str := matches[y_index]
+				y_str := matches[2]
 				y, err := strconv.ParseInt(y_str, 10, 64)
 				if err != nil {
 					log(fmt.Sprintf("can't parse y: %s", y_str))
+					internalState.Last_command_success = false
 					continue
 				}
 
 				_, err = steps.Move(s.Character, coords.Coord{X: int(x), Y: int(y), Name: "<place>"})
 				if err != nil {
 					log(fmt.Sprintf("failed to move to (%d, %d): %s", x, y, err))
+					internalState.Last_command_success = false
+				} else {
+					internalState.Last_command_success = true
+				}
+			}
+
+			matches = reCraft.FindStringSubmatch(internalState.Last_command)
+			if len(matches) != 0 {
+				log := utils.LogPre("craft: ")
+
+				code := matches[1]
+				quantity_str := matches[2]
+				quantity, err := strconv.ParseInt(quantity_str, 10, 64)
+				if err != nil {
+					log(fmt.Sprintf("can't parse quantity: %s", quantity_str))
+					internalState.Last_command_success = false
+				}
+
+				_, err = steps.Craft(s.Character, code, int(quantity))
+				if err != nil {
+					log(fmt.Sprintf("failed to craft %s: %s", code, err))
+					internalState.Last_command_success = false
+				} else {
+					internalState.Last_command_success = true
+				}
+			}
+
+			matches = reAutoCraft.FindStringSubmatch(internalState.Last_command)
+			if len(matches) != 0 {
+				log := utils.LogPre("auto craft: ")
+
+				code := matches[1]
+				quantity_str := matches[2]
+				quantity, err := strconv.ParseInt(quantity_str, 10, 64)
+				if err != nil {
+					log(fmt.Sprintf("can't parse quantity: %s", quantity_str))
+					internalState.Last_command_success = false
+				}
+
+				_, err = steps.AutoCraft(s.Character, code, int(quantity))
+				if err != nil {
+					log(fmt.Sprintf("failed to craft %s: %s", code, err))
+					internalState.Last_command_success = false
+				} else {
+					internalState.Last_command_success = true
 				}
 			}
 
@@ -111,6 +155,9 @@ func Gameloop() {
 				_, err := steps.Fight(s.Character, 0)
 				if err != nil {
 					log(fmt.Sprintf("failed to fight: %s", err))
+					internalState.Last_command_success = false
+				} else {
+					internalState.Last_command_success = true
 				}
 			}
 
@@ -120,6 +167,9 @@ func Gameloop() {
 				_, err := steps.Gather(s.Character)
 				if err != nil {
 					log(fmt.Sprintf("failed to gather: %s", err))
+					internalState.Last_command_success = false
+				} else {
+					internalState.Last_command_success = true
 				}
 			}
 
@@ -127,9 +177,9 @@ func Gameloop() {
 			if len(matches) != 0 {
 				log := utils.LogPre("set gen: ")
 
-				generator_name_index := reGenerator.SubexpIndex("GeneratorName")
-				generator_name := matches[generator_name_index]
+				generator_name := matches[1]
 
+				internalState.Last_command_success = true
 				shared_for_gen_name := SharedState.Ref()
 				switch generator_name {
 				case "fight blue slimes":
@@ -143,7 +193,7 @@ func Gameloop() {
 					shared_for_gen_name.Current_Generator_Name = "dummy"
 				default:
 					log(fmt.Sprintf("unknown generator: %s", generator_name))
-
+					internalState.Last_command_success = false
 				}
 
 				if shared_for_gen_name.Current_Generator_Name != "" {
@@ -157,6 +207,7 @@ func Gameloop() {
 				SharedState.Ref().Current_Generator_Name = ""
 				SharedState.Unlock()
 				utils.Log("generator cleared")
+				internalState.Last_command_success = true
 			}
 
 			if internalState.Last_command == "exit" {
