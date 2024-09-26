@@ -79,6 +79,9 @@ func main() {
 			log_lines = append(log_lines, line)
 		default:
 		}
+		if len(log_lines) > 50 {
+			log_lines = log_lines[len(log_lines)-50:]
+		}
 		logs.Text = strings.Join(log_lines, "\n")
 
 		generator_name := ""
@@ -145,7 +148,9 @@ func main() {
 					if command_value == "exit" {
 						return
 					} else if command_value == "help" {
-						utils.Log("help message")
+						// utils.Log("help message")
+						// utils.Log pushes to log channel and that deadlocks
+						// probably need to push directly to log_lines?
 					} else {
 						shared := gui.SharedState.Ref()
 						shared.Commands = append(shared.Commands, command_value)

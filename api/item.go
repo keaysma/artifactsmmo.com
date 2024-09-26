@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/types"
+	"artifactsmmo.com/m/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -31,6 +32,7 @@ type ItemDetailResponse struct {
 }
 
 func GetItemDetails(code string) (*ItemDetailResponse, error) {
+	utils.Log(fmt.Sprintf("Getting item details for %s", code))
 	res, err := GetDataResponse(
 		fmt.Sprintf("items/%s", code),
 		nil,

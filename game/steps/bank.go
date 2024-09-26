@@ -4,6 +4,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 )
 
@@ -51,6 +52,10 @@ func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySele
 		char = &res.Character
 		api.WaitForDown(res.Cooldown)
 	}
+
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return char
+	})
 
 	return char, nil
 }

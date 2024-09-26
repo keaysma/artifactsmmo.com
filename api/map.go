@@ -1,6 +1,8 @@
 package api
 
-import "github.com/mitchellh/mapstructure"
+import (
+	"github.com/mitchellh/mapstructure"
+)
 
 type MapTileContent struct {
 	Type string
