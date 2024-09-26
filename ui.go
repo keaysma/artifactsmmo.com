@@ -29,8 +29,6 @@ func main() {
 
 	defer ui.Close()
 
-	w, h := ui.TerminalDimensions()
-
 	logs := widgets.NewParagraph()
 	logs.Title = "Logs"
 	logs.Text = ""
@@ -42,8 +40,7 @@ func main() {
 	character_display := widgets.NewTable()
 	character_display.Title = s.Character
 	character_display.Rows = [][]string{
-		[]string{"k", "v"},
-		[]string{"hp", "0"},
+		{"k", "v"},
 	}
 
 	cooldown_gauge := widgets.NewGauge()
@@ -73,7 +70,7 @@ func main() {
 
 	draw(ui.TerminalDimensions())
 
-	loop := func() {
+	loop := func(heavy bool) {
 		select {
 		case line := <-utils.LogsChannel:
 			log_lines = append(log_lines, line)
@@ -87,27 +84,8 @@ func main() {
 		generator_name := ""
 		shared := gui.SharedState.Ref()
 		command_list.Text = strings.Join(shared.Commands, "\n")
-
-		var character *types.Character
-		char_state := state.GlobalCharacter.Ref()
-		if char_state != nil {
-			character = &(*char_state)
-		}
-		state.GlobalCharacter.Unlock()
-
 		generator_name = shared.Current_Generator_Name
 		gui.SharedState.Unlock()
-
-		if character != nil {
-			character_display.Rows = [][]string{
-				[]string{"Name", character.Name},
-				[]string{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
-				[]string{"HP", fmt.Sprintf("%d", character.Hp)},
-				[]string{"Level", fmt.Sprintf("%d (%d, %d)", character.Level, character.Xp, character.Max_xp)},
-				[]string{"Mining", fmt.Sprintf("%d (%d, %d)", character.Mining_level, character.Mining_xp, character.Mining_max_xp)},
-				[]string{"Woodcutting", fmt.Sprintf("%d (%d, %d)", character.Woodcutting_level, character.Woodcutting_xp, character.Woodcutting_max_xp)},
-			}
-		}
 
 		if generator_name != "" {
 			command_list.Title = fmt.Sprintf("Commands (generator: %s)", generator_name)
@@ -115,29 +93,75 @@ func main() {
 			command_list.Title = "Commands"
 		}
 
-		var gauge_value float64 = 0
-		cd := state.GlobalCooldown.Ref()
-		if cd != nil && cd.Current > 0 {
-			(*cd).Current = max((*cd).Current-float64(1)/10, 0)
+		// Updates that run infrequently
+		if heavy {
+			var gauge_value float64 = 0
+			var remaining = time.Duration(0)
+			var max = 1
+			var now = time.Now()
+
+			cd := state.GlobalCooldown.Ref()
+			if cd.End != nil {
+				remaining = cd.End.Sub(now)
+				max = cd.Duration_seconds
+			}
+			state.GlobalCooldown.Unlock()
+
+			if remaining.Seconds() < 0 {
+				remaining = time.Duration(0)
+			}
+
+			gauge_value = (remaining.Seconds() / float64(max))
+			cooldown_gauge.Percent = int(gauge_value * 100)
+
+			var character *types.Character = &types.Character{}
+			char_state := state.GlobalCharacter.Ref()
+			if char_state != nil {
+				*character = *char_state
+			} else {
+				character = nil
+			}
+			state.GlobalCharacter.Unlock()
+
+			if character != nil {
+				character_display.Rows = [][]string{
+					{"Name", character.Name},
+					{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
+					{"HP", fmt.Sprintf("%d", character.Hp)},
+					{"Level", fmt.Sprintf("%d (%d, %d)", character.Level, character.Xp, character.Max_xp)},
+					{"Mining", fmt.Sprintf("%d (%d, %d)", character.Mining_level, character.Mining_xp, character.Mining_max_xp)},
+					{"Woodcutting", fmt.Sprintf("%d (%d, %d)", character.Woodcutting_level, character.Woodcutting_xp, character.Woodcutting_max_xp)},
+				}
+			}
+
 		}
-		gauge_value = (cd.Current / cd.Max)
-		state.GlobalCooldown.Unlock()
-		cooldown_gauge.Percent = int(gauge_value * 100)
 
 		draw(ui.TerminalDimensions())
 
-		time.Sleep(1_000_000_00)
+		// 10 fps, 0.1 seconds
+		// time.Sleep(100_000_000)
+		// Works fairly well, but a bit slow
+
+		// 20 fps, 0.05 seconds
+		time.Sleep(50_000_000)
+
+		// 30 fps, 0.033 seconds
+		// time.Sleep(33_333_333)
+
+		// 60 fps, 0.016 seconds
+		// time.Sleep(16_000_000)
+		// Silky, but the ui keeps flickering
 	}
 
 	uiEvents := ui.PollEvents()
+	heavy := 0
 	for {
 		select {
 		case event := <-uiEvents:
 			switch event.Type {
 			case ui.ResizeEvent:
 				payload := event.Payload.(ui.Resize)
-				w, h = payload.Width, payload.Height
-				draw(w, h)
+				draw(payload.Width, payload.Height)
 			case ui.KeyboardEvent:
 				switch event.ID {
 				// no-ops
@@ -174,6 +198,7 @@ func main() {
 			}
 		default:
 		}
-		loop()
+		loop(heavy == 0)
+		// heavy = (heavy + 1) % 1
 	}
 }
