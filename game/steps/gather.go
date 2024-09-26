@@ -21,9 +21,7 @@ func Gather(character string) (*types.Character, error) {
 	}
 
 	utils.DebugLog(utils.PrettyPrint(res.Details))
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return &res.Character
-	})
+	state.GlobalCharacter.Set(&res.Character)
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }

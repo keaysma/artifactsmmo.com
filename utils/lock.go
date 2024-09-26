@@ -27,4 +27,10 @@ func (t *SyncData[T]) With(f func(value *T) *T) {
 	t.lock.Unlock()
 }
 
+func (t *SyncData[T]) Set(new_value *T) {
+	t.lock.Lock()
+	t.Value = *new_value
+	t.lock.Unlock()
+}
+
 // var TestData = SyncData[int]{value: 4}

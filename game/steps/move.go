@@ -25,9 +25,7 @@ func Move(character string, coord coords.Coord) (*types.Character, error) {
 		return nil, err
 	}
 
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char_start
-	})
+	state.GlobalCharacter.Set(char_start)
 
 	if char_start.X == coord.X && char_start.Y == coord.Y {
 		utils.Log(fmt.Sprintf("[%s]<move>: Already at %s", character, place))
@@ -41,9 +39,8 @@ func Move(character string, coord coords.Coord) (*types.Character, error) {
 	}
 
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Destination)))
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return &mres.Character
-	})
+	state.GlobalCharacter.Set(&mres.Character)
+
 	api.WaitForDown(mres.Cooldown)
 	return &mres.Character, nil
 }

@@ -74,7 +74,7 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 		return nil, err
 	}
 
-	fmt.Println(utils.PrettyPrint(res.Transaction))
+	utils.DebugLog(utils.PrettyPrint(res.Transaction))
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
@@ -89,7 +89,7 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 		return nil, err
 	}
 
-	if item_details.Buy_price > max_price {
+	if max_price > 0 && item_details.Buy_price > max_price {
 		fmt.Printf("[%s][ge/buy]: %s is buying above max_price, buy_price %d > %d max_price\n", character, code, item_details.Buy_price, max_price)
 		return nil, err
 	}
@@ -99,7 +99,10 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 		quantity = min(item_details.Max_quantity, quantity)
 	}
 
-	var price = min(item_details.Buy_price, max_price)
+	var price = item_details.Buy_price
+	if max_price > 0 {
+		price = min(item_details.Buy_price, max_price)
+	}
 
 	fmt.Printf("[%s][ge/buy]: Buying %d %s for %d gp\n", character, quantity, code, price)
 	res, err := actions.BuyUnsafe(character, code, quantity, price)
@@ -108,7 +111,7 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 		return nil, err
 	}
 
-	fmt.Println(utils.PrettyPrint(res.Transaction))
+	utils.DebugLog(utils.PrettyPrint(res.Transaction))
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
