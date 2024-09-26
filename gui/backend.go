@@ -39,7 +39,7 @@ var reAutoCraft = regexp.MustCompile("auto-craft (?P<Code>.+) (?P<Quantity>[0-9]
 var reSleep = regexp.MustCompile("sleep (?P<Time>.+)")
 
 // set gen <GeneratorName> <GeneratorArg> where <GeneratorArg> is optional
-var reGenerator = regexp.MustCompile(`set gen (?P<GeneratorName>[\w-]+)(?: (?P<GeneratorArg>.+))?`)
+var reGenerator = regexp.MustCompile(`gen (?P<GeneratorName>[\w-]+)(?: (?P<GeneratorArg>.+))?`)
 
 func Gameloop() {
 	running = true
@@ -68,14 +68,11 @@ func Gameloop() {
 				internalState.Last_command_success = true
 			}
 
-			matches := reSleep.FindStringSubmatch(internalState.Last_command)
-			if len(matches) != 0 {
+			if matches := reSleep.FindStringSubmatch(internalState.Last_command); len(matches) != 0 {
 				log := utils.LogPre("sleep: ")
 
-				sleep_time_str := matches[1]
-				sleep_time, err := strconv.ParseFloat(sleep_time_str, 64)
-				if err != nil {
-					log(fmt.Sprintf("bad time value: %s", sleep_time_str))
+				if sleep_time, err := strconv.ParseFloat(matches[1], 64); err != nil {
+					log(fmt.Sprintf("bad time value: %s", matches[1]))
 					internalState.Last_command_success = false
 				} else {
 					time.Sleep(time.Duration(sleep_time * 1_000_000_000))
@@ -84,7 +81,7 @@ func Gameloop() {
 				}
 			}
 
-			matches = reMoveXY.FindStringSubmatch(internalState.Last_command)
+			matches := reMoveXY.FindStringSubmatch(internalState.Last_command)
 			if len(matches) != 0 {
 				log := utils.LogPre("move: ")
 
