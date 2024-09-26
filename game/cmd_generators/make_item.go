@@ -19,7 +19,7 @@ func get_next_command(component *steps.ItemComponentTree, character *types.Chara
 		tile, ok := (*skill_map)[component.Code]
 		if !ok {
 			utils.Log(fmt.Sprintf("no map for resource %s", component.Code))
-			return "clear gen"
+			return "clear-gen"
 		}
 
 		move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
@@ -40,7 +40,7 @@ func get_next_command(component *steps.ItemComponentTree, character *types.Chara
 		}
 	}
 
-	return fmt.Sprintf("auto-craft %s %d", component.Code, 1) // component.Quantity
+	return fmt.Sprintf("auto-craft %d %s", 1, component.Code) // component.Quantity
 }
 
 func Make(code string) Generator {
@@ -60,7 +60,7 @@ func Make(code string) Generator {
 	}
 
 	return func(last string, success bool) string {
-		next_command := "clear gen"
+		next_command := "clear-gen"
 
 		if !success {
 			return next_command

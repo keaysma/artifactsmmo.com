@@ -8,7 +8,7 @@ import (
 type Generator func(ctx string, success bool) string
 
 func Clear_gen(_ string, _ bool) string {
-	return "clear gen"
+	return "clear-gen"
 }
 
 func Dummy(last string, _ bool) string {
@@ -25,7 +25,7 @@ func Gather_ashwood(last string, success bool) string {
 	}
 
 	if !success {
-		return "clear gen"
+		return "clear-gen"
 	}
 
 	return "gather"
@@ -37,7 +37,7 @@ func Fight_blue_slimes(last string, success bool) string {
 	}
 
 	if !success {
-		return "clear gen"
+		return "clear-gen"
 	}
 
 	return "fight"
@@ -45,7 +45,7 @@ func Fight_blue_slimes(last string, success bool) string {
 
 func Craft_sticky_sword(last string, success bool) string {
 	if !success {
-		return "clear gen"
+		return "clear-gen"
 	}
 
 	char := state.GlobalCharacter.Ref()
@@ -78,5 +78,5 @@ func Craft_sticky_sword(last string, success bool) string {
 		return "fight"
 	}
 
-	return "auto-craft sticky_sword 1"
+	return "auto-craft 1 sticky_sword"
 }

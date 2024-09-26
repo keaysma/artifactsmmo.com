@@ -270,34 +270,56 @@ func parse_command(raw_command_string string) bool {
 
 		return true
 	case "craft":
-		if len(parts) != 3 {
-			log("usage: craft <quantity:number> <code:string>")
+		if len(parts) < 2 || len(parts) > 3 {
+			log("usage: craft[ <quantity:number>] <code:string>")
 			return false
 		}
-		raw_quantity, code := parts[1], parts[2]
-		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
-		if err != nil {
-			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
-			return false
+		raw_quantity_or_code := parts[1]
+
+		var quantity int64 = 1
+		var code string = ""
+		var err error
+
+		if len(parts) == 2 {
+			code = raw_quantity_or_code
+		} else {
+			code = parts[2]
+
+			quantity, err = strconv.ParseInt(raw_quantity_or_code, 10, 64)
+			if err != nil {
+				log(fmt.Sprintf("can't parse quantity: %s", raw_quantity_or_code))
+				return false
+			}
 		}
 
 		_, err = steps.Craft(s.Character, code, int(quantity))
 		if err != nil {
-			log(fmt.Sprintf("failed to craft %s %s: %s", raw_quantity, code, err))
+			log(fmt.Sprintf("failed to craft %d %s: %s", quantity, code, err))
 			return false
 		}
 
 		return true
 	case "auto-craft":
-		if len(parts) != 3 {
-			log("usage: auto-craft <quantity:number> <code:string>")
+		if len(parts) < 2 || len(parts) > 3 {
+			log("usage: auto-craft[ <quantity:number>] <code:string>")
 			return false
 		}
-		raw_quantity, code := parts[1], parts[2]
-		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
-		if err != nil {
-			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
-			return false
+		raw_quantity_or_code := parts[1]
+
+		var quantity int64 = 1
+		var code string = ""
+		var err error
+
+		if len(parts) == 2 {
+			code = raw_quantity_or_code
+		} else {
+			code = parts[2]
+
+			quantity, err = strconv.ParseInt(raw_quantity_or_code, 10, 64)
+			if err != nil {
+				log(fmt.Sprintf("can't parse quantity: %s", raw_quantity_or_code))
+				return false
+			}
 		}
 
 		_, err = steps.AutoCraft(s.Character, code, int(quantity))
