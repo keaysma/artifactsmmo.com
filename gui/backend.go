@@ -342,6 +342,7 @@ func parse_command(raw_command_string string) bool {
 
 		switch generator_name {
 		case "make": // special case, handled below
+		case "flip": // special case, handled below
 		case "craft-sticky-sword":
 			internalState.Current_Generator = generators.Craft_sticky_sword
 			new_name = "craft-sticky-sword"
@@ -370,6 +371,18 @@ func parse_command(raw_command_string string) bool {
 
 			internalState.Current_Generator = generators.Make(generator_arg)
 			new_name = fmt.Sprintf("make <%s>", generator_arg)
+		}
+
+		if generator_name == "flip" {
+			if len(parts) != 3 {
+				log("missing generator argument")
+				return false
+			}
+
+			generator_arg := parts[2]
+
+			internalState.Current_Generator = generators.Flip(generator_arg)
+			new_name = fmt.Sprintf("flip <%s>", generator_arg)
 		}
 
 		if new_name != "" {

@@ -10,6 +10,7 @@ type ItemComponentTree struct {
 	Subtype    string
 	CraftSkill *string
 	Quantity   int
+	BuyPrice   int
 	Components []ItemComponentTree
 }
 
@@ -31,6 +32,7 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 			Action:     action,
 			Subtype:    res.Item.Subtype,
 			CraftSkill: nil,
+			BuyPrice:   res.Ge.Buy_price,
 			Quantity:   1, // This will be overridden by the parent's craft recipe
 			Components: []ItemComponentTree{},
 		}, nil
@@ -41,6 +43,7 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 		Action:     "craft",
 		Subtype:    res.Item.Subtype,
 		CraftSkill: &res.Item.Craft.Skill,
+		BuyPrice:   res.Ge.Buy_price,
 		Quantity:   res.Item.Craft.Quantity,
 		Components: []ItemComponentTree{},
 	}
