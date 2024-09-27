@@ -5,6 +5,7 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -75,6 +76,7 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 	}
 
 	utils.DebugLog(utils.PrettyPrint(res.Transaction))
+	state.GlobalCharacter.Set(&res.Character)
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
@@ -112,6 +114,7 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 	}
 
 	utils.DebugLog(utils.PrettyPrint(res.Transaction))
+	state.GlobalCharacter.Set(&res.Character)
 	api.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
