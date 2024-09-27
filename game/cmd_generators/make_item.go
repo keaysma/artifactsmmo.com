@@ -10,7 +10,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-func get_next_command(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
+func get_next_command_make(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
 	if !top && steps.CountInventory(character, component.Code) >= component.Quantity {
 		return ""
 	}
@@ -34,7 +34,7 @@ func get_next_command(component *steps.ItemComponentTree, character *types.Chara
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command := get_next_command(&subcomponent, character, skill_map, last, false)
+		next_command := get_next_command_make(&subcomponent, character, skill_map, last, false)
 		if next_command != "" {
 			return next_command
 		}
@@ -67,7 +67,7 @@ func Make(code string) Generator {
 		}
 
 		char := state.GlobalCharacter.Ref()
-		next_command = get_next_command(data, char, resource_tile_map, last, true)
+		next_command = get_next_command_make(data, char, resource_tile_map, last, true)
 		state.GlobalCharacter.Unlock()
 
 		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {
