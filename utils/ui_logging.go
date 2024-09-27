@@ -26,3 +26,10 @@ func DebugLog(content string) {
 	}
 	Log(content)
 }
+
+func DebugLogPre(pre string) func(string) {
+	if !s.Debug {
+		return func(s string) {}
+	}
+	return LogPre(pre)
+}
