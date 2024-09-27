@@ -37,6 +37,12 @@ type Effect struct {
 	Value int
 }
 
+type Task struct {
+	Code  string
+	Type  string
+	Total int
+}
+
 type InventorySlot struct {
 	Slot     int
 	Code     string
