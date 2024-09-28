@@ -2,10 +2,29 @@ package steps
 
 import (
 	"fmt"
+	"math"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
+
+func PickClosestMap(character types.Character, maps *[]api.MapTile) *api.MapTile {
+	// return &(*maps)[0]
+
+	var closest api.MapTile
+	var closestDistance float64 = -1
+
+	for _, mapTile := range *maps {
+		distance := math.Sqrt(math.Pow(float64(character.X-mapTile.X), 2) + math.Pow(float64(character.Y-mapTile.Y), 2))
+		if closestDistance < 0 || distance < closestDistance {
+			closestDistance = distance
+			closest = mapTile
+		}
+	}
+
+	return &closest
+}
 
 func FindMapsForSubtypes(subtype_map ActionMap) (*map[string]api.MapTile, error) {
 	resource_tile_map := &map[string]api.MapTile{}
