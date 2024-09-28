@@ -350,6 +350,14 @@ func parse_command(raw_command_string string) bool {
 		}
 
 		return true
+	case "exchange-tasks-coins":
+		_, err := steps.ExchangeTaskCoins(s.Character)
+		if err != nil {
+			log(fmt.Sprintf("failed to exchange task coins: %s", err))
+			return false
+		}
+
+		return true
 	case "gen":
 		if len(parts) < 2 || len(parts) > 3 {
 			log("usage: gen <name:string> <args:string>")
@@ -357,17 +365,40 @@ func parse_command(raw_command_string string) bool {
 		}
 
 		generator_name := parts[1]
+		generator_arg := ""
+
+		if len(parts) == 3 {
+			generator_arg = parts[2]
+		}
 
 		success := true
 		new_name := ""
 
 		switch generator_name {
-		case "make": // special case, handled below
-		case "flip": // special case, handled below
+		case "make":
+			if generator_arg == "" {
+				log("missing generator argument")
+				return false
+			}
+			internalState.Current_Generator = generators.Make(generator_arg)
+			new_name = fmt.Sprintf("make <%s>", generator_arg)
+		case "flip":
+			if generator_arg == "" {
+				log("missing generator argument")
+				return false
+			}
+			internalState.Current_Generator = generators.Flip(generator_arg)
+			new_name = fmt.Sprintf("flip <%s>", generator_arg)
+		case "tasks":
+			if generator_arg == "" {
+				log("missing generator argument")
+				return false
+			}
+			internalState.Current_Generator = generators.Tasks(generator_arg)
+			new_name = fmt.Sprintf("tasks <%s>", generator_arg)
 		case "craft-sticky-sword":
 			internalState.Current_Generator = generators.Craft_sticky_sword
 			new_name = "craft-sticky-sword"
-
 		case "fight-blue-slimes":
 			internalState.Current_Generator = generators.Fight_blue_slimes
 			new_name = "fight-blue-slimes"
@@ -380,30 +411,6 @@ func parse_command(raw_command_string string) bool {
 		default:
 			log(fmt.Sprintf("unknown generator: %s", generator_name))
 			return false
-		}
-
-		if generator_name == "make" {
-			if len(parts) != 3 {
-				log("missing generator argument")
-				return false
-			}
-
-			generator_arg := parts[2]
-
-			internalState.Current_Generator = generators.Make(generator_arg)
-			new_name = fmt.Sprintf("make <%s>", generator_arg)
-		}
-
-		if generator_name == "flip" {
-			if len(parts) != 3 {
-				log("missing generator argument")
-				return false
-			}
-
-			generator_arg := parts[2]
-
-			internalState.Current_Generator = generators.Flip(generator_arg)
-			new_name = fmt.Sprintf("flip <%s>", generator_arg)
 		}
 
 		if new_name != "" {
