@@ -5,18 +5,18 @@ import (
 	"math"
 
 	"artifactsmmo.com/m/api"
-	"artifactsmmo.com/m/types"
+	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/utils"
 )
 
-func PickClosestMap(character types.Character, maps *[]api.MapTile) *api.MapTile {
+func PickClosestMap(coord coords.Coord, maps *[]api.MapTile) *api.MapTile {
 	// return &(*maps)[0]
 
 	var closest api.MapTile
 	var closestDistance float64 = -1
 
 	for _, mapTile := range *maps {
-		distance := math.Sqrt(math.Pow(float64(character.X-mapTile.X), 2) + math.Pow(float64(character.Y-mapTile.Y), 2))
+		distance := math.Sqrt(math.Pow(float64(coord.X-mapTile.X), 2) + math.Pow(float64(coord.Y-mapTile.Y), 2))
 		if closestDistance < 0 || distance < closestDistance {
 			closestDistance = distance
 			closest = mapTile
