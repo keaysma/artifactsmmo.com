@@ -329,6 +329,27 @@ func parse_command(raw_command_string string) bool {
 		}
 
 		return true
+	case "new-task":
+		if len(parts) != 2 {
+			log("usage: new-task <type:'monsters'|'items'>")
+			return false
+		}
+		task_type := parts[1]
+		_, err := steps.NewTask(s.Character, task_type)
+		if err != nil {
+			log(fmt.Sprintf("failed to get new task: %s", err))
+			return false
+		}
+
+		return true
+	case "complete-task":
+		_, err := steps.CompleteTask(s.Character)
+		if err != nil {
+			log(fmt.Sprintf("failed to complete task: %s", err))
+			return false
+		}
+
+		return true
 	case "gen":
 		if len(parts) < 2 || len(parts) > 3 {
 			log("usage: gen <name:string> <args:string>")
