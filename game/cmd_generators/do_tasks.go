@@ -11,7 +11,9 @@ import (
 )
 
 func Tasks(task_type string) Generator {
+	var items_sub_generator *Generator = nil
 	log := utils.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
+
 	return func(last string, success bool) string {
 		if !success {
 			return "clear-gen"
@@ -32,6 +34,7 @@ func Tasks(task_type string) Generator {
 		}
 
 		if task_progress >= task_total {
+			items_sub_generator = nil
 			return "complete-task"
 		}
 
@@ -55,7 +58,22 @@ func Tasks(task_type string) Generator {
 		}
 
 		if current_task_type == "items" {
-			// wip
+			char := state.GlobalCharacter.Ref()
+			task_item_count := steps.CountInventory(char, char.Task)
+			state.GlobalCharacter.Unlock()
+
+			if task_item_count >= task_total-task_progress {
+				return "trade-task all"
+			}
+
+			// now we effectively need to sub-task the entire make or flip gen make
+			if items_sub_generator == nil {
+				log(fmt.Sprintf("building item generator for %s", current_task))
+				generator := Make(current_task)
+				items_sub_generator = &generator
+			}
+
+			return (*items_sub_generator)(last, success)
 		}
 
 		return "clear-gen" // drop-out
