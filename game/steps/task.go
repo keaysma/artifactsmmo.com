@@ -34,7 +34,7 @@ func NewTask(character string, task_type string) (*types.Character, error) {
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(*char_start, maps)
+	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
 	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
@@ -75,7 +75,7 @@ func CompleteTask(character string) (*types.Character, error) {
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(*char_start, maps)
+	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
 	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
@@ -104,21 +104,21 @@ func ExchangeTaskCoins(character string) (*types.Character, error) {
 
 	state.GlobalCharacter.Set(char_start)
 
-	taskCoinCount := CountInventory(char_start, "task_coin") // right code?
-	if taskCoinCount < 3 {                                   // right amount
-		log(fmt.Sprintf("does not have enough task coins: %d", taskCoinCount))
+	taskCoinCount := CountInventory(char_start, "tasks_coin")
+	if taskCoinCount < 6 {
+		log(fmt.Sprintf("does not have enough tasks coins: %d", taskCoinCount))
 		return char_start, nil
 	}
 
 	log("exchanging task coins")
-	// todo make me configurable monsters, items
+	// TODO: make me configurable monsters, items
 	maps, err := api.GetAllMapsByContentType("tasks_master", "monsters")
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(*char_start, maps)
+	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
 	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
