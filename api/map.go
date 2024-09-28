@@ -18,12 +18,17 @@ type MapTile struct {
 }
 
 func GetAllMapsByContentType(content_type string, content_code string) (*[]MapTile, error) {
+	payload := map[string]string{
+		"content_type": content_type,
+	}
+
+	if content_code != "" {
+		payload["content_code"] = content_code
+	}
+
 	res, err := GetDataResponse(
 		"maps",
-		&map[string]string{
-			"content_type": content_type,
-			"content_code": content_code,
-		},
+		&payload,
 	)
 
 	if err != nil {
