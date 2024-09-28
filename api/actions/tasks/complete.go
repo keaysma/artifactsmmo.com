@@ -16,7 +16,7 @@ type CompleteTaskResponse struct {
 
 func CompleteTask(character string) (*CompleteTaskResponse, error) {
 	res, err := api.PostDataResponse(
-		fmt.Sprintf("/my/%s/action/task/complete", character),
+		fmt.Sprintf("my/%s/action/task/complete", character),
 		&map[string]interface{}{},
 	)
 

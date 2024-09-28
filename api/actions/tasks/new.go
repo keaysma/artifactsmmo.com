@@ -16,7 +16,7 @@ type NewTaskResponse struct {
 
 func NewTask(character string) (*NewTaskResponse, error) {
 	res, err := api.PostDataResponse(
-		fmt.Sprintf("/my/%s/action/task/new", character),
+		fmt.Sprintf("my/%s/action/task/new", character),
 		&map[string]interface{}{},
 	)
 
