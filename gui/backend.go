@@ -342,6 +342,30 @@ func parse_command(raw_command_string string) bool {
 		}
 
 		return true
+	case "trade-task":
+		if len(parts) != 2 {
+			log("usage: trade-task <quantity:number or 'all'>")
+			return false
+		}
+		raw_quantity := parts[1]
+		quantity, _ := strconv.ParseInt(raw_quantity, 10, 64)
+
+		_, err := steps.TradeTaskItem(
+			s.Character,
+			func(item types.InventorySlot) int {
+				if raw_quantity == "all" {
+					return item.Quantity
+				}
+
+				return int(quantity)
+			},
+		)
+		if err != nil {
+			log(fmt.Sprintf("failed to trade task item: %s", err))
+			return false
+		}
+
+		return true
 	case "complete-task":
 		_, err := steps.CompleteTask(s.Character)
 		if err != nil {

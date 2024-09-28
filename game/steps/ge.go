@@ -29,13 +29,30 @@ func CountInventory(character *types.Character, code string) int {
 		return total_quantity
 	}
 
-	for s := range character.Inventory {
-		if character.Inventory[s].Code == code {
-			total_quantity += character.Inventory[s].Quantity
+	for _, slot := range character.Inventory {
+		if slot.Code == code {
+			total_quantity += slot.Quantity
 		}
 	}
 
 	return total_quantity
+}
+
+func FindInventorySlot(character *types.Character, code string) *types.InventorySlot {
+	if character == nil {
+		return nil
+	}
+
+	for _, slot := range character.Inventory {
+		if slot.Code == code {
+			return &types.InventorySlot{
+				Slot:     slot.Slot,
+				Quantity: slot.Quantity,
+				Code:     slot.Code,
+			}
+		}
+	}
+	return nil
 }
 
 func Sell(character string, code string, quantity_func QuantityCb, min_price int) (*types.Character, error) {
