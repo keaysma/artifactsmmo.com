@@ -20,6 +20,8 @@ var s = utils.GetSettings()
 
 var command_value = ""
 var log_lines = []string{}
+var command_history = []string{}
+var command_history_ptr = 0
 
 func main() {
 	err := ui.Init()
@@ -56,6 +58,15 @@ func main() {
 		os.Exit(1)
 	}
 	state.GlobalCharacter.With(func(value *types.Character) *types.Character { return char })
+
+	// If this fails let's just ingore it, not critical
+	end, err := time.Parse(time.RFC3339, char.Cooldown_expiration)
+	if err == nil {
+		state.GlobalCooldown.Set(&state.CooldownData{
+			Duration_seconds: char.Cooldown,
+			End:              &end,
+		})
+	}
 
 	go gui.Gameloop()
 
@@ -125,12 +136,13 @@ func main() {
 
 			if character != nil {
 				character_display.Rows = [][]string{
-					{"Name", character.Name},
 					{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
 					{"HP", fmt.Sprintf("%d", character.Hp)},
-					{"Level", fmt.Sprintf("%d (%d, %d)", character.Level, character.Xp, character.Max_xp)},
-					{"Mining", fmt.Sprintf("%d (%d, %d)", character.Mining_level, character.Mining_xp, character.Mining_max_xp)},
-					{"Woodcutting", fmt.Sprintf("%d (%d, %d)", character.Woodcutting_level, character.Woodcutting_xp, character.Woodcutting_max_xp)},
+					{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
+					{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
+					{"Gold", fmt.Sprintf("%d", character.Gold)},
+					// {"Mining", fmt.Sprintf("%d %d/%d", character.Mining_level, character.Mining_xp, character.Mining_max_xp)},
+					// {"Woodcutting", fmt.Sprintf("%d %d/%d", character.Woodcutting_level, character.Woodcutting_xp, character.Woodcutting_max_xp)},
 				}
 			}
 
@@ -166,21 +178,47 @@ func main() {
 				switch event.ID {
 				// no-ops
 				case "<Escape>":
-				case "<C-c>":
-				case "<C-v>":
+				case "<C-c>", "<C-v>":
+				case "<Left>", "<Right>":
+				case "<Up>":
+					if command_history_ptr >= len(command_history) {
+						command_history_ptr = 0
+					}
+					if len(command_history) != 0 {
+						command_history_ptr += 1
+
+						command_value = command_history[len(command_history)-command_history_ptr]
+					}
+				case "<Down>":
+					if command_history_ptr <= 0 {
+						command_history_ptr = len(command_history)
+					}
+					if len(command_history) != 0 {
+						command_history_ptr -= 1
+
+						command_value = command_history[len(command_history)-command_history_ptr-1]
+					}
 				case "<Enter>":
 					if command_value == "exit" {
-						return
+						return // bye!
 					} else if command_value == "help" {
-						// utils.Log("help message")
 						// utils.Log pushes to log channel and that deadlocks
-						// probably need to push directly to log_lines?
-					} else {
+						log_lines = append(log_lines, "help message")
+					} else if command_value == "clear" {
+						log_lines = []string{}
+					} else if command_value == "stop" {
+						gui.SharedState.With(func(value *gui.SharedStateType) *gui.SharedStateType {
+							value.Commands = []string{}
+							return value
+						})
+					} else if command_value != "" {
+						command_history = append(command_history[max(0, len(command_history)-50):], command_value)
 						shared := gui.SharedState.Ref()
 						shared.Commands = append(shared.Commands, command_value)
 						gui.SharedState.Unlock()
 					}
 					command_value = ""
+					command_history_ptr = 0
 				case "<Backspace>":
 					if len(command_value) > 0 {
 						command_value = command_value[:len(command_value)-1]
@@ -199,6 +237,6 @@ func main() {
 		default:
 		}
 		loop(heavy == 0)
-		// heavy = (heavy + 1) % 1
+		// heavy = (heavy + 1) % 3
 	}
 }
