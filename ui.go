@@ -88,7 +88,7 @@ func main() {
 		default:
 		}
 		h := logs.Inner.Dy()
-		if len(log_lines) > h { // height - 5 instead
+		if len(log_lines) > h {
 			log_lines = log_lines[max(0, len(log_lines)-h):]
 		}
 		logs.Text = strings.Join(log_lines, "\n")
