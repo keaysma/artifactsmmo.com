@@ -399,6 +399,19 @@ func parse_command(raw_command_string string) bool {
 		new_name := ""
 
 		switch generator_name {
+		case "forever":
+			if generator_arg == "" {
+				log("missing generator argument")
+				return false
+			}
+			internalState.Current_Generator = func(ctx string, success bool) string {
+				if !success {
+					return "clear-gen"
+				}
+
+				return generator_arg
+			}
+			new_name = fmt.Sprintf("forever <%s>", generator_arg)
 		case "make":
 			if generator_arg == "" {
 				log("missing generator argument")
