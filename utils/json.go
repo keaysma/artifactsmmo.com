@@ -8,7 +8,7 @@ import (
 func PrettyPrint(data interface{}) string {
 	out, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
-		fmt.Printf("Error pretty printing: %s", err)
+		DebugLog(fmt.Sprintf("Error pretty printing: %s", err))
 		return ""
 	}
 

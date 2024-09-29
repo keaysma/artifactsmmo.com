@@ -39,10 +39,6 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 		return nil, err // fmt.Errorf("failed to get details on %s: %s", code, err)
 	}
 
-	if utils.GetSettings().Debug {
-		fmt.Println(utils.PrettyPrint(res))
-	}
-
 	char, err := api.GetCharacterByName(character)
 	if err != nil {
 		log("failed to get character info")

@@ -56,15 +56,16 @@ func FindInventorySlot(character *types.Character, code string) *types.Inventory
 }
 
 func Sell(character string, code string, quantity_func QuantityCb, min_price int) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<ge/sell>", character))
 	char, err := api.GetCharacterByName(character)
 	if err != nil {
-		fmt.Printf("[%s][ge/sell]: Failed to get character details for %s\n", character, character)
+		log(fmt.Sprintf("failed to get character details for %s", character))
 		return nil, err
 	}
 
 	item_details, err := actions.GetGrandExchangeItemDetails(code)
 	if err != nil {
-		fmt.Printf("[%s][ge/sell]: Failed to get item details for %s\n", character, code)
+		log(fmt.Sprintf("failed to get item details for %s", code))
 		return nil, err
 	}
 
@@ -73,22 +74,22 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 	// Inventory Check
 	// Quantity Calc Check
 	if item_details.Max_quantity < quantity {
-		fmt.Printf("[%s][ge/sell]: Can only sell %d %s, adjusting sell quantity \n", character, quantity, code)
+		log(fmt.Sprintf("can only sell %d %s, adjusting sell quantity ", quantity, code))
 		quantity = min(item_details.Max_quantity, quantity)
 	}
 
 	// Price Check
 	if item_details.Sell_price < min_price {
-		fmt.Printf("[%s][ge/sell]: %s is selling below min_price, sell_price %d < %d min_price\n", character, code, item_details.Sell_price, min_price)
+		log(fmt.Sprintf("%s is selling below min_price, sell_price %d < %d min_price", code, item_details.Sell_price, min_price))
 		return nil, err
 	}
 
 	var price = max(item_details.Sell_price, min_price)
 
-	fmt.Printf("[%s][ge/sell]: Selling %d %s for %d gp\n", character, quantity, code, price)
+	log(fmt.Sprintf("selling %d %s for %d gp", quantity, code, price))
 	res, err := actions.SellUnsafe(character, code, quantity, price)
 	if err != nil {
-		fmt.Printf("[%s][ge/sell]: Failed to sell %s\n", character, code)
+		log(fmt.Sprintf("failed to sell %s", code))
 		return nil, err
 	}
 
@@ -102,19 +103,20 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 	// Inventory check?
 
 	// Price Check
+	log := utils.LogPre(fmt.Sprintf("[%s]<ge/buy>", character))
 	item_details, err := actions.GetGrandExchangeItemDetails(code)
 	if err != nil {
-		fmt.Printf("[%s][ge/buy]: Failed to get item details for %s\n", character, code)
+		log(fmt.Sprintf("failed to get item details for %s", code))
 		return nil, err
 	}
 
 	if max_price > 0 && item_details.Buy_price > max_price {
-		fmt.Printf("[%s][ge/buy]: %s is buying above max_price, buy_price %d > %d max_price\n", character, code, item_details.Buy_price, max_price)
+		log(fmt.Sprintf("%s is buying above max_price, buy_price %d > %d max_price", code, item_details.Buy_price, max_price))
 		return nil, err
 	}
 
 	if item_details.Max_quantity < quantity {
-		fmt.Printf("[%s][ge/buy]: Can only buy %d %s, adjusting buy quantity \n", character, quantity, code)
+		log(fmt.Sprintf("can only buy %d %s, adjusting buy quantity ", quantity, code))
 		quantity = min(item_details.Max_quantity, quantity)
 	}
 
@@ -123,10 +125,10 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 		price = min(item_details.Buy_price, max_price)
 	}
 
-	fmt.Printf("[%s][ge/buy]: Buying %d %s for %d gp\n", character, quantity, code, price)
+	log(fmt.Sprintf("buying %d %s for %d gp", quantity, code, price))
 	res, err := actions.BuyUnsafe(character, code, quantity, price)
 	if err != nil {
-		fmt.Printf("[%s][ge/buy]: Failed to buy %s\n", character, code)
+		log(fmt.Sprintf("failed to buy %s", code))
 		return nil, err
 	}
 

@@ -1,13 +1,13 @@
 package utils
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
 func HandleError(res interface{}, err error) interface{} {
 	if err != nil {
-		fmt.Printf("error: %s\n", err)
+		log.Fatalf("error: %s\n", err)
 		os.Exit(1)
 	}
 
