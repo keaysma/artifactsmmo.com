@@ -169,8 +169,7 @@ func ExchangeTaskCoins(character string) (*types.Character, error) {
 	}
 
 	log("exchanging task coins")
-	// TODO: make me configurable monsters, items
-	maps, err := api.GetAllMapsByContentType("tasks_master", "monsters")
+	maps, err := api.GetAllMapsByContentType("tasks_master", "")
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
