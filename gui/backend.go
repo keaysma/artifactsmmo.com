@@ -45,6 +45,7 @@ func parse_command(raw_command_string string) bool {
 	case "sleep":
 		if len(parts) != 2 {
 			log("usage: sleep <seconds:number>")
+			return false
 		}
 
 		raw_val := parts[1]
