@@ -7,7 +7,7 @@ import (
 
 var s = GetSettings()
 
-var LogsChannel = make(chan string)
+var LogsChannel = make(chan string, 1024)
 
 func Log(content string) {
 	t := time.Now()
