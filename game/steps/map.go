@@ -75,7 +75,7 @@ func FindMapsForSubtypes(subtype_map ActionMap) (*map[string]api.MapTile, error)
 
 		if len(*resources) == 0 {
 			utils.Log(fmt.Sprintf("no resource info for %s", code))
-			return nil, err
+			return nil, fmt.Errorf("no resource info for %s", code)
 		}
 
 		utils.DebugLog(utils.PrettyPrint(resources))

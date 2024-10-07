@@ -83,7 +83,7 @@ func TradeTaskItem(character string, quantitySelect BankDepositQuantityCb) (*typ
 		return char_start, nil
 	}
 
-	trade_quantity := min(quantity, current_count, char_start.Task_total)
+	trade_quantity := min(quantity, current_count, char_start.Task_total-char_start.Task_progress)
 
 	maps, err := api.GetAllMapsByContentType("tasks_master", char_start.Task_type)
 	if err != nil {

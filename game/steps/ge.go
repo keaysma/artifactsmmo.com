@@ -38,6 +38,19 @@ func CountInventory(character *types.Character, code string) int {
 	return total_quantity
 }
 
+func CountAllInventory(character *types.Character) int {
+	var total_quantity = 0
+	if character == nil {
+		return total_quantity
+	}
+
+	for _, slot := range character.Inventory {
+		total_quantity += slot.Quantity
+	}
+
+	return total_quantity
+}
+
 func FindInventorySlot(character *types.Character, code string) *types.InventorySlot {
 	if character == nil {
 		return nil

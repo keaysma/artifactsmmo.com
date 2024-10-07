@@ -60,9 +60,15 @@ func Tasks(task_type string) Generator {
 		if current_task_type == "items" {
 			char := state.GlobalCharacter.Ref()
 			task_item_count := steps.CountInventory(char, char.Task)
+			max_inventory_count := char.Inventory_max_items
+			current_inventory_count := steps.CountAllInventory(char)
 			state.GlobalCharacter.Unlock()
 
-			if task_item_count >= task_total-task_progress {
+			// Turn in items if
+			// - We're done with the task
+			// - The character inventory is getting close to full (>90% as an arbitrary "too full" point)
+			// TODO: Just turning in task items doesn't guarantee the inventory won't fill up, need some kind-of inventory management handler still
+			if task_item_count >= task_total-task_progress || float64(current_inventory_count) > (float64(max_inventory_count)*float64(0.9)) {
 				return "trade-task all"
 			}
 
