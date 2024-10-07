@@ -12,9 +12,10 @@ import (
 
 	ui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
+const DB_DRIVER = "sqlite"
 const GE_DATABASE = "ge.sql"
 const PAGE_SIZE = 100
 
@@ -65,9 +66,9 @@ func match(list *[]types.GrandExchangeItemData, f func(types.GrandExchangeItemDa
 }
 
 func AutomatedMarketMaker() {
-	db, err := sql.Open("sqlite3", GE_DATABASE)
+	db, err := sql.Open(DB_DRIVER, GE_DATABASE)
 	if err != nil {
-		log.Fatalf("failed to open sqlite3 db: %s", err)
+		log.Fatalf("failed to open %s db: %s", DB_DRIVER, err)
 	}
 	defer db.Close()
 	fmt.Printf("Connected to database %s\n", GE_DATABASE)
@@ -85,7 +86,7 @@ func AutomatedMarketMaker() {
 			AND O.code = X.code
 	`)
 	if err != nil {
-		log.Fatalf("failed to read from sqlite3 db: %s", err)
+		log.Fatalf("failed to read from %s db: %s", DB_DRIVER, err)
 	}
 
 	var state = []types.GrandExchangeItemData{}
@@ -208,9 +209,9 @@ func getOrderbookDataForItem(code string, db *sql.DB) (*[]OrderbookPoint, error)
 }
 
 func AutomatedMarketMakerDataExplorerGUI() {
-	db, err := sql.Open("sqlite3", GE_DATABASE)
+	db, err := sql.Open(DB_DRIVER, GE_DATABASE)
 	if err != nil {
-		log.Fatalf("failed to open sqlite3 db: %s", err)
+		log.Fatalf("failed to open %s db: %s", DB_DRIVER, err)
 	}
 	defer db.Close()
 
