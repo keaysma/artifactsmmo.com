@@ -317,7 +317,7 @@ func UI() {
 					}
 					command_value = ""
 					command_history_ptr = 0
-				case "<Backspace>":
+				case "<Backspace>", "<C-<Backspace>>":
 					if len(command_value) > 0 {
 						command_value = command_value[:len(command_value)-1]
 					}
