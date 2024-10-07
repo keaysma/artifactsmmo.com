@@ -76,7 +76,7 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 		return nil, err
 	}
 
-	item_details, err := actions.GetGrandExchangeItemDetails(code)
+	item_details, err := api.GetGrandExchangeItemDetails(code)
 	if err != nil {
 		log(fmt.Sprintf("failed to get item details for %s", code))
 		return nil, err
@@ -117,7 +117,7 @@ func Buy(character string, code string, quantity int, max_price int) (*types.Cha
 
 	// Price Check
 	log := utils.LogPre(fmt.Sprintf("[%s]<ge/buy>", character))
-	item_details, err := actions.GetGrandExchangeItemDetails(code)
+	item_details, err := api.GetGrandExchangeItemDetails(code)
 	if err != nil {
 		log(fmt.Sprintf("failed to get item details for %s", code))
 		return nil, err

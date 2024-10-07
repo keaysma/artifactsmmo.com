@@ -72,23 +72,3 @@ func BuyUnsafe(character string, code string, quantity int, price int) (*Transac
 
 	return &out, nil
 }
-
-func GetGrandExchangeItemDetails(code string) (*types.GrandExchangeItemData, error) {
-	res, err := api.GetDataResponse(
-		fmt.Sprintf("ge/%s", code),
-		nil,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var out types.GrandExchangeItemData
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
-	}
-
-	return &out, nil
-}
