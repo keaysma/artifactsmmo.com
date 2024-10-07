@@ -3,7 +3,7 @@ package gui
 import (
 	"time"
 
-	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/api"
 )
 
 var tracking = ""
@@ -24,7 +24,7 @@ func Trackloop(commands chan string, prices chan PriceUpdate) {
 		}
 
 		if tracking != "" && tick == 0 {
-			res, err := actions.GetGrandExchangeItemDetails(tracking)
+			res, err := api.GetGrandExchangeItemDetails(tracking)
 			if err == nil {
 				prices <- PriceUpdate{res.Buy_price, res.Sell_price}
 			}

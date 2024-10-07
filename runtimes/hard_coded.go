@@ -1,4 +1,4 @@
-package main
+package runtimes
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ func print_settings(settings *utils.Settings) {
 	fmt.Println(string(settings_json))
 }
 
-func _main() {
+func HardCoded() {
 	// Print Settings
 	var settings = utils.GetSettings()
 	print_settings(settings)

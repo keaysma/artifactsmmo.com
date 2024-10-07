@@ -1,0 +1,6798 @@
+Connected to database ge.sql
+Read 38852 rows
+Begin watch loop
+2024-10-06 03:04:57: 1...2...3...4...5...6
+202 entries
+fire_ring, stock: 79 -> 77
+skull_wand, stock: 5 -> 4
+skull_amulet, stock: 903 -> 902
+write items: 3
+wrote: 3
+
+2024-10-06 03:05:31: 1...2...3...4...5...6
+202 entries
+
+Connected to database ge.sql
+Read 38657 rows
+Begin watch loop
+2024-10-06 03:05:47: 1...2...3...4...5...6
+202 entries
+fire_ring, stock: 79 -> 77
+skull_wand, stock: 5 -> 4
+skull_amulet, stock: 903 -> 902
+write items: 3
+wrote: 3
+
+2024-10-06 03:06:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:06:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:07:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:08:01: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 31 -> 30
+cooked_gudgeon, sell: 30 -> 29
+cooked_gudgeon, stock: 4873 -> 4877
+write items: 1
+wrote: 1
+
+2024-10-06 03:08:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:09:09: 1...2...3...4...5...6
+202 entries
+green_slimeball, stock: 1 -> 0
+write items: 1
+wrote: 1
+
+2024-10-06 03:09:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:10:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:10:50: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11712 -> 11718
+steel, stock: 2143 -> 2163
+write items: 2
+wrote: 2
+
+2024-10-06 03:11:23: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11718 -> 11721
+cooked_trout, buy: 260 -> 266
+cooked_trout, sell: 257 -> 263
+cooked_trout, stock: 5638 -> 5588
+write items: 2
+wrote: 2
+
+2024-10-06 03:11:57: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 266 -> 269
+cooked_trout, sell: 263 -> 266
+cooked_trout, stock: 5588 -> 5563
+write items: 1
+wrote: 1
+
+2024-10-06 03:12:31: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 269 -> 275
+cooked_trout, sell: 266 -> 272
+cooked_trout, stock: 5563 -> 5513
+write items: 1
+wrote: 1
+
+2024-10-06 03:13:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:13:38: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 275 -> 287
+cooked_trout, sell: 272 -> 284
+cooked_trout, stock: 5513 -> 5413
+write items: 1
+wrote: 1
+
+2024-10-06 03:14:12: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 287 -> 293
+cooked_trout, sell: 284 -> 290
+cooked_trout, stock: 5413 -> 5363
+write items: 1
+wrote: 1
+
+2024-10-06 03:14:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:15:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:15:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:16:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:17:02: 1...2...3...4...5...6
+202 entries
+spruce_wood, buy: 6 -> 7
+spruce_wood, sell: 5 -> 6
+spruce_wood, stock: 16902 -> 16852
+write items: 1
+wrote: 1
+
+2024-10-06 03:17:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:18:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:18:43: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 293 -> 299
+cooked_trout, sell: 290 -> 296
+cooked_trout, stock: 5363 -> 5313
+cooked_shrimp, stock: 7864 -> 7861
+write items: 2
+wrote: 2
+
+2024-10-06 03:19:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:19:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:20:24: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 453 -> 461
+cooked_bass, sell: 445 -> 453
+cooked_bass, stock: 11721 -> 11672
+write items: 1
+wrote: 1
+
+2024-10-06 03:20:57: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 209 -> 212
+write items: 1
+wrote: 1
+
+2024-10-06 03:21:31: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11672 -> 11675
+write items: 1
+wrote: 1
+
+2024-10-06 03:22:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:22:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:23:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:23:46: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 299 -> 308
+cooked_trout, sell: 296 -> 305
+cooked_trout, stock: 5313 -> 5238
+write items: 1
+wrote: 1
+
+2024-10-06 03:24:19: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 308 -> 311
+cooked_trout, sell: 305 -> 308
+cooked_trout, stock: 5238 -> 5213
+coal, buy: 23 -> 21
+coal, sell: 21 -> 19
+coal, stock: 10205 -> 10255
+write items: 2
+wrote: 2
+
+2024-10-06 03:24:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:25:27: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 212 -> 215
+write items: 1
+wrote: 1
+
+2024-10-06 03:26:00: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:26:34: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:27:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:27:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:28:15: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11675 -> 11677
+write items: 1
+wrote: 1
+
+2024-10-06 03:28:49: 1...2...3...4...5...6
+202 entries
+raw_wolf_meat, buy: 47 -> 54
+raw_wolf_meat, sell: 40 -> 47
+raw_wolf_meat, stock: 3013 -> 2997
+cooked_salmon, stock: 215 -> 218
+write items: 2
+wrote: 2
+
+2024-10-06 03:29:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:29:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:30:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:31:03: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 483 -> 513
+cooked_salmon, sell: 453 -> 483
+cooked_salmon, stock: 218 -> 168
+write items: 1
+wrote: 1
+
+2024-10-06 03:31:37: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11677 -> 11680
+beef_stew, stock: 202 -> 186
+cooked_salmon, buy: 513 -> 543
+cooked_salmon, sell: 483 -> 513
+cooked_salmon, stock: 168 -> 107
+write items: 3
+wrote: 3
+
+2024-10-06 03:32:10: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:32:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:33:18: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11680 -> 11682
+raw_wolf_meat, stock: 2997 -> 2981
+write items: 2
+wrote: 2
+
+2024-10-06 03:33:52: 1...2...3...4...5...6
+202 entries
+cooked_wolf_meat, stock: 1091 -> 1107
+write items: 1
+wrote: 1
+
+2024-10-06 03:34:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:34:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:35:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:36:06: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 92 -> 98
+cooked_shrimp, sell: 90 -> 96
+cooked_shrimp, stock: 7861 -> 7777
+write items: 1
+wrote: 1
+
+2024-10-06 03:36:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:37:14: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 98 -> 106
+cooked_shrimp, sell: 96 -> 104
+cooked_shrimp, stock: 7777 -> 7669
+cooked_wolf_meat, buy: 74 -> 82
+cooked_wolf_meat, sell: 66 -> 74
+cooked_wolf_meat, stock: 1107 -> 1057
+cooked_salmon, buy: 543 -> 558
+cooked_salmon, sell: 513 -> 528
+cooked_salmon, stock: 107 -> 82
+write items: 3
+wrote: 3
+
+2024-10-06 03:37:48: 1...2...3...4...5...6
+202 entries
+copper_dagger, stock: 0 -> 3
+cooked_salmon, buy: 558 -> 603
+cooked_salmon, sell: 528 -> 573
+cooked_salmon, stock: 82 -> 7
+write items: 2
+wrote: 2
+
+2024-10-06 03:38:21: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 7 -> 0
+write items: 1
+wrote: 1
+
+2024-10-06 03:38:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:39:28: 1...2...3...4...5...6
+202 entries
+cooked_wolf_meat, stock: 1057 -> 1073
+write items: 1
+wrote: 1
+
+2024-10-06 03:40:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:40:36: 1...2...3...4...5...6
+202 entries
+egg, stock: 12405 -> 12409
+write items: 1
+wrote: 1
+
+2024-10-06 03:41:10: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 0 -> 2
+write items: 1
+wrote: 1
+
+2024-10-06 03:41:44: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 2 -> 4
+write items: 1
+wrote: 1
+
+2024-10-06 03:42:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:42:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:43:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:43:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:44:32: 1...2...3...4...5...6
+202 entries
+bandit_armor, stock: 215 -> 216
+write items: 1
+wrote: 1
+
+2024-10-06 03:45:06: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11682 -> 11685
+write items: 1
+wrote: 1
+
+2024-10-06 03:45:39: 1...2...3...4...5...6
+202 entries
+cooked_chicken, stock: 8173 -> 8184
+write items: 1
+wrote: 1
+
+2024-10-06 03:46:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:46:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:47:21: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 311 -> 320
+cooked_trout, sell: 308 -> 317
+cooked_trout, stock: 5213 -> 5138
+write items: 1
+wrote: 1
+
+2024-10-06 03:47:55: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 320 -> 326
+cooked_trout, sell: 317 -> 323
+cooked_trout, stock: 5138 -> 5088
+write items: 1
+wrote: 1
+
+2024-10-06 03:48:28: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 106 -> 108
+cooked_shrimp, sell: 104 -> 106
+cooked_shrimp, stock: 7669 -> 7627
+cooked_salmon, stock: 4 -> 8
+write items: 2
+wrote: 2
+
+2024-10-06 03:49:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:49:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:50:09: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 8 -> 4
+write items: 1
+wrote: 1
+
+2024-10-06 03:50:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:51:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:51:50: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 461 -> 477
+cooked_bass, sell: 453 -> 469
+cooked_bass, stock: 11685 -> 11610
+iron_ore, buy: 27 -> 26
+iron_ore, sell: 24 -> 23
+iron_ore, stock: 35130 -> 35180
+write items: 2
+wrote: 2
+
+2024-10-06 03:52:24: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 4 -> 1
+write items: 1
+wrote: 1
+
+2024-10-06 03:52:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:53:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:54:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:54:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:55:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:55:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:56:19: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:56:53: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 1 -> 3
+write items: 1
+wrote: 1
+
+2024-10-06 03:57:27: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 3 -> 0
+write items: 1
+wrote: 1
+
+2024-10-06 03:58:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:58:35: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11610 -> 11602
+write items: 1
+wrote: 1
+
+2024-10-06 03:59:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 03:59:42: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 108 -> 110
+cooked_shrimp, sell: 106 -> 108
+cooked_shrimp, stock: 7627 -> 7618
+write items: 1
+wrote: 1
+
+2024-10-06 04:00:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:00:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:01:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:01:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:02:31: 1...2...3...4...5...6
+202 entries
+bandit_armor, stock: 216 -> 217
+write items: 1
+wrote: 1
+
+2024-10-06 04:03:05: 1...2...3...4...5...6
+202 entries
+cooked_trout, stock: 5088 -> 5082
+cooked_salmon, stock: 0 -> 2
+write items: 2
+wrote: 2
+
+2024-10-06 04:03:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:04:13: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 477 -> 509
+cooked_bass, sell: 469 -> 501
+cooked_bass, stock: 11602 -> 11502
+cooked_trout, buy: 326 -> 329
+cooked_trout, sell: 323 -> 326
+cooked_trout, stock: 5082 -> 5057
+cooked_shrimp, stock: 7618 -> 7600
+write items: 3
+wrote: 3
+
+2024-10-06 04:04:47: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11502 -> 11495
+cooked_salmon, stock: 2 -> 1
+write items: 2
+wrote: 2
+
+2024-10-06 04:05:21: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 329 -> 335
+cooked_trout, sell: 326 -> 332
+cooked_trout, stock: 5057 -> 5007
+cooked_shrimp, buy: 110 -> 114
+cooked_shrimp, sell: 108 -> 112
+cooked_shrimp, stock: 7600 -> 7550
+write items: 2
+wrote: 2
+
+2024-10-06 04:05:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:06:28: 1...2...3...4...5...6
+202 entries
+cooked_trout, stock: 5007 -> 4994
+write items: 1
+wrote: 1
+
+2024-10-06 04:07:02: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 1 -> 3
+write items: 1
+wrote: 1
+
+2024-10-06 04:07:36: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, stock: 7550 -> 7544
+cooked_salmon, stock: 3 -> 2
+write items: 2
+wrote: 2
+
+2024-10-06 04:08:09: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 2 -> 4
+write items: 1
+wrote: 1
+
+2024-10-06 04:08:43: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 4 -> 2
+write items: 1
+wrote: 1
+
+2024-10-06 04:09:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:09:50: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11495 -> 11493
+cooked_salmon, stock: 2 -> 0
+write items: 2
+wrote: 2
+
+2024-10-06 04:10:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:10:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:11:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:12:05: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 0 -> 2
+write items: 1
+wrote: 1
+
+2024-10-06 04:12:39: 1...2...3...4...5...6
+202 entries
+bass, buy: 377 -> 371
+bass, sell: 369 -> 363
+bass, stock: 6371 -> 6421
+write items: 1
+wrote: 1
+
+2024-10-06 04:13:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:13:46: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 26 -> 25
+iron_ore, sell: 23 -> 22
+iron_ore, stock: 35180 -> 35230
+trout, buy: 256 -> 260
+trout, sell: 252 -> 256
+trout, stock: 2251 -> 2201
+write items: 2
+wrote: 2
+
+2024-10-06 04:14:20: 1...2...3...4...5...6
+202 entries
+bass, stock: 6421 -> 6418
+write items: 1
+wrote: 1
+
+2024-10-06 04:14:53: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 2 -> 1
+write items: 1
+wrote: 1
+
+2024-10-06 04:15:27: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11493 -> 11496
+cooked_salmon, stock: 1 -> 3
+write items: 2
+wrote: 2
+
+2024-10-06 04:16:00: 1...2...3...4...5...6
+202 entries
+bass, stock: 6418 -> 6414
+write items: 1
+wrote: 1
+
+2024-10-06 04:16:34: 1...2...3...4...5...6
+202 entries
+trout, stock: 2201 -> 2196
+write items: 1
+wrote: 1
+
+2024-10-06 04:17:08: 1...2...3...4...5...6
+202 entries
+bass, stock: 6414 -> 6410
+cooked_bass, stock: 11496 -> 11499
+trout, stock: 2196 -> 2195
+write items: 3
+wrote: 3
+
+2024-10-06 04:17:42: 1...2...3...4...5...6
+202 entries
+cooked_trout, stock: 4994 -> 5000
+trout, stock: 2195 -> 2189
+write items: 2
+wrote: 2
+
+2024-10-06 04:18:16: 1...2...3...4...5...6
+202 entries
+bass, stock: 6410 -> 6409
+cooked_bass, stock: 11499 -> 11502
+write items: 2
+wrote: 2
+
+2024-10-06 04:18:49: 1...2...3...4...5...6
+202 entries
+bass, stock: 6409 -> 6405
+cooked_bass, stock: 11502 -> 11503
+cooked_trout, buy: 335 -> 333
+cooked_trout, sell: 332 -> 330
+cooked_trout, stock: 5000 -> 5056
+trout, buy: 260 -> 264
+trout, sell: 256 -> 260
+trout, stock: 2189 -> 2132
+cooked_salmon, stock: 3 -> 5
+write items: 5
+wrote: 5
+
+2024-10-06 04:19:23: 1...2...3...4...5...6
+202 entries
+bass, stock: 6405 -> 6404
+write items: 1
+wrote: 1
+
+2024-10-06 04:19:56: 1...2...3...4...5...6
+202 entries
+bass, stock: 6404 -> 6403
+cooked_bass, stock: 11503 -> 11507
+write items: 2
+wrote: 2
+
+2024-10-06 04:20:30: 1...2...3...4...5...6
+202 entries
+bass, stock: 6403 -> 6399
+cooked_trout, stock: 5056 -> 5063
+trout, stock: 2132 -> 2123
+write items: 3
+wrote: 3
+
+2024-10-06 04:21:04: 1...2...3...4...5...6
+202 entries
+bass, stock: 6399 -> 6397
+cooked_bass, stock: 11507 -> 11508
+write items: 2
+wrote: 2
+
+2024-10-06 04:21:37: 1...2...3...4...5...6
+202 entries
+bass, stock: 6397 -> 6393
+cooked_bass, stock: 11508 -> 11511
+magical_cure, stock: 8 -> 9
+write items: 3
+wrote: 3
+
+2024-10-06 04:22:11: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11511 -> 11513
+cooked_trout, buy: 333 -> 331
+cooked_trout, sell: 330 -> 328
+cooked_trout, stock: 5063 -> 5072
+trout, buy: 264 -> 268
+trout, sell: 260 -> 264
+trout, stock: 2123 -> 2092
+write items: 3
+wrote: 3
+
+2024-10-06 04:22:45: 1...2...3...4...5...6
+202 entries
+bass, stock: 6393 -> 6383
+cooked_bass, stock: 11513 -> 11516
+write items: 2
+wrote: 2
+
+2024-10-06 04:23:19: 1...2...3...4...5...6
+202 entries
+bass, buy: 371 -> 379
+bass, sell: 363 -> 371
+bass, stock: 6383 -> 6379
+cooked_salmon, stock: 5 -> 7
+write items: 2
+wrote: 2
+
+2024-10-06 04:23:52: 1...2...3...4...5...6
+202 entries
+mushmush_bow, stock: 4 -> 5
+cooked_trout, buy: 331 -> 327
+cooked_trout, sell: 328 -> 324
+cooked_trout, stock: 5072 -> 5122
+life_ring, stock: 397 -> 398
+trout, buy: 268 -> 272
+trout, sell: 264 -> 268
+trout, stock: 2092 -> 2042
+write items: 4
+wrote: 4
+
+2024-10-06 04:24:26: 1...2...3...4...5...6
+202 entries
+bass, stock: 6379 -> 6368
+cooked_bass, buy: 509 -> 503
+cooked_bass, sell: 501 -> 495
+cooked_bass, stock: 11516 -> 11527
+greater_wooden_staff, stock: 240 -> 241
+write items: 3
+wrote: 3
+
+2024-10-06 04:25:00: 1...2...3...4...5...6
+202 entries
+bass, stock: 6368 -> 6364
+write items: 1
+wrote: 1
+
+2024-10-06 04:25:34: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 327 -> 325
+cooked_trout, sell: 324 -> 322
+cooked_trout, stock: 5122 -> 5153
+trout, stock: 2042 -> 2006
+write items: 2
+wrote: 2
+
+2024-10-06 04:26:08: 1...2...3...4...5...6
+202 entries
+bass, stock: 6364 -> 6359
+cooked_bass, stock: 11527 -> 11540
+write items: 2
+wrote: 2
+
+2024-10-06 04:26:41: 1...2...3...4...5...6
+202 entries
+bass, stock: 6359 -> 6348
+cooked_salmon, stock: 7 -> 9
+write items: 2
+wrote: 2
+
+2024-10-06 04:27:15: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11540 -> 11544
+write items: 1
+wrote: 1
+
+2024-10-06 04:27:49: 1...2...3...4...5...6
+202 entries
+bass, stock: 6348 -> 6342
+write items: 1
+wrote: 1
+
+2024-10-06 04:28:22: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 503 -> 497
+cooked_bass, sell: 495 -> 489
+cooked_bass, stock: 11544 -> 11553
+write items: 1
+wrote: 1
+
+2024-10-06 04:28:56: 1...2...3...4...5...6
+202 entries
+bass, buy: 379 -> 395
+bass, sell: 371 -> 387
+bass, stock: 6342 -> 6281
+cooked_bass, stock: 11553 -> 11558
+cooked_trout, buy: 325 -> 321
+cooked_trout, sell: 322 -> 318
+cooked_trout, stock: 5153 -> 5203
+write items: 3
+wrote: 3
+
+2024-10-06 04:29:30: 1...2...3...4...5...6
+202 entries
+bass, stock: 6281 -> 6274
+cooked_trout, buy: 321 -> 319
+cooked_trout, sell: 318 -> 316
+cooked_trout, stock: 5203 -> 5239
+trout, buy: 272 -> 276
+trout, sell: 268 -> 272
+trout, stock: 2006 -> 1965
+cooked_salmon, stock: 9 -> 11
+write items: 4
+wrote: 4
+
+2024-10-06 04:30:04: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 11 -> 13
+write items: 1
+wrote: 1
+
+2024-10-06 04:30:38: 1...2...3...4...5...6
+202 entries
+bass, stock: 6274 -> 6263
+cooked_bass, buy: 497 -> 491
+cooked_bass, sell: 489 -> 483
+cooked_bass, stock: 11558 -> 11573
+cooked_salmon, stock: 13 -> 15
+write items: 3
+wrote: 3
+
+2024-10-06 04:31:11: 1...2...3...4...5...6
+202 entries
+bass, stock: 6263 -> 6256
+write items: 1
+wrote: 1
+
+2024-10-06 04:31:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:32:18: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11573 -> 11588
+write items: 1
+wrote: 1
+
+2024-10-06 04:32:52: 1...2...3...4...5...6
+202 entries
+bass, buy: 395 -> 403
+bass, sell: 387 -> 395
+bass, stock: 6256 -> 6238
+write items: 1
+wrote: 1
+
+2024-10-06 04:33:26: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 319 -> 317
+cooked_trout, sell: 316 -> 314
+cooked_trout, stock: 5239 -> 5280
+trout, stock: 1965 -> 1964
+write items: 2
+wrote: 2
+
+2024-10-06 04:34:00: 1...2...3...4...5...6
+202 entries
+bass, stock: 6238 -> 6206
+cooked_bass, buy: 491 -> 485
+cooked_bass, sell: 483 -> 477
+cooked_bass, stock: 11588 -> 11628
+cooked_trout, stock: 5280 -> 5281
+write items: 3
+wrote: 3
+
+2024-10-06 04:34:33: 1...2...3...4...5...6
+202 entries
+bass, buy: 403 -> 411
+bass, sell: 395 -> 403
+bass, stock: 6206 -> 6156
+cooked_salmon, stock: 15 -> 17
+write items: 2
+wrote: 2
+
+2024-10-06 04:35:07: 1...2...3...4...5...6
+202 entries
+bass, stock: 6156 -> 6152
+cooked_bass, buy: 485 -> 479
+cooked_bass, sell: 477 -> 471
+cooked_bass, stock: 11628 -> 11643
+write items: 2
+wrote: 2
+
+2024-10-06 04:35:40: 1...2...3...4...5...6
+202 entries
+bass, stock: 6152 -> 6135
+write items: 1
+wrote: 1
+
+2024-10-06 04:36:14: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11643 -> 11647
+write items: 1
+wrote: 1
+
+2024-10-06 04:36:48: 1...2...3...4...5...6
+202 entries
+bass, stock: 6135 -> 6130
+write items: 1
+wrote: 1
+
+2024-10-06 04:37:21: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 479 -> 473
+cooked_bass, sell: 471 -> 465
+cooked_bass, stock: 11647 -> 11674
+write items: 1
+wrote: 1
+
+2024-10-06 04:37:55: 1...2...3...4...5...6
+202 entries
+bass, buy: 411 -> 419
+bass, sell: 403 -> 411
+bass, stock: 6130 -> 6076
+cooked_bass, buy: 473 -> 467
+cooked_bass, sell: 465 -> 459
+cooked_bass, stock: 11674 -> 11694
+write items: 2
+wrote: 2
+
+2024-10-06 04:38:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:39:03: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 467 -> 461
+cooked_bass, sell: 459 -> 453
+cooked_bass, stock: 11694 -> 11719
+spruce_plank, stock: 4616 -> 4628
+write items: 2
+wrote: 2
+
+2024-10-06 04:39:37: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 461 -> 455
+cooked_bass, sell: 453 -> 447
+cooked_bass, stock: 11719 -> 11743
+write items: 1
+wrote: 1
+
+2024-10-06 04:40:10: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11743 -> 11759
+cooked_salmon, stock: 17 -> 19
+write items: 2
+wrote: 2
+
+2024-10-06 04:40:44: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 455 -> 449
+cooked_bass, sell: 447 -> 441
+cooked_bass, stock: 11759 -> 11784
+write items: 1
+wrote: 1
+
+2024-10-06 04:41:18: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11784 -> 11787
+write items: 1
+wrote: 1
+
+2024-10-06 04:41:52: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 19 -> 21
+write items: 1
+wrote: 1
+
+2024-10-06 04:42:26: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 21 -> 23
+write items: 1
+wrote: 1
+
+2024-10-06 04:42:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:43:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:44:07: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:44:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:45:14: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 23 -> 25
+write items: 1
+wrote: 1
+
+2024-10-06 04:45:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:46:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:46:55: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 603 -> 591
+cooked_salmon, sell: 573 -> 561
+cooked_salmon, stock: 25 -> 27
+write items: 1
+wrote: 1
+
+2024-10-06 04:47:29: 1...2...3...4...5...6
+202 entries
+yellow_slimeball, buy: 29 -> 31
+yellow_slimeball, sell: 24 -> 26
+yellow_slimeball, stock: 732 -> 715
+write items: 1
+wrote: 1
+
+2024-10-06 04:48:03: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:48:36: 1...2...3...4...5...6
+202 entries
+red_cloth, stock: 1182 -> 1179
+magical_cure, stock: 9 -> 7
+ogre_eye, stock: 5 -> 1
+cursed_book, stock: 10 -> 7
+strangold, stock: 148 -> 140
+write items: 5
+wrote: 5
+
+2024-10-06 04:49:10: 1...2...3...4...5...6
+202 entries
+strangold_legs_armor, stock: 8 -> 9
+write items: 1
+wrote: 1
+
+2024-10-06 04:49:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:50:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:50:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:51:25: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 27 -> 29
+write items: 1
+wrote: 1
+
+2024-10-06 04:51:59: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 141 -> 143
+write items: 1
+wrote: 1
+
+2024-10-06 04:52:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:53:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:53:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:54:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:54:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:55:21: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 29 -> 31
+write items: 1
+wrote: 1
+
+2024-10-06 04:55:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:56:29: 1...2...3...4...5...6
+202 entries
+yellow_slimeball, stock: 715 -> 706
+ash_plank, stock: 1980 -> 1969
+cooked_salmon, stock: 31 -> 33
+write items: 3
+wrote: 3
+
+2024-10-06 04:57:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:57:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:58:10: 1...2...3...4...5...6
+202 entries
+feather, stock: 1787 -> 1805
+write items: 1
+wrote: 1
+
+2024-10-06 04:58:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:59:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 04:59:51: 1...2...3...4...5...6
+202 entries
+flying_wing, stock: 1333 -> 1324
+steel, stock: 2163 -> 2173
+write items: 2
+wrote: 2
+
+2024-10-06 05:00:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:00:58: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 33 -> 37
+write items: 1
+wrote: 1
+
+2024-10-06 05:01:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:02:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:02:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:03:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:03:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:04:20: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 37 -> 39
+write items: 1
+wrote: 1
+
+2024-10-06 05:04:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:05:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:06:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:06:35: 1...2...3...4...5...6
+202 entries
+strangold, buy: 227 -> 250
+strangold, sell: 205 -> 227
+strangold, stock: 140 -> 123
+write items: 1
+wrote: 1
+
+2024-10-06 05:07:09: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 39 -> 41
+write items: 1
+wrote: 1
+
+2024-10-06 05:07:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:08:16: 1...2...3...4...5...6
+202 entries
+skull_staff, buy: 759 -> 690
+skull_staff, sell: 690 -> 630
+skull_staff, stock: 144 -> 150
+steel_legs_armor, stock: 171 -> 172
+write items: 2
+wrote: 2
+
+2024-10-06 05:08:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:09:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:09:57: 1...2...3...4...5...6
+202 entries
+steel, stock: 2173 -> 2183
+write items: 1
+wrote: 1
+
+2024-10-06 05:10:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:11:05: 1...2...3...4...5...6
+202 entries
+blue_slimeball, buy: 73 -> 76
+blue_slimeball, sell: 68 -> 71
+blue_slimeball, stock: 22 -> 1
+write items: 1
+wrote: 1
+
+2024-10-06 05:11:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:12:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:12:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:13:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:13:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:14:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:15:01: 1...2...3...4...5...6
+202 entries
+steel, buy: 21 -> 23
+steel, sell: 20 -> 21
+steel, stock: 2183 -> 2162
+strangold, stock: 123 -> 111
+write items: 2
+wrote: 2
+
+2024-10-06 05:15:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:16:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:16:42: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 41 -> 43
+write items: 1
+wrote: 1
+
+2024-10-06 05:17:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:17:49: 1...2...3...4...5...6
+202 entries
+milk_bucket, buy: 33 -> 35
+milk_bucket, sell: 31 -> 33
+milk_bucket, stock: 3151 -> 3122
+cooked_salmon, stock: 43 -> 45
+write items: 2
+wrote: 2
+
+2024-10-06 05:18:23: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 591 -> 579
+cooked_salmon, sell: 561 -> 549
+cooked_salmon, stock: 45 -> 47
+write items: 1
+wrote: 1
+
+2024-10-06 05:18:56: 1...2...3...4...5...6
+202 entries
+jasper_crystal, buy: 3336 -> 3096
+jasper_crystal, sell: 2700 -> 2460
+jasper_crystal, stock: 143 -> 144
+write items: 1
+wrote: 1
+
+2024-10-06 05:19:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:20:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:20:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:21:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:21:45: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19989 -> 19975
+write items: 1
+wrote: 1
+
+2024-10-06 05:22:19: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 47 -> 49
+write items: 1
+wrote: 1
+
+2024-10-06 05:22:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:23:26: 1...2...3...4...5...6
+202 entries
+yellow_slimeball, stock: 706 -> 700
+write items: 1
+wrote: 1
+
+2024-10-06 05:24:00: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:24:33: 1...2...3...4...5...6
+202 entries
+magical_cure, stock: 7 -> 8
+write items: 1
+wrote: 1
+
+2024-10-06 05:25:07: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:25:40: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 49 -> 51
+write items: 1
+wrote: 1
+
+2024-10-06 05:26:14: 1...2...3...4...5...6
+202 entries
+ash_plank, buy: 33 -> 36
+ash_plank, sell: 30 -> 33
+ash_plank, stock: 1969 -> 1946
+write items: 1
+wrote: 1
+
+2024-10-06 05:26:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:27:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:27:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:28:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:29:02: 1...2...3...4...5...6
+202 entries
+feather, stock: 1805 -> 1819
+write items: 1
+wrote: 1
+
+2024-10-06 05:29:36: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 51 -> 53
+write items: 1
+wrote: 1
+
+2024-10-06 05:30:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:30:43: 1...2...3...4...5...6
+202 entries
+ash_plank, stock: 1946 -> 1931
+write items: 1
+wrote: 1
+
+2024-10-06 05:31:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:31:51: 1...2...3...4...5...6
+202 entries
+wolf_bone, stock: 243 -> 232
+write items: 1
+wrote: 1
+
+2024-10-06 05:32:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:32:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:33:32: 1...2...3...4...5...6
+202 entries
+wolf_bone, buy: 291 -> 299
+wolf_bone, sell: 276 -> 284
+wolf_bone, stock: 232 -> 224
+write items: 1
+wrote: 1
+
+2024-10-06 05:34:05: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 53 -> 55
+write items: 1
+wrote: 1
+
+2024-10-06 05:34:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:35:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:35:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:36:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:36:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:37:27: 1...2...3...4...5...6
+202 entries
+fire_ring, stock: 77 -> 78
+adventurer_boots, stock: 218 -> 219
+air_ring, stock: 177 -> 178
+earth_ring, stock: 103 -> 104
+water_ring, stock: 21 -> 22
+life_ring, stock: 398 -> 399
+cooked_salmon, stock: 55 -> 57
+write items: 7
+wrote: 7
+
+2024-10-06 05:38:00: 1...2...3...4...5...6
+202 entries
+yellow_slimeball, stock: 700 -> 677
+write items: 1
+wrote: 1
+
+2024-10-06 05:38:34: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:39:08: 1...2...3...4...5...6
+202 entries
+yellow_slimeball, buy: 31 -> 33
+yellow_slimeball, sell: 26 -> 28
+yellow_slimeball, stock: 677 -> 665
+write items: 1
+wrote: 1
+
+2024-10-06 05:39:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:40:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:40:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:41:22: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 57 -> 61
+write items: 1
+wrote: 1
+
+2024-10-06 05:41:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:42:30: 1...2...3...4...5...6
+202 entries
+raw_beef, stock: 885 -> 873
+write items: 1
+wrote: 1
+
+2024-10-06 05:43:04: 1...2...3...4...5...6
+202 entries
+cowhide, buy: 90 -> 93
+cowhide, sell: 85 -> 88
+cowhide, stock: 10 -> 1
+write items: 1
+wrote: 1
+
+2024-10-06 05:43:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:44:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:44:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:45:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:45:52: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 61 -> 63
+write items: 1
+wrote: 1
+
+2024-10-06 05:46:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:46:59: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 144 -> 145
+write items: 1
+wrote: 1
+
+2024-10-06 05:47:33: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 63 -> 65
+write items: 1
+wrote: 1
+
+2024-10-06 05:48:06: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 579 -> 567
+cooked_salmon, sell: 549 -> 537
+cooked_salmon, stock: 65 -> 67
+write items: 1
+wrote: 1
+
+2024-10-06 05:48:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:49:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:49:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:50:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:50:55: 1...2...3...4...5...6
+202 entries
+steel, buy: 23 -> 25
+steel, sell: 21 -> 23
+steel, stock: 2162 -> 2140
+write items: 1
+wrote: 1
+
+2024-10-06 05:51:29: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 67 -> 69
+write items: 1
+wrote: 1
+
+2024-10-06 05:52:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:52:36: 1...2...3...4...5...6
+202 entries
+gold, stock: 1183 -> 1173
+write items: 1
+wrote: 1
+
+2024-10-06 05:53:10: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:53:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:54:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:54:51: 1...2...3...4...5...6
+202 entries
+egg, stock: 12409 -> 12393
+steel, buy: 25 -> 23
+steel, sell: 23 -> 22
+steel, stock: 2140 -> 2165
+write items: 2
+wrote: 2
+
+2024-10-06 05:55:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:55:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:56:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:57:06: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 145 -> 146
+gold_platelegs, stock: 156 -> 163
+cooked_salmon, stock: 69 -> 71
+write items: 3
+wrote: 3
+
+2024-10-06 05:57:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:58:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 05:58:47: 1...2...3...4...5...6
+202 entries
+cooked_chicken, stock: 8184 -> 8159
+write items: 1
+wrote: 1
+
+2024-10-06 05:59:21: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 19 -> 21
+cooked_chicken, sell: 18 -> 20
+cooked_chicken, stock: 8159 -> 8109
+write items: 1
+wrote: 1
+
+2024-10-06 05:59:55: 1...2...3...4...5...6
+202 entries
+gold, buy: 371 -> 393
+gold, sell: 349 -> 371
+gold, stock: 1173 -> 1160
+cooked_chicken, buy: 21 -> 23
+cooked_chicken, sell: 20 -> 22
+cooked_chicken, stock: 8109 -> 8059
+write items: 2
+wrote: 2
+
+2024-10-06 06:00:29: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 23 -> 24
+cooked_chicken, sell: 22 -> 23
+cooked_chicken, stock: 8059 -> 8034
+write items: 1
+wrote: 1
+
+2024-10-06 06:01:02: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 71 -> 73
+write items: 1
+wrote: 1
+
+2024-10-06 06:01:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:02:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:02:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:03:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:03:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:04:24: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 73 -> 77
+write items: 1
+wrote: 1
+
+2024-10-06 06:04:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:05:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:06:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:06:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:07:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:07:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:08:20: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 77 -> 79
+write items: 1
+wrote: 1
+
+2024-10-06 06:08:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:09:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:10:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:10:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:11:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:11:43: 1...2...3...4...5...6
+202 entries
+spruce_wood, buy: 7 -> 6
+spruce_wood, sell: 6 -> 5
+spruce_wood, stock: 16852 -> 16900
+spruce_plank, stock: 4628 -> 4622
+write items: 2
+wrote: 2
+
+2024-10-06 06:12:17: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 882 -> 857
+write items: 1
+wrote: 1
+
+2024-10-06 06:12:51: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, stock: 7544 -> 7569
+write items: 1
+wrote: 1
+
+2024-10-06 06:13:25: 1...2...3...4...5...6
+202 entries
+copper_dagger, stock: 3 -> 0
+write items: 1
+wrote: 1
+
+2024-10-06 06:13:59: 1...2...3...4...5...6
+202 entries
+copper, stock: 48 -> 54
+write items: 1
+wrote: 1
+
+2024-10-06 06:14:33: 1...2...3...4...5...6
+202 entries
+iron_armor, stock: 3 -> 0
+bass, buy: 419 -> 427
+bass, sell: 411 -> 419
+bass, stock: 6076 -> 6026
+write items: 2
+wrote: 2
+
+2024-10-06 06:15:07: 1...2...3...4...5...6
+202 entries
+iron, stock: 2096 -> 2102
+write items: 1
+wrote: 1
+
+2024-10-06 06:15:41: 1...2...3...4...5...6
+202 entries
+bass, buy: 427 -> 435
+bass, sell: 419 -> 427
+bass, stock: 6026 -> 5976
+cooked_bass, buy: 449 -> 425
+cooked_bass, sell: 441 -> 417
+cooked_bass, stock: 11787 -> 11887
+shrimp, buy: 73 -> 75
+shrimp, sell: 71 -> 73
+shrimp, stock: 857 -> 832
+cooked_salmon, stock: 79 -> 83
+write items: 4
+wrote: 4
+
+2024-10-06 06:16:15: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 114 -> 113
+cooked_shrimp, sell: 112 -> 111
+cooked_shrimp, stock: 7569 -> 7594
+write items: 1
+wrote: 1
+
+2024-10-06 06:16:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:17:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:17:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:18:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:19:03: 1...2...3...4...5...6
+202 entries
+trout, stock: 1964 -> 1939
+cooked_salmon, stock: 83 -> 85
+write items: 2
+wrote: 2
+
+2024-10-06 06:19:37: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 317 -> 315
+cooked_trout, sell: 314 -> 312
+cooked_trout, stock: 5281 -> 5306
+write items: 1
+wrote: 1
+
+2024-10-06 06:20:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:20:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:21:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:21:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:22:26: 1...2...3...4...5...6
+202 entries
+trout, buy: 276 -> 280
+trout, sell: 272 -> 276
+trout, stock: 1939 -> 1914
+write items: 1
+wrote: 1
+
+2024-10-06 06:23:00: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 832 -> 818
+cooked_trout, buy: 315 -> 313
+cooked_trout, sell: 312 -> 310
+cooked_trout, stock: 5306 -> 5331
+cooked_salmon, buy: 567 -> 555
+cooked_salmon, sell: 537 -> 525
+cooked_salmon, stock: 85 -> 87
+write items: 3
+wrote: 3
+
+2024-10-06 06:23:34: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:24:07: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:24:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:25:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:25:49: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 818 -> 793
+cooked_shrimp, buy: 113 -> 112
+cooked_shrimp, sell: 111 -> 110
+cooked_shrimp, stock: 7594 -> 7619
+write items: 2
+wrote: 2
+
+2024-10-06 06:26:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:26:57: 1...2...3...4...5...6
+202 entries
+steel, buy: 23 -> 22
+steel, sell: 22 -> 21
+steel, stock: 2165 -> 2190
+cooked_salmon, stock: 87 -> 89
+write items: 2
+wrote: 2
+
+2024-10-06 06:27:30: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 89 -> 91
+write items: 1
+wrote: 1
+
+2024-10-06 06:28:04: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 75 -> 77
+shrimp, sell: 73 -> 75
+shrimp, stock: 793 -> 779
+cooked_shrimp, stock: 7619 -> 7633
+write items: 2
+wrote: 2
+
+2024-10-06 06:28:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:29:12: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 779 -> 754
+cooked_shrimp, buy: 112 -> 111
+cooked_shrimp, sell: 110 -> 109
+cooked_shrimp, stock: 7633 -> 7658
+write items: 2
+wrote: 2
+
+2024-10-06 06:29:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:30:20: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 91 -> 93
+write items: 1
+wrote: 1
+
+2024-10-06 06:30:53: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 754 -> 740
+cooked_shrimp, stock: 7658 -> 7672
+write items: 2
+wrote: 2
+
+2024-10-06 06:31:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:32:01: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 77 -> 79
+shrimp, sell: 75 -> 77
+shrimp, stock: 740 -> 715
+write items: 1
+wrote: 1
+
+2024-10-06 06:32:35: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 111 -> 110
+cooked_shrimp, sell: 109 -> 108
+cooked_shrimp, stock: 7672 -> 7697
+write items: 1
+wrote: 1
+
+2024-10-06 06:33:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:33:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:34:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:34:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:35:25: 1...2...3...4...5...6
+202 entries
+trout, stock: 1914 -> 1889
+write items: 1
+wrote: 1
+
+2024-10-06 06:36:06: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 313 -> 311
+cooked_trout, sell: 310 -> 308
+cooked_trout, stock: 5331 -> 5356
+write items: 1
+wrote: 1
+
+2024-10-06 06:36:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:37:13: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, stock: 7697 -> 7711
+write items: 1
+wrote: 1
+
+2024-10-06 06:37:47: 1...2...3...4...5...6
+202 entries
+ash_plank, buy: 36 -> 39
+ash_plank, sell: 33 -> 36
+ash_plank, stock: 1931 -> 1901
+cooked_salmon, stock: 93 -> 95
+write items: 2
+wrote: 2
+
+2024-10-06 06:38:21: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 715 -> 701
+cooked_salmon, stock: 95 -> 97
+write items: 2
+wrote: 2
+
+2024-10-06 06:38:54: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 701 -> 676
+cooked_shrimp, buy: 110 -> 109
+cooked_shrimp, sell: 108 -> 107
+cooked_shrimp, stock: 7711 -> 7736
+steel_battleaxe, stock: 175 -> 173
+write items: 3
+wrote: 3
+
+2024-10-06 06:39:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:40:03: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:40:36: 1...2...3...4...5...6
+202 entries
+raw_beef, stock: 873 -> 846
+write items: 1
+wrote: 1
+
+2024-10-06 06:41:10: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 97 -> 99
+write items: 1
+wrote: 1
+
+2024-10-06 06:41:44: 1...2...3...4...5...6
+202 entries
+trout, buy: 280 -> 284
+trout, sell: 276 -> 280
+trout, stock: 1889 -> 1864
+write items: 1
+wrote: 1
+
+2024-10-06 06:42:17: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 311 -> 309
+cooked_trout, sell: 308 -> 306
+cooked_trout, stock: 5356 -> 5381
+write items: 1
+wrote: 1
+
+2024-10-06 06:42:51: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, stock: 7736 -> 7750
+write items: 1
+wrote: 1
+
+2024-10-06 06:43:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:43:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:44:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:45:05: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 79 -> 81
+shrimp, sell: 77 -> 79
+shrimp, stock: 676 -> 651
+write items: 1
+wrote: 1
+
+2024-10-06 06:45:39: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 109 -> 108
+cooked_shrimp, sell: 107 -> 106
+cooked_shrimp, stock: 7750 -> 7775
+write items: 1
+wrote: 1
+
+2024-10-06 06:46:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:46:47: 1...2...3...4...5...6
+202 entries
+bass, buy: 435 -> 429
+bass, sell: 427 -> 421
+bass, stock: 5976 -> 6026
+magical_cure, buy: 9712 -> 9392
+magical_cure, sell: 8960 -> 8640
+magical_cure, stock: 8 -> 10
+write items: 2
+wrote: 2
+
+2024-10-06 06:47:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:47:54: 1...2...3...4...5...6
+202 entries
+steel_battleaxe, stock: 173 -> 175
+write items: 1
+wrote: 1
+
+2024-10-06 06:48:28: 1...2...3...4...5...6
+202 entries
+gold_ore, buy: 45 -> 51
+gold_ore, sell: 39 -> 45
+gold_ore, stock: 61720 -> 61690
+steel, buy: 22 -> 21
+steel, sell: 21 -> 20
+steel, stock: 2190 -> 2215
+strange_ore, stock: 46835 -> 46785
+strangold, stock: 111 -> 121
+cooked_salmon, stock: 99 -> 101
+write items: 5
+wrote: 5
+
+2024-10-06 06:49:02: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 24 -> 26
+cooked_chicken, sell: 23 -> 25
+cooked_chicken, stock: 8034 -> 7984
+write items: 1
+wrote: 1
+
+2024-10-06 06:49:36: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 26 -> 28
+cooked_chicken, sell: 25 -> 27
+cooked_chicken, stock: 7984 -> 7934
+write items: 1
+wrote: 1
+
+2024-10-06 06:50:10: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 28 -> 30
+cooked_chicken, sell: 27 -> 29
+cooked_chicken, stock: 7934 -> 7884
+write items: 1
+wrote: 1
+
+2024-10-06 06:50:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:51:17: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 651 -> 626
+cooked_shrimp, buy: 108 -> 107
+cooked_shrimp, sell: 106 -> 105
+cooked_shrimp, stock: 7775 -> 7800
+write items: 2
+wrote: 2
+
+2024-10-06 06:51:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:52:24: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 101 -> 103
+write items: 1
+wrote: 1
+
+2024-10-06 06:52:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:53:32: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 103 -> 105
+write items: 1
+wrote: 1
+
+2024-10-06 06:54:05: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 81 -> 83
+shrimp, sell: 79 -> 81
+shrimp, stock: 626 -> 601
+magical_cure, stock: 10 -> 12
+write items: 2
+wrote: 2
+
+2024-10-06 06:54:39: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 107 -> 106
+cooked_shrimp, sell: 105 -> 104
+cooked_shrimp, stock: 7800 -> 7825
+write items: 1
+wrote: 1
+
+2024-10-06 06:55:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:55:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:56:20: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 555 -> 543
+cooked_salmon, sell: 525 -> 513
+cooked_salmon, stock: 105 -> 107
+write items: 1
+wrote: 1
+
+2024-10-06 06:56:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:57:28: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 25 -> 24
+iron_ore, sell: 22 -> 21
+iron_ore, stock: 35230 -> 35270
+cooked_trout, buy: 309 -> 307
+cooked_trout, sell: 306 -> 304
+cooked_trout, stock: 5381 -> 5406
+trout, stock: 1864 -> 1839
+write items: 3
+wrote: 3
+
+2024-10-06 06:58:02: 1...2...3...4...5...6
+202 entries
+gudgeon, stock: 5472 -> 5452
+write items: 1
+wrote: 1
+
+2024-10-06 06:58:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 06:59:10: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 146 -> 147
+write items: 1
+wrote: 1
+
+2024-10-06 06:59:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:00:18: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 601 -> 576
+cooked_salmon, stock: 107 -> 109
+write items: 2
+wrote: 2
+
+2024-10-06 07:00:52: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 106 -> 105
+cooked_shrimp, sell: 104 -> 103
+cooked_shrimp, stock: 7825 -> 7850
+write items: 1
+wrote: 1
+
+2024-10-06 07:01:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:01:59: 1...2...3...4...5...6
+202 entries
+strangold, buy: 250 -> 275
+strangold, sell: 227 -> 250
+strangold, stock: 121 -> 102
+cooked_salmon, stock: 109 -> 111
+write items: 2
+wrote: 2
+
+2024-10-06 07:02:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:03:07: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:03:41: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 307 -> 305
+cooked_trout, sell: 304 -> 302
+cooked_trout, stock: 5406 -> 5431
+trout, buy: 284 -> 288
+trout, sell: 280 -> 284
+trout, stock: 1839 -> 1814
+write items: 2
+wrote: 2
+
+2024-10-06 07:04:14: 1...2...3...4...5...6
+202 entries
+iron_ore, stock: 35270 -> 35278
+write items: 1
+wrote: 1
+
+2024-10-06 07:04:48: 1...2...3...4...5...6
+202 entries
+gudgeon, stock: 5452 -> 5448
+write items: 1
+wrote: 1
+
+2024-10-06 07:05:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:05:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:06:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:07:04: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19975 -> 19956
+gold_ore, stock: 61690 -> 61660
+strange_ore, stock: 46785 -> 46735
+strangold, stock: 102 -> 112
+cooked_salmon, stock: 111 -> 113
+write items: 5
+wrote: 5
+
+2024-10-06 07:07:37: 1...2...3...4...5...6
+202 entries
+copper_ring, stock: 0 -> 3
+write items: 1
+wrote: 1
+
+2024-10-06 07:08:11: 1...2...3...4...5...6
+202 entries
+life_amulet, stock: 290 -> 292
+write items: 1
+wrote: 1
+
+2024-10-06 07:08:45: 1...2...3...4...5...6
+202 entries
+mushmush_jacket, stock: 72 -> 71
+write items: 1
+wrote: 1
+
+2024-10-06 07:09:19: 1...2...3...4...5...6
+202 entries
+gold_ore, buy: 51 -> 57
+gold_ore, sell: 45 -> 51
+gold_ore, stock: 61660 -> 61630
+strange_ore, stock: 46735 -> 46685
+write items: 2
+wrote: 2
+
+2024-10-06 07:09:53: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 17 -> 19
+raw_chicken, sell: 15 -> 17
+raw_chicken, stock: 19956 -> 19935
+strangold, buy: 275 -> 256
+strangold, sell: 250 -> 231
+strangold, stock: 112 -> 122
+write items: 2
+wrote: 2
+
+2024-10-06 07:10:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:11:00: 1...2...3...4...5...6
+202 entries
+steel, stock: 2215 -> 2196
+write items: 1
+wrote: 1
+
+2024-10-06 07:11:34: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 113 -> 115
+write items: 1
+wrote: 1
+
+2024-10-06 07:12:08: 1...2...3...4...5...6
+202 entries
+cooked_wolf_meat, buy: 82 -> 76
+cooked_wolf_meat, sell: 74 -> 68
+cooked_wolf_meat, stock: 1073 -> 1098
+raw_wolf_meat, buy: 54 -> 61
+raw_wolf_meat, sell: 47 -> 54
+raw_wolf_meat, stock: 2981 -> 2956
+write items: 2
+wrote: 2
+
+2024-10-06 07:12:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:13:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:13:49: 1...2...3...4...5...6
+202 entries
+wolf_bone, stock: 224 -> 215
+write items: 1
+wrote: 1
+
+2024-10-06 07:14:22: 1...2...3...4...5...6
+202 entries
+steel, stock: 2196 -> 2221
+cooked_salmon, stock: 115 -> 117
+write items: 2
+wrote: 2
+
+2024-10-06 07:14:56: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 83 -> 85
+shrimp, sell: 81 -> 83
+shrimp, stock: 576 -> 551
+cooked_salmon, stock: 117 -> 119
+write items: 2
+wrote: 2
+
+2024-10-06 07:15:30: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 105 -> 104
+cooked_shrimp, sell: 103 -> 102
+cooked_shrimp, stock: 7850 -> 7875
+wolf_bone, stock: 215 -> 203
+cooked_salmon, stock: 119 -> 121
+write items: 3
+wrote: 3
+
+2024-10-06 07:16:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:16:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:17:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:17:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:18:19: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 551 -> 526
+write items: 1
+wrote: 1
+
+2024-10-06 07:18:52: 1...2...3...4...5...6
+202 entries
+milk_bucket, stock: 3122 -> 3112
+cooked_shrimp, buy: 104 -> 103
+cooked_shrimp, sell: 102 -> 101
+cooked_shrimp, stock: 7875 -> 7900
+write items: 2
+wrote: 2
+
+2024-10-06 07:19:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:20:00: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 147 -> 149
+write items: 1
+wrote: 1
+
+2024-10-06 07:20:34: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:21:07: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:21:41: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 85 -> 87
+shrimp, sell: 83 -> 85
+shrimp, stock: 526 -> 501
+write items: 1
+wrote: 1
+
+2024-10-06 07:22:15: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 103 -> 102
+cooked_shrimp, sell: 101 -> 100
+cooked_shrimp, stock: 7900 -> 7925
+magical_plank, stock: 355 -> 337
+write items: 2
+wrote: 2
+
+2024-10-06 07:22:49: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 121 -> 123
+write items: 1
+wrote: 1
+
+2024-10-06 07:23:23: 1...2...3...4...5...6
+202 entries
+jasper_crystal, buy: 3096 -> 2856
+jasper_crystal, sell: 2460 -> 2220
+jasper_crystal, stock: 149 -> 150
+write items: 1
+wrote: 1
+
+2024-10-06 07:23:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:24:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:25:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:25:38: 1...2...3...4...5...6
+202 entries
+trout, stock: 1814 -> 1789
+write items: 1
+wrote: 1
+
+2024-10-06 07:26:12: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 305 -> 303
+cooked_trout, sell: 302 -> 300
+cooked_trout, stock: 5431 -> 5456
+write items: 1
+wrote: 1
+
+2024-10-06 07:26:45: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 150 -> 152
+cooked_salmon, stock: 123 -> 125
+write items: 2
+wrote: 2
+
+2024-10-06 07:27:19: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:27:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:28:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:29:01: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 501 -> 476
+write items: 1
+wrote: 1
+
+2024-10-06 07:29:34: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 102 -> 101
+cooked_shrimp, sell: 100 -> 99
+cooked_shrimp, stock: 7925 -> 7950
+write items: 1
+wrote: 1
+
+2024-10-06 07:30:08: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 543 -> 531
+cooked_salmon, sell: 513 -> 501
+cooked_salmon, stock: 125 -> 129
+write items: 1
+wrote: 1
+
+2024-10-06 07:30:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:31:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:31:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:32:23: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 303 -> 301
+cooked_trout, sell: 300 -> 298
+cooked_trout, stock: 5456 -> 5481
+trout, buy: 288 -> 292
+trout, sell: 284 -> 288
+trout, stock: 1789 -> 1764
+write items: 2
+wrote: 2
+
+2024-10-06 07:32:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:33:30: 1...2...3...4...5...6
+202 entries
+wolf_hair, buy: 225 -> 233
+wolf_hair, sell: 211 -> 219
+wolf_hair, stock: 599 -> 589
+write items: 1
+wrote: 1
+
+2024-10-06 07:34:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:34:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:35:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:35:45: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 87 -> 89
+shrimp, sell: 85 -> 87
+shrimp, stock: 476 -> 451
+cooked_shrimp, buy: 101 -> 100
+cooked_shrimp, sell: 99 -> 98
+cooked_shrimp, stock: 7950 -> 7975
+steel, stock: 2221 -> 2241
+write items: 3
+wrote: 3
+
+2024-10-06 07:36:19: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 129 -> 131
+write items: 1
+wrote: 1
+
+2024-10-06 07:36:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:37:26: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 131 -> 135
+write items: 1
+wrote: 1
+
+2024-10-06 07:37:59: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 30 -> 31
+cooked_chicken, sell: 29 -> 30
+cooked_chicken, stock: 7884 -> 7859
+skeleton_skull, stock: 188 -> 186
+jasper_crystal, stock: 152 -> 148
+wolf_bone, stock: 203 -> 195
+steel, buy: 21 -> 23
+steel, sell: 20 -> 21
+steel, stock: 2241 -> 2233
+write items: 5
+wrote: 5
+
+2024-10-06 07:38:33: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19935 -> 19910
+cooked_chicken, buy: 31 -> 33
+cooked_chicken, sell: 30 -> 32
+cooked_chicken, stock: 7859 -> 7809
+write items: 2
+wrote: 2
+
+2024-10-06 07:39:07: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 33 -> 34
+cooked_chicken, sell: 32 -> 33
+cooked_chicken, stock: 7809 -> 7784
+skull_ring, stock: 111 -> 113
+steel, stock: 2233 -> 2225
+write items: 3
+wrote: 3
+
+2024-10-06 07:39:41: 1...2...3...4...5...6
+202 entries
+skeleton_skull, stock: 186 -> 184
+jasper_crystal, buy: 2856 -> 3156
+jasper_crystal, sell: 2220 -> 2520
+jasper_crystal, stock: 148 -> 144
+wolf_bone, stock: 195 -> 187
+dead_wood_plank, stock: 1016 -> 999
+write items: 4
+wrote: 4
+
+2024-10-06 07:40:14: 1...2...3...4...5...6
+202 entries
+steel, buy: 23 -> 25
+steel, sell: 21 -> 23
+steel, stock: 2225 -> 2200
+write items: 1
+wrote: 1
+
+2024-10-06 07:40:48: 1...2...3...4...5...6
+202 entries
+adventurer_boots, stock: 219 -> 209
+skull_ring, stock: 113 -> 115
+steel, buy: 25 -> 27
+steel, sell: 23 -> 25
+steel, stock: 2200 -> 2175
+write items: 3
+wrote: 3
+
+2024-10-06 07:41:22: 1...2...3...4...5...6
+202 entries
+steel, buy: 27 -> 30
+steel, sell: 25 -> 27
+steel, stock: 2175 -> 2150
+write items: 1
+wrote: 1
+
+2024-10-06 07:41:55: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 19 -> 21
+raw_chicken, sell: 17 -> 19
+raw_chicken, stock: 19910 -> 19885
+wolf_hair, stock: 589 -> 597
+cowhide, stock: 1 -> 17
+mushroom, stock: 5 -> 7
+spruce_plank, stock: 4622 -> 4625
+steel, buy: 30 -> 33
+steel, sell: 27 -> 30
+steel, stock: 2150 -> 2125
+cooked_salmon, stock: 135 -> 139
+write items: 7
+wrote: 7
+
+2024-10-06 07:42:29: 1...2...3...4...5...6
+202 entries
+adventurer_boots, buy: 341 -> 373
+adventurer_boots, sell: 306 -> 338
+adventurer_boots, stock: 209 -> 199
+cooked_chicken, buy: 34 -> 33
+cooked_chicken, sell: 33 -> 32
+cooked_chicken, stock: 7784 -> 7809
+steel, buy: 33 -> 36
+steel, sell: 30 -> 33
+steel, stock: 2125 -> 2100
+write items: 3
+wrote: 3
+
+2024-10-06 07:43:03: 1...2...3...4...5...6
+202 entries
+steel, buy: 36 -> 40
+steel, sell: 33 -> 36
+steel, stock: 2100 -> 2075
+write items: 1
+wrote: 1
+
+2024-10-06 07:43:36: 1...2...3...4...5...6
+202 entries
+wolf_hair, stock: 597 -> 610
+cowhide, stock: 17 -> 27
+mushroom, stock: 7 -> 10
+spruce_plank, stock: 4625 -> 4629
+steel, buy: 40 -> 48
+steel, sell: 36 -> 44
+steel, stock: 2075 -> 2025
+write items: 5
+wrote: 5
+
+2024-10-06 07:44:10: 1...2...3...4...5...6
+202 entries
+magical_cure, stock: 12 -> 13
+steel, buy: 48 -> 53
+steel, sell: 44 -> 48
+steel, stock: 2025 -> 2000
+write items: 2
+wrote: 2
+
+2024-10-06 07:44:44: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 144 -> 143
+flying_wing, buy: 121 -> 129
+flying_wing, sell: 113 -> 121
+flying_wing, stock: 1324 -> 1320
+cowhide, stock: 27 -> 23
+mushroom, stock: 10 -> 4
+steel, buy: 53 -> 58
+steel, sell: 48 -> 53
+steel, stock: 2000 -> 1975
+write items: 5
+wrote: 5
+
+2024-10-06 07:45:18: 1...2...3...4...5...6
+202 entries
+flying_wing, stock: 1320 -> 1316
+cowhide, stock: 23 -> 19
+mushmush_jacket, stock: 71 -> 72
+steel, buy: 58 -> 64
+steel, sell: 53 -> 58
+steel, stock: 1975 -> 1950
+write items: 4
+wrote: 4
+
+2024-10-06 07:45:52: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19885 -> 19860
+cooked_chicken, buy: 33 -> 32
+cooked_chicken, sell: 32 -> 31
+cooked_chicken, stock: 7809 -> 7834
+steel, buy: 64 -> 70
+steel, sell: 58 -> 64
+steel, stock: 1950 -> 1925
+write items: 3
+wrote: 3
+
+2024-10-06 07:46:25: 1...2...3...4...5...6
+202 entries
+copper_ring, stock: 3 -> 0
+steel, buy: 70 -> 77
+steel, sell: 64 -> 70
+steel, stock: 1925 -> 1900
+write items: 2
+wrote: 2
+
+2024-10-06 07:46:59: 1...2...3...4...5...6
+202 entries
+steel, buy: 77 -> 85
+steel, sell: 70 -> 77
+steel, stock: 1900 -> 1875
+write items: 1
+wrote: 1
+
+2024-10-06 07:47:33: 1...2...3...4...5...6
+202 entries
+copper, stock: 54 -> 60
+steel, buy: 85 -> 102
+steel, sell: 77 -> 93
+steel, stock: 1875 -> 1825
+write items: 2
+wrote: 2
+
+2024-10-06 07:48:06: 1...2...3...4...5...6
+202 entries
+copper, stock: 60 -> 54
+bass, stock: 6026 -> 6027
+cooked_salmon, stock: 139 -> 143
+write items: 3
+wrote: 3
+
+2024-10-06 07:48:40: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 21 -> 23
+raw_chicken, sell: 19 -> 21
+raw_chicken, stock: 19860 -> 19835
+cowhide, stock: 19 -> 15
+write items: 2
+wrote: 2
+
+2024-10-06 07:49:14: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 32 -> 31
+cooked_chicken, sell: 31 -> 30
+cooked_chicken, stock: 7834 -> 7859
+write items: 1
+wrote: 1
+
+2024-10-06 07:49:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:50:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:50:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:51:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:52:03: 1...2...3...4...5...6
+202 entries
+bass, stock: 6027 -> 6029
+shrimp, stock: 451 -> 426
+cooked_salmon, stock: 143 -> 144
+write items: 3
+wrote: 3
+
+2024-10-06 07:52:37: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 100 -> 99
+cooked_shrimp, sell: 98 -> 97
+cooked_shrimp, stock: 7975 -> 8000
+flying_wing, stock: 1316 -> 1312
+write items: 2
+wrote: 2
+
+2024-10-06 07:53:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:53:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:54:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:54:52: 1...2...3...4...5...6
+202 entries
+spruce_wood, stock: 16900 -> 16868
+write items: 1
+wrote: 1
+
+2024-10-06 07:55:26: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 30 -> 29
+cooked_gudgeon, sell: 29 -> 28
+cooked_gudgeon, stock: 4877 -> 4902
+gudgeon, buy: 20 -> 21
+gudgeon, sell: 19 -> 20
+gudgeon, stock: 5448 -> 5423
+write items: 2
+wrote: 2
+
+2024-10-06 07:55:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:56:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:57:07: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 144 -> 146
+write items: 1
+wrote: 1
+
+2024-10-06 07:57:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:58:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:58:48: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 89 -> 91
+shrimp, sell: 87 -> 89
+shrimp, stock: 426 -> 401
+cooked_shrimp, buy: 99 -> 98
+cooked_shrimp, sell: 97 -> 96
+cooked_shrimp, stock: 8000 -> 8025
+write items: 2
+wrote: 2
+
+2024-10-06 07:59:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 07:59:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:00:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:01:03: 1...2...3...4...5...6
+202 entries
+steel, buy: 102 -> 93
+steel, sell: 93 -> 84
+steel, stock: 1825 -> 1850
+write items: 1
+wrote: 1
+
+2024-10-06 08:01:37: 1...2...3...4...5...6
+202 entries
+raw_wolf_meat, stock: 2956 -> 2931
+cooked_salmon, buy: 531 -> 519
+cooked_salmon, sell: 501 -> 489
+cooked_salmon, stock: 146 -> 153
+write items: 2
+wrote: 2
+
+2024-10-06 08:02:11: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 143 -> 142
+cooked_wolf_meat, buy: 76 -> 70
+cooked_wolf_meat, sell: 68 -> 62
+cooked_wolf_meat, stock: 1098 -> 1123
+write items: 2
+wrote: 2
+
+2024-10-06 08:02:45: 1...2...3...4...5...6
+202 entries
+steel, buy: 93 -> 102
+steel, sell: 84 -> 93
+steel, stock: 1850 -> 1825
+write items: 1
+wrote: 1
+
+2024-10-06 08:03:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:03:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:04:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:05:00: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 31 -> 33
+cooked_chicken, sell: 30 -> 32
+cooked_chicken, stock: 7859 -> 7809
+write items: 1
+wrote: 1
+
+2024-10-06 08:05:34: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19835 -> 19810
+cooked_chicken, buy: 33 -> 35
+cooked_chicken, sell: 32 -> 34
+cooked_chicken, stock: 7809 -> 7759
+write items: 2
+wrote: 2
+
+2024-10-06 08:06:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:06:41: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 153 -> 155
+write items: 1
+wrote: 1
+
+2024-10-06 08:07:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:07:49: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 155 -> 157
+write items: 1
+wrote: 1
+
+2024-10-06 08:08:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:08:56: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 23 -> 25
+raw_chicken, sell: 21 -> 23
+raw_chicken, stock: 19810 -> 19785
+cooked_chicken, buy: 35 -> 34
+cooked_chicken, sell: 34 -> 33
+cooked_chicken, stock: 7759 -> 7784
+write items: 2
+wrote: 2
+
+2024-10-06 08:09:30: 1...2...3...4...5...6
+202 entries
+magical_cure, stock: 13 -> 14
+write items: 1
+wrote: 1
+
+2024-10-06 08:10:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:10:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:11:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:11:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:12:19: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19785 -> 19760
+cooked_chicken, buy: 34 -> 33
+cooked_chicken, sell: 33 -> 32
+cooked_chicken, stock: 7784 -> 7809
+write items: 2
+wrote: 2
+
+2024-10-06 08:12:52: 1...2...3...4...5...6
+202 entries
+gold_platelegs, stock: 163 -> 171
+write items: 1
+wrote: 1
+
+2024-10-06 08:13:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:14:00: 1...2...3...4...5...6
+202 entries
+ash_plank, stock: 1901 -> 1888
+write items: 1
+wrote: 1
+
+2024-10-06 08:14:34: 1...2...3...4...5...6
+202 entries
+ash_wood, stock: 33345 -> 33324
+write items: 1
+wrote: 1
+
+2024-10-06 08:15:07: 1...2...3...4...5...6
+202 entries
+ash_wood, stock: 33324 -> 33303
+write items: 1
+wrote: 1
+
+2024-10-06 08:15:41: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 8 -> 9
+ash_wood, sell: 6 -> 7
+ash_wood, stock: 33303 -> 33261
+raw_chicken, buy: 25 -> 27
+raw_chicken, sell: 23 -> 25
+raw_chicken, stock: 19760 -> 19735
+write items: 2
+wrote: 2
+
+2024-10-06 08:16:15: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 9 -> 10
+ash_wood, sell: 7 -> 8
+ash_wood, stock: 33261 -> 33240
+cooked_chicken, buy: 33 -> 32
+cooked_chicken, sell: 32 -> 31
+cooked_chicken, stock: 7809 -> 7834
+mushmush_jacket, stock: 72 -> 73
+write items: 3
+wrote: 3
+
+2024-10-06 08:16:49: 1...2...3...4...5...6
+202 entries
+ash_wood, stock: 33240 -> 33219
+write items: 1
+wrote: 1
+
+2024-10-06 08:17:23: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 10 -> 11
+ash_wood, sell: 8 -> 9
+ash_wood, stock: 33219 -> 33198
+write items: 1
+wrote: 1
+
+2024-10-06 08:17:57: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 11 -> 12
+ash_wood, sell: 9 -> 10
+ash_wood, stock: 33198 -> 33156
+write items: 1
+wrote: 1
+
+2024-10-06 08:18:31: 1...2...3...4...5...6
+202 entries
+ash_wood, stock: 33156 -> 33135
+write items: 1
+wrote: 1
+
+2024-10-06 08:19:04: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 29 -> 28
+cooked_gudgeon, sell: 28 -> 27
+cooked_gudgeon, stock: 4902 -> 4927
+ash_wood, buy: 12 -> 13
+ash_wood, sell: 10 -> 11
+ash_wood, stock: 33135 -> 33093
+gudgeon, stock: 5423 -> 5398
+cooked_salmon, stock: 157 -> 160
+write items: 4
+wrote: 4
+
+2024-10-06 08:19:38: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 13 -> 14
+ash_wood, sell: 11 -> 12
+ash_wood, stock: 33093 -> 33072
+write items: 1
+wrote: 1
+
+2024-10-06 08:20:12: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 14 -> 15
+ash_wood, sell: 12 -> 13
+ash_wood, stock: 33072 -> 33030
+write items: 1
+wrote: 1
+
+2024-10-06 08:20:46: 1...2...3...4...5...6
+202 entries
+ash_wood, stock: 33030 -> 33009
+write items: 1
+wrote: 1
+
+2024-10-06 08:21:19: 1...2...3...4...5...6
+202 entries
+ash_wood, buy: 15 -> 16
+ash_wood, sell: 13 -> 14
+ash_wood, stock: 33009 -> 32988
+write items: 1
+wrote: 1
+
+2024-10-06 08:21:53: 1...2...3...4...5...6
+202 entries
+trout, stock: 1764 -> 1739
+write items: 1
+wrote: 1
+
+2024-10-06 08:22:27: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 301 -> 299
+cooked_trout, sell: 298 -> 296
+cooked_trout, stock: 5481 -> 5506
+write items: 1
+wrote: 1
+
+2024-10-06 08:23:01: 1...2...3...4...5...6
+202 entries
+steel, buy: 102 -> 93
+steel, sell: 93 -> 84
+steel, stock: 1825 -> 1850
+write items: 1
+wrote: 1
+
+2024-10-06 08:23:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:24:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:24:42: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 160 -> 163
+write items: 1
+wrote: 1
+
+2024-10-06 08:25:15: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 21 -> 22
+gudgeon, sell: 20 -> 21
+gudgeon, stock: 5398 -> 5373
+write items: 1
+wrote: 1
+
+2024-10-06 08:25:49: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 28 -> 27
+cooked_gudgeon, sell: 27 -> 26
+cooked_gudgeon, stock: 4927 -> 4952
+write items: 1
+wrote: 1
+
+2024-10-06 08:26:23: 1...2...3...4...5...6
+202 entries
+steel, buy: 93 -> 102
+steel, sell: 84 -> 93
+steel, stock: 1850 -> 1825
+write items: 1
+wrote: 1
+
+2024-10-06 08:26:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:27:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:28:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:28:37: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 401 -> 376
+write items: 1
+wrote: 1
+
+2024-10-06 08:29:11: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 98 -> 97
+cooked_shrimp, sell: 96 -> 95
+cooked_shrimp, stock: 8025 -> 8050
+cooked_salmon, stock: 163 -> 166
+write items: 2
+wrote: 2
+
+2024-10-06 08:29:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:30:19: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 32 -> 33
+cooked_chicken, sell: 31 -> 32
+cooked_chicken, stock: 7834 -> 7809
+write items: 1
+wrote: 1
+
+2024-10-06 08:30:53: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 33 -> 35
+cooked_chicken, sell: 32 -> 34
+cooked_chicken, stock: 7809 -> 7759
+write items: 1
+wrote: 1
+
+2024-10-06 08:31:27: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 35 -> 37
+cooked_chicken, sell: 34 -> 36
+cooked_chicken, stock: 7759 -> 7709
+write items: 1
+wrote: 1
+
+2024-10-06 08:32:01: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 37 -> 38
+cooked_chicken, sell: 36 -> 37
+cooked_chicken, stock: 7709 -> 7684
+trout, buy: 292 -> 296
+trout, sell: 288 -> 292
+trout, stock: 1739 -> 1714
+write items: 2
+wrote: 2
+
+2024-10-06 08:32:35: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 299 -> 297
+cooked_trout, sell: 296 -> 294
+cooked_trout, stock: 5506 -> 5531
+cooked_salmon, stock: 166 -> 169
+write items: 2
+wrote: 2
+
+2024-10-06 08:33:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:33:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:34:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:34:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:35:23: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19735 -> 19710
+write items: 1
+wrote: 1
+
+2024-10-06 08:35:57: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 38 -> 37
+cooked_chicken, sell: 37 -> 36
+cooked_chicken, stock: 7684 -> 7709
+write items: 1
+wrote: 1
+
+2024-10-06 08:36:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:37:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:37:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:38:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:38:45: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 27 -> 29
+raw_chicken, sell: 25 -> 27
+raw_chicken, stock: 19710 -> 19685
+sticky_sword, stock: 130 -> 129
+write items: 2
+wrote: 2
+
+2024-10-06 08:39:19: 1...2...3...4...5...6
+202 entries
+copper_dagger, stock: 0 -> 1
+cooked_chicken, buy: 37 -> 36
+cooked_chicken, sell: 36 -> 35
+cooked_chicken, stock: 7709 -> 7734
+cooked_salmon, stock: 169 -> 172
+write items: 3
+wrote: 3
+
+2024-10-06 08:39:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:40:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:40:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:41:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:42:07: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19685 -> 19660
+write items: 1
+wrote: 1
+
+2024-10-06 08:42:40: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 36 -> 35
+cooked_chicken, sell: 35 -> 34
+cooked_chicken, stock: 7734 -> 7759
+write items: 1
+wrote: 1
+
+2024-10-06 08:43:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:43:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:44:22: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 519 -> 507
+cooked_salmon, sell: 489 -> 477
+cooked_salmon, stock: 172 -> 175
+write items: 1
+wrote: 1
+
+2024-10-06 08:44:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:45:29: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 29 -> 31
+raw_chicken, sell: 27 -> 29
+raw_chicken, stock: 19660 -> 19635
+write items: 1
+wrote: 1
+
+2024-10-06 08:46:03: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 35 -> 34
+cooked_chicken, sell: 34 -> 33
+cooked_chicken, stock: 7759 -> 7784
+write items: 1
+wrote: 1
+
+2024-10-06 08:46:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:47:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:47:44: 1...2...3...4...5...6
+202 entries
+wolf_bone, buy: 299 -> 307
+wolf_bone, sell: 284 -> 292
+wolf_bone, stock: 187 -> 179
+dead_wood_plank, buy: 264 -> 288
+dead_wood_plank, sell: 240 -> 264
+dead_wood_plank, stock: 999 -> 988
+write items: 2
+wrote: 2
+
+2024-10-06 08:48:18: 1...2...3...4...5...6
+202 entries
+steel, buy: 102 -> 93
+steel, sell: 93 -> 84
+steel, stock: 1825 -> 1845
+write items: 1
+wrote: 1
+
+2024-10-06 08:48:51: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 91 -> 93
+shrimp, sell: 89 -> 91
+shrimp, stock: 376 -> 351
+cooked_shrimp, buy: 97 -> 96
+cooked_shrimp, sell: 95 -> 94
+cooked_shrimp, stock: 8050 -> 8075
+write items: 2
+wrote: 2
+
+2024-10-06 08:49:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:49:59: 1...2...3...4...5...6
+202 entries
+life_ring, stock: 399 -> 400
+write items: 1
+wrote: 1
+
+2024-10-06 08:50:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:51:07: 1...2...3...4...5...6
+202 entries
+yellow_slimeball, stock: 665 -> 654
+write items: 1
+wrote: 1
+
+2024-10-06 08:51:41: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 142 -> 143
+write items: 1
+wrote: 1
+
+2024-10-06 08:52:14: 1...2...3...4...5...6
+202 entries
+dead_wood, buy: 32 -> 36
+dead_wood, sell: 28 -> 32
+dead_wood, stock: 58824 -> 58776
+dead_wood_plank, stock: 988 -> 994
+write items: 2
+wrote: 2
+
+2024-10-06 08:52:48: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 24 -> 23
+iron_ore, sell: 21 -> 20
+iron_ore, stock: 35278 -> 35328
+write items: 1
+wrote: 1
+
+2024-10-06 08:53:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:53:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:54:29: 1...2...3...4...5...6
+202 entries
+gudgeon, stock: 5373 -> 5348
+cooked_salmon, stock: 175 -> 178
+write items: 2
+wrote: 2
+
+2024-10-06 08:55:03: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 27 -> 26
+cooked_gudgeon, sell: 26 -> 25
+cooked_gudgeon, stock: 4952 -> 4977
+wolf_hair, stock: 610 -> 600
+cooked_salmon, stock: 178 -> 181
+write items: 3
+wrote: 3
+
+2024-10-06 08:55:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:56:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:56:44: 1...2...3...4...5...6
+202 entries
+wolf_hair, stock: 600 -> 594
+write items: 1
+wrote: 1
+
+2024-10-06 08:57:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:57:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:58:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:58:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 08:59:35: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 181 -> 184
+write items: 1
+wrote: 1
+
+2024-10-06 09:00:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:00:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:01:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:01:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:02:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:02:58: 1...2...3...4...5...6
+202 entries
+gold_platelegs, stock: 171 -> 179
+write items: 1
+wrote: 1
+
+2024-10-06 09:03:32: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 184 -> 187
+write items: 1
+wrote: 1
+
+2024-10-06 09:04:05: 1...2...3...4...5...6
+202 entries
+magical_cure, buy: 9392 -> 9072
+magical_cure, sell: 8640 -> 8320
+magical_cure, stock: 14 -> 16
+write items: 1
+wrote: 1
+
+2024-10-06 09:04:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:05:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:05:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:06:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:06:55: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 187 -> 190
+write items: 1
+wrote: 1
+
+2024-10-06 09:07:29: 1...2...3...4...5...6
+202 entries
+steel, buy: 93 -> 84
+steel, sell: 84 -> 75
+steel, stock: 1845 -> 1865
+write items: 1
+wrote: 1
+
+2024-10-06 09:08:03: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:08:36: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19635 -> 19608
+write items: 1
+wrote: 1
+
+2024-10-06 09:09:10: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:09:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:10:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:10:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:11:25: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 190 -> 193
+write items: 1
+wrote: 1
+
+2024-10-06 09:11:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:12:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:13:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:13:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:14:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:14:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:15:22: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 507 -> 495
+cooked_salmon, sell: 477 -> 465
+cooked_salmon, stock: 193 -> 196
+write items: 1
+wrote: 1
+
+2024-10-06 09:15:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:16:29: 1...2...3...4...5...6
+202 entries
+death_knight_sword, stock: 416 -> 427
+write items: 1
+wrote: 1
+
+2024-10-06 09:17:03: 1...2...3...4...5...6
+202 entries
+bandit_armor, stock: 217 -> 219
+write items: 1
+wrote: 1
+
+2024-10-06 09:17:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:18:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:18:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:19:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:19:53: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 34 -> 35
+cooked_chicken, sell: 33 -> 34
+cooked_chicken, stock: 7784 -> 7759
+cooked_salmon, stock: 196 -> 199
+write items: 2
+wrote: 2
+
+2024-10-06 09:20:27: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 35 -> 37
+cooked_chicken, sell: 34 -> 36
+cooked_chicken, stock: 7759 -> 7709
+write items: 1
+wrote: 1
+
+2024-10-06 09:21:00: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 37 -> 39
+cooked_chicken, sell: 36 -> 38
+cooked_chicken, stock: 7709 -> 7659
+cooked_salmon, stock: 199 -> 202
+write items: 2
+wrote: 2
+
+2024-10-06 09:21:35: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 39 -> 40
+cooked_chicken, sell: 38 -> 39
+cooked_chicken, stock: 7659 -> 7634
+write items: 1
+wrote: 1
+
+2024-10-06 09:22:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:22:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:23:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:23:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:24:24: 1...2...3...4...5...6
+202 entries
+steel, stock: 1865 -> 1875
+write items: 1
+wrote: 1
+
+2024-10-06 09:24:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:25:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:26:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:26:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:27:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:27:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:28:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:28:56: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 202 -> 205
+write items: 1
+wrote: 1
+
+2024-10-06 09:29:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:30:04: 1...2...3...4...5...6
+202 entries
+bass, buy: 429 -> 423
+bass, sell: 421 -> 415
+bass, stock: 6029 -> 6079
+write items: 1
+wrote: 1
+
+2024-10-06 09:30:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:31:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:31:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:32:19: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 205 -> 208
+write items: 1
+wrote: 1
+
+2024-10-06 09:32:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:33:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:34:00: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:34:34: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 31 -> 33
+raw_chicken, sell: 29 -> 31
+raw_chicken, stock: 19608 -> 19578
+write items: 1
+wrote: 1
+
+2024-10-06 09:35:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:35:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:36:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:36:49: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 208 -> 211
+write items: 1
+wrote: 1
+
+2024-10-06 09:37:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:37:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:38:31: 1...2...3...4...5...6
+202 entries
+copper, stock: 54 -> 40
+write items: 1
+wrote: 1
+
+2024-10-06 09:39:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:39:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:40:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:40:46: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 211 -> 214
+write items: 1
+wrote: 1
+
+2024-10-06 09:41:20: 1...2...3...4...5...6
+202 entries
+copper_dagger, stock: 1 -> 0
+write items: 1
+wrote: 1
+
+2024-10-06 09:41:54: 1...2...3...4...5...6
+202 entries
+copper, stock: 40 -> 42
+write items: 1
+wrote: 1
+
+2024-10-06 09:42:27: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19578 -> 19553
+demon_horn, stock: 33 -> 25
+owlbear_hair, buy: 1523 -> 1601
+owlbear_hair, sell: 1368 -> 1446
+owlbear_hair, stock: 301 -> 295
+cooked_chicken, buy: 40 -> 39
+cooked_chicken, sell: 39 -> 38
+cooked_chicken, stock: 7634 -> 7659
+magical_cure, stock: 16 -> 12
+magic_stone, stock: 87 -> 81
+strangold, stock: 122 -> 106
+write items: 7
+wrote: 7
+
+2024-10-06 09:43:01: 1...2...3...4...5...6
+202 entries
+steel, buy: 84 -> 75
+steel, sell: 75 -> 66
+steel, stock: 1875 -> 1895
+write items: 1
+wrote: 1
+
+2024-10-06 09:43:35: 1...2...3...4...5...6
+202 entries
+strangold_armor, stock: 17 -> 19
+write items: 1
+wrote: 1
+
+2024-10-06 09:44:09: 1...2...3...4...5...6
+202 entries
+steel, buy: 75 -> 91
+steel, sell: 66 -> 83
+steel, stock: 1895 -> 1845
+write items: 1
+wrote: 1
+
+2024-10-06 09:44:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:45:16: 1...2...3...4...5...6
+202 entries
+wolf_hair, stock: 594 -> 582
+write items: 1
+wrote: 1
+
+2024-10-06 09:45:50: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 33 -> 35
+raw_chicken, sell: 31 -> 33
+raw_chicken, stock: 19553 -> 19528
+cooked_chicken, buy: 39 -> 38
+cooked_chicken, sell: 38 -> 37
+cooked_chicken, stock: 7659 -> 7684
+cooked_salmon, buy: 495 -> 483
+cooked_salmon, sell: 465 -> 453
+cooked_salmon, stock: 214 -> 217
+write items: 3
+wrote: 3
+
+2024-10-06 09:46:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:46:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:47:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:48:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:48:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:49:12: 1...2...3...4...5...6
+202 entries
+jasper_crystal, stock: 143 -> 144
+write items: 1
+wrote: 1
+
+2024-10-06 09:49:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:50:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:50:53: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 23 -> 22
+iron_ore, sell: 20 -> 19
+iron_ore, stock: 35328 -> 35378
+write items: 1
+wrote: 1
+
+2024-10-06 09:51:27: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 217 -> 220
+write items: 1
+wrote: 1
+
+2024-10-06 09:52:01: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 220 -> 223
+write items: 1
+wrote: 1
+
+2024-10-06 09:52:35: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19528 -> 19508
+raw_beef, buy: 64 -> 66
+raw_beef, sell: 62 -> 64
+raw_beef, stock: 846 -> 834
+write items: 2
+wrote: 2
+
+2024-10-06 09:53:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:53:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:54:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:54:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:55:23: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 223 -> 226
+write items: 1
+wrote: 1
+
+2024-10-06 09:55:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:56:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:57:04: 1...2...3...4...5...6
+202 entries
+milk_bucket, stock: 3112 -> 3090
+write items: 1
+wrote: 1
+
+2024-10-06 09:57:38: 1...2...3...4...5...6
+202 entries
+copper, buy: 57 -> 60
+copper, sell: 54 -> 57
+copper, stock: 42 -> 13
+write items: 1
+wrote: 1
+
+2024-10-06 09:58:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:58:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:59:19: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 09:59:53: 1...2...3...4...5...6
+202 entries
+flying_wing, stock: 1312 -> 1300
+copper_legs_armor, stock: 131 -> 106
+cooked_salmon, stock: 226 -> 229
+write items: 3
+wrote: 3
+
+2024-10-06 10:00:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:01:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:01:35: 1...2...3...4...5...6
+202 entries
+copper, buy: 60 -> 54
+copper, sell: 57 -> 51
+copper, stock: 13 -> 63
+write items: 1
+wrote: 1
+
+2024-10-06 10:02:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:02:42: 1...2...3...4...5...6
+202 entries
+magical_cure, stock: 12 -> 13
+write items: 1
+wrote: 1
+
+2024-10-06 10:03:16: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 26 -> 28
+cooked_gudgeon, sell: 25 -> 27
+cooked_gudgeon, stock: 4977 -> 4908
+write items: 1
+wrote: 1
+
+2024-10-06 10:03:49: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 229 -> 232
+write items: 1
+wrote: 1
+
+2024-10-06 10:04:23: 1...2...3...4...5...6
+202 entries
+greater_dreadful_staff, buy: 16416 -> 15256
+greater_dreadful_staff, sell: 14950 -> 13790
+greater_dreadful_staff, stock: 198 -> 202
+write items: 1
+wrote: 1
+
+2024-10-06 10:04:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:05:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:06:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:06:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:07:12: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 232 -> 235
+write items: 1
+wrote: 1
+
+2024-10-06 10:07:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:08:20: 1...2...3...4...5...6
+202 entries
+steel, stock: 1845 -> 1832
+write items: 1
+wrote: 1
+
+2024-10-06 10:08:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:09:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:10:00: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 38 -> 40
+cooked_chicken, sell: 37 -> 39
+cooked_chicken, stock: 7684 -> 7634
+write items: 1
+wrote: 1
+
+2024-10-06 10:10:34: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 40 -> 42
+cooked_chicken, sell: 39 -> 41
+cooked_chicken, stock: 7634 -> 7584
+cooked_salmon, buy: 483 -> 471
+cooked_salmon, sell: 453 -> 441
+cooked_salmon, stock: 235 -> 238
+write items: 2
+wrote: 2
+
+2024-10-06 10:11:08: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 42 -> 44
+cooked_chicken, sell: 41 -> 43
+cooked_chicken, stock: 7584 -> 7534
+write items: 1
+wrote: 1
+
+2024-10-06 10:11:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:12:15: 1...2...3...4...5...6
+202 entries
+steel, stock: 1832 -> 1857
+write items: 1
+wrote: 1
+
+2024-10-06 10:12:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:13:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:13:57: 1...2...3...4...5...6
+202 entries
+milk_bucket, buy: 35 -> 37
+milk_bucket, sell: 33 -> 35
+milk_bucket, stock: 3090 -> 3069
+write items: 1
+wrote: 1
+
+2024-10-06 10:14:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:15:05: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 238 -> 241
+write items: 1
+wrote: 1
+
+2024-10-06 10:15:38: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 241 -> 244
+write items: 1
+wrote: 1
+
+2024-10-06 10:16:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:16:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:17:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:17:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:18:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:19:01: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 244 -> 247
+write items: 1
+wrote: 1
+
+2024-10-06 10:19:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:20:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:20:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:21:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:21:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:22:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:22:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:23:31: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:24:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:24:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:25:12: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 22 -> 21
+iron_ore, sell: 19 -> 18
+iron_ore, stock: 35378 -> 35428
+write items: 1
+wrote: 1
+
+2024-10-06 10:25:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:26:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:26:53: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 247 -> 250
+write items: 1
+wrote: 1
+
+2024-10-06 10:27:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:28:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:28:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:29:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:29:43: 1...2...3...4...5...6
+202 entries
+lich_crown, stock: 72 -> 74
+bandit_armor, stock: 219 -> 221
+write items: 2
+wrote: 2
+
+2024-10-06 10:30:17: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 22 -> 25
+gudgeon, sell: 21 -> 24
+gudgeon, stock: 5348 -> 5198
+write items: 1
+wrote: 1
+
+2024-10-06 10:30:50: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 25 -> 26
+gudgeon, sell: 24 -> 25
+gudgeon, stock: 5198 -> 5148
+write items: 1
+wrote: 1
+
+2024-10-06 10:31:25: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 26 -> 28
+gudgeon, sell: 25 -> 27
+gudgeon, stock: 5148 -> 5048
+write items: 1
+wrote: 1
+
+2024-10-06 10:31:59: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 28 -> 31
+gudgeon, sell: 27 -> 30
+gudgeon, stock: 5048 -> 4898
+cooked_salmon, stock: 250 -> 253
+write items: 2
+wrote: 2
+
+2024-10-06 10:32:32: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 28 -> 29
+cooked_gudgeon, sell: 27 -> 28
+cooked_gudgeon, stock: 4908 -> 4883
+write items: 1
+wrote: 1
+
+2024-10-06 10:33:06: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 29 -> 34
+cooked_gudgeon, sell: 28 -> 33
+cooked_gudgeon, stock: 4883 -> 4758
+steel, buy: 91 -> 83
+steel, sell: 83 -> 76
+steel, stock: 1857 -> 1872
+write items: 2
+wrote: 2
+
+2024-10-06 10:33:40: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 34 -> 35
+cooked_gudgeon, sell: 33 -> 34
+cooked_gudgeon, stock: 4758 -> 4733
+bass, buy: 423 -> 417
+bass, sell: 415 -> 409
+bass, stock: 6079 -> 6129
+strange_ore, stock: 46685 -> 46715
+write items: 3
+wrote: 3
+
+2024-10-06 10:34:14: 1...2...3...4...5...6
+202 entries
+bass, buy: 417 -> 411
+bass, sell: 409 -> 403
+bass, stock: 6129 -> 6174
+gudgeon, buy: 31 -> 33
+gudgeon, sell: 30 -> 32
+gudgeon, stock: 4898 -> 4798
+feather, stock: 1819 -> 1769
+steel, buy: 83 -> 91
+steel, sell: 76 -> 83
+steel, stock: 1872 -> 1847
+write items: 4
+wrote: 4
+
+2024-10-06 10:34:47: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 33 -> 34
+gudgeon, sell: 32 -> 33
+gudgeon, stock: 4798 -> 4748
+steel, buy: 91 -> 100
+steel, sell: 83 -> 91
+steel, stock: 1847 -> 1827
+write items: 2
+wrote: 2
+
+2024-10-06 10:35:21: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 34 -> 36
+gudgeon, sell: 33 -> 35
+gudgeon, stock: 4748 -> 4648
+write items: 1
+wrote: 1
+
+2024-10-06 10:35:55: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 36 -> 37
+gudgeon, sell: 35 -> 36
+gudgeon, stock: 4648 -> 4598
+strange_ore, stock: 46715 -> 46745
+write items: 2
+wrote: 2
+
+2024-10-06 10:36:28: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 35 -> 38
+cooked_gudgeon, sell: 34 -> 37
+cooked_gudgeon, stock: 4733 -> 4658
+write items: 1
+wrote: 1
+
+2024-10-06 10:37:02: 1...2...3...4...5...6
+202 entries
+cooked_gudgeon, buy: 38 -> 41
+cooked_gudgeon, sell: 37 -> 40
+cooked_gudgeon, stock: 4658 -> 4583
+spruce_fishing_rod, stock: 63 -> 58
+cooked_salmon, stock: 253 -> 256
+write items: 3
+wrote: 3
+
+2024-10-06 10:37:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:38:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:38:43: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46745 -> 46805
+write items: 1
+wrote: 1
+
+2024-10-06 10:39:17: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46805 -> 46835
+write items: 1
+wrote: 1
+
+2024-10-06 10:39:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:40:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:40:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:41:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:42:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:42:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:43:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:43:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:44:21: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 471 -> 459
+cooked_salmon, sell: 441 -> 429
+cooked_salmon, stock: 256 -> 259
+write items: 1
+wrote: 1
+
+2024-10-06 10:44:56: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 44 -> 40
+cooked_chicken, sell: 43 -> 39
+cooked_chicken, stock: 7534 -> 7629
+cooked_salmon, stock: 259 -> 262
+write items: 2
+wrote: 2
+
+2024-10-06 10:45:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:46:03: 1...2...3...4...5...6
+202 entries
+bass, buy: 411 -> 399
+bass, sell: 403 -> 391
+bass, stock: 6174 -> 6274
+write items: 1
+wrote: 1
+
+2024-10-06 10:46:37: 1...2...3...4...5...6
+202 entries
+bass, stock: 6274 -> 6307
+steel, buy: 100 -> 110
+steel, sell: 91 -> 100
+steel, stock: 1827 -> 1802
+write items: 2
+wrote: 2
+
+2024-10-06 10:47:10: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:47:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:48:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:48:51: 1...2...3...4...5...6
+202 entries
+iron, stock: 2102 -> 2077
+write items: 1
+wrote: 1
+
+2024-10-06 10:49:25: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46835 -> 46865
+write items: 1
+wrote: 1
+
+2024-10-06 10:49:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:50:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:51:06: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46865 -> 46895
+write items: 1
+wrote: 1
+
+2024-10-06 10:51:40: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 262 -> 265
+write items: 1
+wrote: 1
+
+2024-10-06 10:52:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:52:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:53:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:53:55: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46895 -> 46925
+write items: 1
+wrote: 1
+
+2024-10-06 10:54:28: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46925 -> 46985
+write items: 1
+wrote: 1
+
+2024-10-06 10:55:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:55:36: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 40 -> 36
+cooked_chicken, sell: 39 -> 35
+cooked_chicken, stock: 7629 -> 7729
+write items: 1
+wrote: 1
+
+2024-10-06 10:56:09: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 265 -> 268
+write items: 1
+wrote: 1
+
+2024-10-06 10:56:43: 1...2...3...4...5...6
+202 entries
+iron, buy: 147 -> 156
+iron, sell: 138 -> 147
+iron, stock: 2077 -> 2052
+feather, buy: 47 -> 49
+feather, sell: 44 -> 46
+feather, stock: 1769 -> 1719
+write items: 2
+wrote: 2
+
+2024-10-06 10:57:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:57:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:58:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 10:58:58: 1...2...3...4...5...6
+202 entries
+steel, buy: 110 -> 101
+steel, sell: 100 -> 91
+steel, stock: 1802 -> 1822
+write items: 1
+wrote: 1
+
+2024-10-06 10:59:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:00:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:00:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:01:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:01:47: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 268 -> 271
+write items: 1
+wrote: 1
+
+2024-10-06 11:02:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:02:55: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:03:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:04:03: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 46985 -> 47015
+write items: 1
+wrote: 1
+
+2024-10-06 11:04:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:05:10: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:05:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:06:18: 1...2...3...4...5...6
+202 entries
+bandit_armor, stock: 221 -> 222
+strange_ore, stock: 47015 -> 47045
+write items: 2
+wrote: 2
+
+2024-10-06 11:06:51: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 96 -> 95
+cooked_shrimp, sell: 94 -> 93
+cooked_shrimp, stock: 8075 -> 8113
+write items: 1
+wrote: 1
+
+2024-10-06 11:07:25: 1...2...3...4...5...6
+202 entries
+raw_chicken, stock: 19508 -> 19547
+egg, stock: 12393 -> 12427
+write items: 2
+wrote: 2
+
+2024-10-06 11:07:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:08:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:09:06: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 47045 -> 47105
+write items: 1
+wrote: 1
+
+2024-10-06 11:09:40: 1...2...3...4...5...6
+202 entries
+iron, buy: 156 -> 183
+iron, sell: 147 -> 174
+iron, stock: 2052 -> 1977
+strange_ore, stock: 47105 -> 47135
+cooked_salmon, stock: 271 -> 274
+write items: 3
+wrote: 3
+
+2024-10-06 11:10:14: 1...2...3...4...5...6
+202 entries
+iron, stock: 1977 -> 1965
+write items: 1
+wrote: 1
+
+2024-10-06 11:10:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:11:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:11:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:12:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:13:04: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 274 -> 277
+write items: 1
+wrote: 1
+
+2024-10-06 11:13:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:14:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:14:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:15:19: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:15:52: 1...2...3...4...5...6
+202 entries
+iron, buy: 183 -> 210
+iron, sell: 174 -> 201
+iron, stock: 1965 -> 1890
+write items: 1
+wrote: 1
+
+2024-10-06 11:16:26: 1...2...3...4...5...6
+202 entries
+feather, stock: 1719 -> 1683
+write items: 1
+wrote: 1
+
+2024-10-06 11:17:00: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 21 -> 23
+iron_ore, sell: 18 -> 20
+iron_ore, stock: 35428 -> 35380
+write items: 1
+wrote: 1
+
+2024-10-06 11:17:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:18:07: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 459 -> 447
+cooked_salmon, sell: 429 -> 417
+cooked_salmon, stock: 277 -> 283
+write items: 1
+wrote: 1
+
+2024-10-06 11:18:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:19:15: 1...2...3...4...5...6
+202 entries
+bass, stock: 6307 -> 6282
+iron, stock: 1890 -> 1896
+write items: 2
+wrote: 2
+
+2024-10-06 11:19:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:20:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:20:56: 1...2...3...4...5...6
+202 entries
+iron, stock: 1896 -> 1894
+write items: 1
+wrote: 1
+
+2024-10-06 11:21:30: 1...2...3...4...5...6
+202 entries
+iron, buy: 210 -> 219
+iron, sell: 201 -> 210
+iron, stock: 1894 -> 1869
+feather, buy: 49 -> 51
+feather, sell: 46 -> 48
+feather, stock: 1683 -> 1633
+steel, stock: 1822 -> 1812
+write items: 3
+wrote: 3
+
+2024-10-06 11:22:04: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 425 -> 419
+cooked_bass, sell: 417 -> 411
+cooked_bass, stock: 11887 -> 11912
+iron_ore, buy: 23 -> 25
+iron_ore, sell: 20 -> 22
+iron_ore, stock: 35380 -> 35332
+steel, stock: 1812 -> 1837
+write items: 3
+wrote: 3
+
+2024-10-06 11:22:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:23:12: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 283 -> 286
+write items: 1
+wrote: 1
+
+2024-10-06 11:23:45: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:24:19: 1...2...3...4...5...6
+202 entries
+bass, stock: 6282 -> 6257
+iron, stock: 1869 -> 1875
+strange_ore, stock: 47135 -> 47195
+write items: 3
+wrote: 3
+
+2024-10-06 11:24:53: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:25:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:26:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:26:34: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11912 -> 11915
+cooked_salmon, stock: 286 -> 289
+write items: 2
+wrote: 2
+
+2024-10-06 11:27:08: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 419 -> 413
+cooked_bass, sell: 411 -> 405
+cooked_bass, stock: 11915 -> 11940
+write items: 1
+wrote: 1
+
+2024-10-06 11:27:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:28:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:28:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:29:23: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:29:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:30:31: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 289 -> 292
+write items: 1
+wrote: 1
+
+2024-10-06 11:31:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:31:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:32:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:32:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:33:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:33:54: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 292 -> 295
+write items: 1
+wrote: 1
+
+2024-10-06 11:34:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:35:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:35:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:36:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:36:42: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 295 -> 298
+write items: 1
+wrote: 1
+
+2024-10-06 11:37:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:37:50: 1...2...3...4...5...6
+202 entries
+cooked_salmon, buy: 447 -> 435
+cooked_salmon, sell: 417 -> 405
+cooked_salmon, stock: 298 -> 301
+write items: 1
+wrote: 1
+
+2024-10-06 11:38:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:38:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:39:31: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 47195 -> 47225
+write items: 1
+wrote: 1
+
+2024-10-06 11:40:05: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 47225 -> 47255
+write items: 1
+wrote: 1
+
+2024-10-06 11:40:39: 1...2...3...4...5...6
+202 entries
+wolf_hair, buy: 233 -> 241
+wolf_hair, sell: 219 -> 227
+wolf_hair, stock: 582 -> 542
+write items: 1
+wrote: 1
+
+2024-10-06 11:41:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:41:46: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 301 -> 304
+write items: 1
+wrote: 1
+
+2024-10-06 11:42:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:42:54: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 304 -> 307
+write items: 1
+wrote: 1
+
+2024-10-06 11:43:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:44:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:44:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:45:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:45:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:46:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:46:50: 1...2...3...4...5...6
+202 entries
+iron_ore, stock: 35332 -> 35364
+write items: 1
+wrote: 1
+
+2024-10-06 11:47:24: 1...2...3...4...5...6
+202 entries
+gudgeon, stock: 4598 -> 4582
+write items: 1
+wrote: 1
+
+2024-10-06 11:47:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:48:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:49:05: 1...2...3...4...5...6
+202 entries
+bass, stock: 6257 -> 6260
+cooked_salmon, stock: 307 -> 310
+write items: 2
+wrote: 2
+
+2024-10-06 11:49:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:50:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:50:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:51:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:51:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:52:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:53:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:53:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:54:09: 1...2...3...4...5...6
+202 entries
+bass, stock: 6260 -> 6263
+iron_ore, buy: 25 -> 24
+iron_ore, sell: 22 -> 21
+iron_ore, stock: 35364 -> 35372
+gudgeon, stock: 4582 -> 4578
+strange_ore, stock: 47255 -> 47285
+cooked_salmon, stock: 310 -> 313
+write items: 5
+wrote: 5
+
+2024-10-06 11:54:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:55:17: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 47285 -> 47315
+write items: 1
+wrote: 1
+
+2024-10-06 11:55:51: 1...2...3...4...5...6
+202 entries
+bass, stock: 6263 -> 6266
+write items: 1
+wrote: 1
+
+2024-10-06 11:56:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:56:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:57:32: 1...2...3...4...5...6
+202 entries
+bass, stock: 6266 -> 6269
+iron_sword, stock: 344 -> 349
+steel, buy: 101 -> 92
+steel, sell: 91 -> 82
+steel, stock: 1837 -> 1862
+iron_dagger, stock: 44 -> 46
+write items: 4
+wrote: 4
+
+2024-10-06 11:58:06: 1...2...3...4...5...6
+202 entries
+mushmush_jacket, stock: 73 -> 72
+write items: 1
+wrote: 1
+
+2024-10-06 11:58:39: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:59:13: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 11:59:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:00:20: 1...2...3...4...5...6
+202 entries
+raw_chicken, buy: 35 -> 34
+raw_chicken, sell: 33 -> 32
+raw_chicken, stock: 19547 -> 19597
+bass, stock: 6269 -> 6272
+cooked_chicken, buy: 36 -> 37
+cooked_chicken, sell: 35 -> 36
+cooked_chicken, stock: 7729 -> 7704
+write items: 3
+wrote: 3
+
+2024-10-06 12:00:54: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 37 -> 38
+cooked_chicken, sell: 36 -> 37
+cooked_chicken, stock: 7704 -> 7679
+write items: 1
+wrote: 1
+
+2024-10-06 12:01:28: 1...2...3...4...5...6
+202 entries
+shrimp, buy: 93 -> 91
+shrimp, sell: 91 -> 89
+shrimp, stock: 351 -> 401
+cooked_shrimp, buy: 95 -> 97
+cooked_shrimp, sell: 93 -> 95
+cooked_shrimp, stock: 8113 -> 8063
+write items: 2
+wrote: 2
+
+2024-10-06 12:02:02: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:02:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:03:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:03:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:04:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:04:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:05:25: 1...2...3...4...5...6
+202 entries
+iron_ore, buy: 24 -> 26
+iron_ore, sell: 21 -> 23
+iron_ore, stock: 35372 -> 35324
+write items: 1
+wrote: 1
+
+2024-10-06 12:05:58: 1...2...3...4...5...6
+202 entries
+bass, stock: 6272 -> 6275
+iron, stock: 1875 -> 1881
+write items: 2
+wrote: 2
+
+2024-10-06 12:06:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:07:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:07:40: 1...2...3...4...5...6
+202 entries
+bass, stock: 6275 -> 6250
+write items: 1
+wrote: 1
+
+2024-10-06 12:08:13: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 413 -> 407
+cooked_bass, sell: 405 -> 399
+cooked_bass, stock: 11940 -> 11965
+write items: 1
+wrote: 1
+
+2024-10-06 12:08:47: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:09:21: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 47315 -> 47345
+write items: 1
+wrote: 1
+
+2024-10-06 12:09:55: 1...2...3...4...5...6
+202 entries
+bass, stock: 6250 -> 6253
+write items: 1
+wrote: 1
+
+2024-10-06 12:10:29: 1...2...3...4...5...6
+202 entries
+strange_ore, stock: 47345 -> 47375
+write items: 1
+wrote: 1
+
+2024-10-06 12:11:02: 1...2...3...4...5...6
+202 entries
+shrimp, stock: 401 -> 376
+write items: 1
+wrote: 1
+
+2024-10-06 12:11:36: 1...2...3...4...5...6
+202 entries
+cooked_shrimp, buy: 97 -> 96
+cooked_shrimp, sell: 95 -> 94
+cooked_shrimp, stock: 8063 -> 8088
+write items: 1
+wrote: 1
+
+2024-10-06 12:12:10: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:12:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:13:18: 1...2...3...4...5...6
+202 entries
+bass, stock: 6253 -> 6256
+write items: 1
+wrote: 1
+
+2024-10-06 12:13:51: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:14:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:14:59: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:15:33: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:16:06: 1...2...3...4...5...6
+202 entries
+bass, stock: 6256 -> 6259
+write items: 1
+wrote: 1
+
+2024-10-06 12:16:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:17:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:17:48: 1...2...3...4...5...6
+202 entries
+copper, stock: 63 -> 76
+copper_ore, stock: 23746 -> 23780
+bass, stock: 6259 -> 6262
+gudgeon, stock: 4578 -> 4615
+steel, buy: 92 -> 83
+steel, sell: 82 -> 73
+steel, stock: 1862 -> 1882
+write items: 5
+wrote: 5
+
+2024-10-06 12:18:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:18:57: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:19:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:20:04: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:20:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:21:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:21:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:22:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:22:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:23:28: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:24:02: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 38 -> 36
+cooked_chicken, sell: 37 -> 35
+cooked_chicken, stock: 7679 -> 7729
+write items: 1
+wrote: 1
+
+2024-10-06 12:24:35: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 36 -> 34
+cooked_chicken, sell: 35 -> 33
+cooked_chicken, stock: 7729 -> 7779
+write items: 1
+wrote: 1
+
+2024-10-06 12:25:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:25:43: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:26:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:26:50: 1...2...3...4...5...6
+202 entries
+bass, stock: 6262 -> 6265
+write items: 1
+wrote: 1
+
+2024-10-06 12:27:24: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:27:58: 1...2...3...4...5...6
+202 entries
+bass, stock: 6265 -> 6268
+write items: 1
+wrote: 1
+
+2024-10-06 12:28:32: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 313 -> 291
+write items: 1
+wrote: 1
+
+2024-10-06 12:29:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:29:40: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:30:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:30:48: 1...2...3...4...5...6
+202 entries
+bass, stock: 6268 -> 6271
+write items: 1
+wrote: 1
+
+2024-10-06 12:31:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:31:55: 1...2...3...4...5...6
+202 entries
+bass, stock: 6271 -> 6274
+write items: 1
+wrote: 1
+
+2024-10-06 12:32:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:33:05: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:33:38: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:34:12: 1...2...3...4...5...6
+202 entries
+steel, buy: 83 -> 74
+steel, sell: 73 -> 64
+steel, stock: 1882 -> 1902
+write items: 1
+wrote: 1
+
+2024-10-06 12:34:46: 1...2...3...4...5...6
+202 entries
+bass, stock: 6274 -> 6280
+gold_platelegs, stock: 179 -> 187
+write items: 2
+wrote: 2
+
+2024-10-06 12:35:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:35:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:36:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:37:01: 1...2...3...4...5...6
+202 entries
+bass, stock: 6280 -> 6283
+write items: 1
+wrote: 1
+
+2024-10-06 12:37:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:38:09: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:38:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:39:17: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:39:50: 1...2...3...4...5...6
+202 entries
+bass, stock: 6283 -> 6286
+cooked_chicken, buy: 34 -> 31
+cooked_chicken, sell: 33 -> 30
+cooked_chicken, stock: 7779 -> 7854
+write items: 2
+wrote: 2
+
+2024-10-06 12:40:24: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 31 -> 30
+cooked_chicken, sell: 30 -> 29
+cooked_chicken, stock: 7854 -> 7884
+write items: 1
+wrote: 1
+
+2024-10-06 12:40:58: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:41:32: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:42:06: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:42:40: 1...2...3...4...5...6
+202 entries
+bass, stock: 6286 -> 6289
+write items: 1
+wrote: 1
+
+2024-10-06 12:43:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:43:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:44:21: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:44:55: 1...2...3...4...5...6
+202 entries
+bass, stock: 6289 -> 6292
+write items: 1
+wrote: 1
+
+2024-10-06 12:45:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:46:03: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:46:36: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:47:10: 1...2...3...4...5...6
+202 entries
+cooked_trout, buy: 297 -> 300
+cooked_trout, sell: 294 -> 297
+cooked_trout, stock: 5531 -> 5506
+write items: 1
+wrote: 1
+
+2024-10-06 12:47:44: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 407 -> 415
+cooked_bass, sell: 399 -> 407
+cooked_bass, stock: 11965 -> 11931
+cooked_trout, buy: 300 -> 303
+cooked_trout, sell: 297 -> 300
+cooked_trout, stock: 5506 -> 5481
+write items: 2
+wrote: 2
+
+2024-10-06 12:48:18: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:48:52: 1...2...3...4...5...6
+202 entries
+bass, stock: 6292 -> 6298
+cheese, buy: 56 -> 60
+cheese, sell: 52 -> 56
+cheese, stock: 515 -> 490
+cooked_salmon, buy: 435 -> 465
+cooked_salmon, sell: 405 -> 435
+cooked_salmon, stock: 291 -> 241
+write items: 3
+wrote: 3
+
+2024-10-06 12:49:25: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:49:59: 1...2...3...4...5...6
+202 entries
+cooked_chicken, buy: 30 -> 28
+cooked_chicken, sell: 29 -> 27
+cooked_chicken, stock: 7884 -> 7934
+write items: 1
+wrote: 1
+
+2024-10-06 12:50:33: 1...2...3...4...5...6
+202 entries
+bass, stock: 6298 -> 6301
+cooked_chicken, buy: 28 -> 27
+cooked_chicken, sell: 27 -> 26
+cooked_chicken, stock: 7934 -> 7966
+write items: 2
+wrote: 2
+
+2024-10-06 12:51:07: 1...2...3...4...5...6
+202 entries
+bass, stock: 6301 -> 6304
+write items: 1
+wrote: 1
+
+2024-10-06 12:51:41: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:52:14: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:52:48: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:53:22: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:53:56: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:54:29: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:55:03: 1...2...3...4...5...6
+202 entries
+blue_slimeball, stock: 1 -> 0
+write items: 1
+wrote: 1
+
+2024-10-06 12:55:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:56:11: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:56:44: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:57:18: 1...2...3...4...5...6
+202 entries
+steel, stock: 1902 -> 1912
+write items: 1
+wrote: 1
+
+2024-10-06 12:57:52: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:58:26: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:59:00: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 12:59:34: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:00:08: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:00:41: 1...2...3...4...5...6
+202 entries
+gudgeon, buy: 37 -> 36
+gudgeon, sell: 36 -> 35
+gudgeon, stock: 4615 -> 4638
+write items: 1
+wrote: 1
+
+2024-10-06 13:01:15: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:01:49: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:02:23: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 241 -> 244
+write items: 1
+wrote: 1
+
+2024-10-06 13:02:57: 1...2...3...4...5...6
+202 entries
+cooked_bass, stock: 11931 -> 11934
+write items: 1
+wrote: 1
+
+2024-10-06 13:03:30: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:04:04: 1...2...3...4...5...6
+202 entries
+fire_ring, stock: 78 -> 79
+adventurer_boots, stock: 199 -> 200
+air_ring, stock: 178 -> 179
+earth_ring, stock: 104 -> 105
+water_ring, stock: 22 -> 23
+write items: 5
+wrote: 5
+
+2024-10-06 13:04:38: 1...2...3...4...5...6
+202 entries
+bass, buy: 399 -> 393
+bass, sell: 391 -> 385
+bass, stock: 6304 -> 6354
+write items: 1
+wrote: 1
+
+2024-10-06 13:05:12: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:05:46: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:06:20: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:06:54: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:07:27: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:08:01: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:08:35: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:09:09: 1...2...3...4...5...6
+202 entries
+cooked_salmon, stock: 244 -> 247
+write items: 1
+wrote: 1
+
+2024-10-06 13:09:42: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:10:16: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:10:50: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:11:25: 1...2...3...4...5...6
+202 entries
+cooked_bass, buy: 415 -> 431
+cooked_bass, sell: 407 -> 423
+cooked_bass, stock: 11934 -> 11887
+write items: 1
+wrote: 1
+
+2024-10-06 13:12:03: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:12:37: 1...2...3...4...5...6
+202 entries
+
+2024-10-06 13:13:10: 1...2...3...4...5...6
+202 entries
+
+Connected to database ge.sql
+Read 23666 rows
+Begin watch loop
+2024-10-06 13:13:46: 1...2...3
+202 entries
+cooked_gudgeon, buy: 31 -> 41
+cooked_gudgeon, sell: 30 -> 40
+cooked_gudgeon, stock: 4873 -> 4583
+ash_wood, buy: 8 -> 16
+ash_wood, sell: 6 -> 14
+ash_wood, stock: 33345 -> 32988
+raw_chicken, buy: 17 -> 34
+raw_chicken, sell: 15 -> 32
+raw_chicken, stock: 19989 -> 19597
+copper, buy: 57 -> 54
+copper, sell: 54 -> 51
+copper, stock: 48 -> 76
+death_knight_sword, stock: 416 -> 427
+demon_horn, stock: 33 -> 25
+copper_ore, stock: 23746 -> 23780
+iron_armor, stock: 3 -> 0
+greater_dreadful_staff, buy: 16416 -> 15256
+greater_dreadful_staff, sell: 14950 -> 13790
+greater_dreadful_staff, stock: 198 -> 202
+mushmush_bow, stock: 4 -> 5
+red_cloth, stock: 1182 -> 1179
+gold, buy: 371 -> 393
+gold, sell: 349 -> 371
+gold, stock: 1183 -> 1160
+bass, buy: 377 -> 393
+bass, sell: 369 -> 385
+bass, stock: 6371 -> 6354
+cooked_bass, buy: 453 -> 431
+cooked_bass, sell: 445 -> 423
+cooked_bass, stock: 11712 -> 11887
+pig_skin, buy: 402 -> 391
+pig_skin, sell: 375 -> 364
+pig_skin, stock: 64 -> 102
+life_amulet, stock: 290 -> 292
+yellow_slimeball, buy: 29 -> 33
+yellow_slimeball, sell: 24 -> 28
+yellow_slimeball, stock: 732 -> 654
+spruce_wood, stock: 16902 -> 16868
+iron_ore, buy: 27 -> 26
+iron_ore, sell: 24 -> 23
+iron_ore, stock: 35130 -> 35324
+green_slimeball, stock: 1 -> 0
+blue_slimeball, buy: 73 -> 76
+blue_slimeball, sell: 68 -> 71
+blue_slimeball, stock: 22 -> 0
+shrimp, buy: 73 -> 91
+shrimp, sell: 71 -> 89
+shrimp, stock: 882 -> 376
+cooked_trout, buy: 260 -> 303
+cooked_trout, sell: 257 -> 300
+cooked_trout, stock: 5638 -> 5481
+coal, buy: 23 -> 21
+coal, sell: 21 -> 19
+coal, stock: 10205 -> 10255
+owlbear_hair, buy: 1523 -> 1601
+owlbear_hair, sell: 1368 -> 1446
+owlbear_hair, stock: 301 -> 295
+ash_plank, buy: 33 -> 39
+ash_plank, sell: 30 -> 36
+ash_plank, stock: 1980 -> 1888
+greater_wooden_staff, stock: 240 -> 241
+iron, buy: 147 -> 219
+iron, sell: 138 -> 210
+iron, stock: 2096 -> 1881
+raw_beef, buy: 64 -> 66
+raw_beef, sell: 62 -> 64
+raw_beef, stock: 885 -> 834
+milk_bucket, buy: 33 -> 37
+milk_bucket, sell: 31 -> 35
+milk_bucket, stock: 3151 -> 3069
+gudgeon, buy: 20 -> 36
+gudgeon, sell: 19 -> 35
+gudgeon, stock: 5472 -> 4638
+cooked_shrimp, buy: 84 -> 96
+cooked_shrimp, sell: 82 -> 94
+cooked_shrimp, stock: 7964 -> 8088
+wolf_hair, buy: 225 -> 241
+wolf_hair, sell: 211 -> 227
+wolf_hair, stock: 599 -> 542
+iron_sword, stock: 344 -> 349
+cooked_chicken, buy: 19 -> 27
+cooked_chicken, sell: 18 -> 26
+cooked_chicken, stock: 8173 -> 7966
+skeleton_skull, stock: 188 -> 184
+lich_crown, stock: 72 -> 74
+jasper_crystal, buy: 3336 -> 3156
+jasper_crystal, sell: 2700 -> 2520
+jasper_crystal, stock: 141 -> 144
+beef_stew, buy: 106 -> 108
+beef_stew, sell: 104 -> 106
+beef_stew, stock: 215 -> 186
+flying_wing, buy: 121 -> 129
+flying_wing, sell: 113 -> 121
+flying_wing, stock: 1333 -> 1300
+gold_platelegs, stock: 156 -> 187
+skull_ring, stock: 111 -> 115
+sticky_sword, stock: 130 -> 129
+cowhide, buy: 90 -> 93
+cowhide, sell: 85 -> 88
+cowhide, stock: 10 -> 15
+cooked_wolf_meat, buy: 58 -> 70
+cooked_wolf_meat, sell: 50 -> 62
+cooked_wolf_meat, stock: 1141 -> 1123
+wolf_bone, buy: 291 -> 307
+wolf_bone, sell: 276 -> 292
+wolf_bone, stock: 243 -> 179
+mushroom, stock: 5 -> 4
+egg, stock: 12405 -> 12427
+skull_wand, stock: 5 -> 4
+spruce_plank, stock: 4616 -> 4629
+cheese, buy: 56 -> 60
+cheese, sell: 52 -> 56
+cheese, stock: 515 -> 490
+dead_wood, buy: 32 -> 36
+dead_wood, sell: 28 -> 32
+dead_wood, stock: 58824 -> 58776
+gold_ore, buy: 45 -> 57
+gold_ore, sell: 39 -> 51
+gold_ore, stock: 61720 -> 61630
+piggy_pants, stock: 99 -> 98
+spruce_fishing_rod, stock: 63 -> 58
+skull_staff, buy: 759 -> 690
+skull_staff, sell: 690 -> 630
+skull_staff, stock: 144 -> 150
+copper_legs_armor, stock: 131 -> 106
+steel_legs_armor, stock: 171 -> 172
+life_ring, stock: 397 -> 400
+magical_cure, buy: 9712 -> 9072
+magical_cure, sell: 8960 -> 8320
+magical_cure, stock: 8 -> 13
+raw_wolf_meat, buy: 47 -> 61
+raw_wolf_meat, sell: 40 -> 54
+raw_wolf_meat, stock: 3013 -> 2931
+ogre_eye, stock: 5 -> 1
+bandit_armor, stock: 215 -> 222
+trout, buy: 256 -> 296
+trout, sell: 252 -> 292
+trout, stock: 2251 -> 1714
+feather, buy: 47 -> 51
+feather, sell: 44 -> 48
+feather, stock: 1787 -> 1633
+steel, buy: 21 -> 74
+steel, sell: 20 -> 64
+steel, stock: 2143 -> 1912
+iron_dagger, stock: 44 -> 46
+dead_wood_plank, buy: 264 -> 288
+dead_wood_plank, sell: 240 -> 264
+dead_wood_plank, stock: 1016 -> 994
+cursed_book, stock: 10 -> 7
+magic_stone, stock: 87 -> 81
+strange_ore, stock: 46835 -> 47375
+strangold, buy: 227 -> 256
+strangold, sell: 205 -> 231
+strangold, stock: 148 -> 106
+magical_plank, stock: 355 -> 337
+strangold_legs_armor, stock: 8 -> 9
+strangold_armor, stock: 17 -> 19
+skull_amulet, stock: 903 -> 902
+cooked_salmon, buy: 423 -> 465
+cooked_salmon, sell: 393 -> 435
+cooked_salmon, stock: 321 -> 247
+write items: 77
+wrote: 77
+
+2024-10-06 13:14:17: 1...2...3
+202 entries
+
+2024-10-06 13:14:49: 1...2...3
+202 entries
+
+2024-10-06 13:15:21: 1...2...3
+202 entries
+
+2024-10-06 13:15:52: 1...2...3
+202 entries
+cooked_salmon, stock: 247 -> 250
+write items: 1
+wrote: 1
+
+2024-10-06 13:16:24: 1...2...3
+202 entries
+
+2024-10-06 13:16:56: 1...2...3
+202 entries
+
+2024-10-06 13:17:27: 1...2...3
+202 entries
+
+2024-10-06 13:17:59: 1...2...3
+202 entries
+
+2024-10-06 13:18:30: 1...2...3
+202 entries
+
+2024-10-06 13:19:02: 1...2...3
+202 entries
+
+2024-10-06 13:19:34: 1...2...3
+202 entries
+cooked_salmon, stock: 250 -> 253
+write items: 1
+wrote: 1
+
+2024-10-06 13:20:05: 1...2...3
+202 entries
+
+2024-10-06 13:20:37: 1...2...3
+202 entries
+
+2024-10-06 13:21:08: 1...2...3
+202 entries
+
+2024-10-06 13:21:40: 1...2...3
+202 entries
+
+2024-10-06 13:22:11: 1...2...3
+202 entries
+
+2024-10-06 13:22:43: 1...2...3
+202 entries
+
+2024-10-06 13:23:15: 1...2...3
+202 entries
+cooked_salmon, stock: 253 -> 256
+write items: 1
+wrote: 1
+
+2024-10-06 13:23:47: 1...2...3
+202 entries
+
+2024-10-06 13:24:19: 1...2...3
+202 entries
+
+2024-10-06 13:24:50: 1...2...3
+202 entries
+
+Connected to database ge.sql
+Read 204 rows
+Begin watch loop
+2024-10-06 13:25:22: 1...2...3
+202 entries
+
+2024-10-06 13:25:53: 1...2...3
+202 entries
+
+2024-10-06 13:26:25: 1...2...3
+202 entries
+
+2024-10-06 13:26:56: 1...2...3
+202 entries
+
+2024-10-06 13:27:28: 1...2...3
+202 entries
+steel, buy: 74 -> 65
+steel, sell: 64 -> 55
+steel, stock: 1912 -> 1937
+cooked_salmon, stock: 256 -> 259
+write items: 2
+wrote: 2
+
+2024-10-06 13:28:00: 1...2...3
+202 entries
+
+2024-10-06 13:28:33: 1...2...3
+202 entries
+
+2024-10-06 13:29:04: 1...2...3
+202 entries
+
+2024-10-06 13:29:36: 1...2...3
+202 entries
+
+2024-10-06 13:30:07: 1...2...3
+202 entries
+
+2024-10-06 13:30:39: 1...2...3
+202 entries
+
+2024-10-06 13:31:10: 1...2...3
+202 entries
+strange_ore, stock: 47375 -> 47405
+write items: 1
+wrote: 1
+
+2024-10-06 13:31:42: 1...2...3
+202 entries
+
+2024-10-06 13:32:14: 1...2...3
+202 entries
+fire_ring, stock: 79 -> 80
+earth_ring, stock: 105 -> 106
+air_and_water_amulet, stock: 244 -> 245
+iron_ring, stock: 84 -> 85
+slime_shield, stock: 235 -> 236
+fire_and_earth_amulet, stock: 557 -> 558
+cooked_salmon, buy: 465 -> 453
+cooked_salmon, sell: 435 -> 423
+cooked_salmon, stock: 259 -> 262
+write items: 7
+wrote: 7
+
+2024-10-06 13:32:45: 1...2...3
+202 entries
+iron_helm, stock: 0 -> 1
+air_ring, stock: 179 -> 180
+adventurer_vest, stock: 176 -> 177
+strange_ore, stock: 47405 -> 47435
+write items: 4
+wrote: 4
+
+2024-10-06 13:33:17: 1...2...3
+202 entries
+
+2024-10-06 13:33:48: 1...2...3
+202 entries
+steel, stock: 1937 -> 1942
+write items: 1
+wrote: 1
+
+2024-10-06 13:34:20: 1...2...3
+202 entries
+
+2024-10-06 13:34:51: 1...2...3
+202 entries
+
+2024-10-06 13:35:23: 1...2...3
+202 entries
+
+2024-10-06 13:35:55: 1...2...3
+202 entries
+skeleton_pants, stock: 211 -> 212
+write items: 1
+wrote: 1
+
+2024-10-06 13:36:26: 1...2...3
+202 entries
+
+2024-10-06 13:36:58: 1...2...3
+202 entries
+battlestaff, stock: 333 -> 328
+cooked_salmon, stock: 262 -> 265
+write items: 2
+wrote: 2
+
+2024-10-06 13:37:29: 1...2...3
+202 entries
+
+2024-10-06 13:38:01: 1...2...3
+202 entries
+
+2024-10-06 13:38:33: 1...2...3
+202 entries
+
+2024-10-06 13:39:05: 1...2...3
+202 entries
+
+2024-10-06 13:39:36: 1...2...3
+202 entries
+
+2024-10-06 13:40:08: 1...2...3
+202 entries
+
+2024-10-06 13:40:39: 1...2...3
+202 entries
+cooked_salmon, stock: 265 -> 268
+write items: 1
+wrote: 1
+
+2024-10-06 13:41:11: 1...2...3
+202 entries
+
+2024-10-06 13:41:43: 1...2...3
+202 entries
+
+2024-10-06 13:42:14: 1...2...3
+202 entries
+dead_wood, buy: 36 -> 44
+dead_wood, sell: 32 -> 40
+dead_wood, stock: 58776 -> 58676
+write items: 1
+wrote: 1
+
+2024-10-06 13:42:46: 1...2...3
+202 entries
+dead_wood, stock: 58676 -> 58666
+write items: 1
+wrote: 1
+
+2024-10-06 13:43:18: 1...2...3
+202 entries
+
+2024-10-06 13:43:49: 1...2...3
+202 entries
+
+2024-10-06 13:44:21: 1...2...3
+202 entries
+
+2024-10-06 13:44:53: 1...2...3
+202 entries
+cooked_salmon, stock: 268 -> 271
+write items: 1
+wrote: 1
+
+2024-10-06 13:45:24: 1...2...3
+202 entries
+
+2024-10-06 13:45:56: 1...2...3
+202 entries
+
+2024-10-06 13:46:28: 1...2...3
+202 entries
+strange_ore, stock: 47435 -> 47465
+write items: 1
+wrote: 1
+
+2024-10-06 13:46:59: 1...2...3
+202 entries
+
+2024-10-06 13:47:33: 1...2...3
+202 entries
+
+2024-10-06 13:48:04: 1...2...3
+202 entries
+cooked_bass, stock: 11887 -> 11890
+write items: 1
+wrote: 1
+
+2024-10-06 13:48:36: 1...2...3
+202 entries
+
+2024-10-06 13:49:09: 1...2...3
+202 entries
+
+2024-10-06 13:49:41: 1...2...3
+202 entries
+
+2024-10-06 13:50:12: 1...2...3
+202 entries
+
+2024-10-06 13:50:44: 1...2...3
+202 entries
+
+2024-10-06 13:51:15: 1...2...3
+202 entries
+
+2024-10-06 13:51:47: 1...2...3
+202 entries
+
+2024-10-06 13:52:19: 1...2...3
+202 entries
+
+2024-10-06 13:52:50: 1...2...3
+202 entries
+
+2024-10-06 13:53:22: 1...2...3
+202 entries
+
+2024-10-06 13:53:54: 1...2...3
+202 entries
+cooked_salmon, stock: 271 -> 274
+write items: 1
+wrote: 1
+
+2024-10-06 13:54:26: 1...2...3
+202 entries
+
+2024-10-06 13:54:58: 1...2...3
+202 entries
+
+2024-10-06 13:55:34: 1...2...3
+202 entries
+
+2024-10-06 13:56:18: 1...2...3
+202 entries
+
+2024-10-06 13:56:52: 1...2...3
+202 entries
+cooked_bass, stock: 11890 -> 11893
+write items: 1
+wrote: 1
+
+Connected to database ge.sql
+Read 204 rows
+Begin watch loop
+2024-10-06 13:57:32: 1...2...3
+202 entries
+
+2024-10-06 14:27:49: 1Connected to database ge.sql
+Read 204 rows
+Begin watch loop
+2024-10-06 21:11:22: 1...2...3
+202 entries
+adventurer_boots, stock: 200 -> 201
+raw_chicken, buy: 34 -> 33
+raw_chicken, sell: 32 -> 31
+raw_chicken, stock: 19597 -> 19677
+steel_armor, stock: 214 -> 215
+iron_legs_armor, stock: 146 -> 147
+copper, buy: 54 -> 60
+copper, sell: 51 -> 57
+copper, stock: 76 -> 8
+death_knight_sword, stock: 427 -> 447
+iron_armor, stock: 0 -> 1
+iron_helm, stock: 1 -> 2
+golden_egg, stock: 219 -> 220
+greater_dreadful_staff, buy: 15256 -> 4816
+greater_dreadful_staff, sell: 13790 -> 3350
+greater_dreadful_staff, stock: 202 -> 251
+iron_ring, buy: 186 -> 228
+iron_ring, sell: 171 -> 213
+iron_ring, stock: 85 -> 10
+bass, buy: 393 -> 379
+bass, sell: 385 -> 371
+bass, stock: 6354 -> 6468
+cooked_bass, buy: 431 -> 393
+cooked_bass, sell: 423 -> 385
+cooked_bass, stock: 11893 -> 12056
+lizard_skin, buy: 821 -> 789
+lizard_skin, sell: 742 -> 710
+lizard_skin, stock: 531 -> 616
+leather_hat, stock: 420 -> 421
+yellow_slimeball, buy: 33 -> 35
+yellow_slimeball, sell: 28 -> 30
+yellow_slimeball, stock: 654 -> 590
+iron_ore, buy: 26 -> 23
+iron_ore, sell: 23 -> 20
+iron_ore, stock: 35324 -> 35534
+leather_armor, stock: 65 -> 66
+ash_plank, buy: 39 -> 45
+ash_plank, sell: 36 -> 42
+ash_plank, stock: 1888 -> 1822
+iron, buy: 219 -> 191
+iron, sell: 210 -> 182
+iron, stock: 1881 -> 2019
+raw_beef, stock: 834 -> 807
+milk_bucket, buy: 37 -> 39
+milk_bucket, sell: 35 -> 37
+milk_bucket, stock: 3069 -> 3020
+gudgeon, stock: 4638 -> 4634
+cooked_shrimp, buy: 96 -> 95
+cooked_shrimp, sell: 94 -> 93
+cooked_shrimp, stock: 8088 -> 8113
+cooked_chicken, stock: 7966 -> 7944
+forest_whip, stock: 169 -> 170
+jasper_crystal, buy: 3156 -> 2916
+jasper_crystal, sell: 2520 -> 2280
+jasper_crystal, stock: 144 -> 151
+flying_wing, buy: 129 -> 137
+flying_wing, sell: 121 -> 129
+flying_wing, stock: 1300 -> 1251
+gold_platelegs, stock: 187 -> 203
+cowhide, stock: 15 -> 2
+wolf_bone, stock: 179 -> 154
+mushroom, buy: 137 -> 133
+mushroom, sell: 126 -> 122
+mushroom, stock: 4 -> 89
+leather_boots, stock: 399 -> 400
+egg, stock: 12427 -> 12438
+iron_boots, stock: 9 -> 1
+dead_wood, buy: 44 -> 56
+dead_wood, sell: 40 -> 52
+dead_wood, stock: 58666 -> 58486
+gold_ore, buy: 57 -> 63
+gold_ore, sell: 51 -> 57
+gold_ore, stock: 61630 -> 61570
+life_ring, stock: 400 -> 401
+magical_cure, buy: 9072 -> 8752
+magical_cure, sell: 8320 -> 8000
+magical_cure, stock: 13 -> 21
+slime_shield, stock: 236 -> 235
+bandit_armor, stock: 222 -> 228
+adventurer_helmet, stock: 166 -> 167
+feather, buy: 51 -> 50
+feather, sell: 48 -> 47
+feather, stock: 1633 -> 1679
+steel, buy: 65 -> 22
+steel, sell: 55 -> 21
+steel, stock: 1942 -> 2213
+adventurer_pants, stock: 137 -> 138
+strange_ore, stock: 47465 -> 47365
+magic_wood, buy: 23 -> 21
+magic_wood, sell: 21 -> 20
+magic_wood, stock: 34926 -> 35976
+strangold, buy: 256 -> 261
+strangold, sell: 231 -> 236
+strangold, stock: 106 -> 116
+cooked_salmon, buy: 453 -> 417
+cooked_salmon, sell: 423 -> 387
+cooked_salmon, stock: 274 -> 337
+write items: 49
+wrote: 49
+
+2024-10-06 21:11:55: 1...2...3
+202 entries
+
+2024-10-06 21:12:26: 1...2...3
+202 entries
+
+2024-10-06 21:12:58: 1...2...3
+202 entries
+
+2024-10-06 21:13:30: 1...2...3
+202 entries
+
+2024-10-06 21:14:02: 1...2...3
+202 entries
+
+2024-10-06 21:14:34: 1...2...3
+202 entries
+
+2024-10-06 21:15:07: 1...2...3
+202 entries
+
+2024-10-06 21:15:39: 1...2...3
+202 entries
+cooked_bass, stock: 12056 -> 12059
+cooked_salmon, stock: 337 -> 340
+write items: 2
+wrote: 2
+
+2024-10-06 21:16:11: 1...2...3
+202 entries
+
+2024-10-06 21:16:42: 1...2...3
+202 entries
+
+2024-10-06 21:17:14: 1...2...3
+202 entries
+
+2024-10-06 21:17:46: 1...2...3
+202 entries
+
+2024-10-06 21:18:18: 1...2...3
+202 entries
+
+2024-10-06 21:18:50: 1...2...3
+202 entries
+
+2024-10-06 21:19:22: 1...2...3
+202 entries
+
+2024-10-06 21:19:54: 1...2...3
+202 entries
+
+2024-10-06 21:20:26: 1...2...3
+202 entries
+
+2024-10-06 21:20:57: 1...2...3
+202 entries
+
+2024-10-06 21:21:29: 1...2...3
+202 entries
+
+2024-10-06 21:22:01: 1...2...3
+202 entries
+
+2024-10-06 21:22:33: 1...2...3
+202 entries
+cooked_salmon, stock: 340 -> 343
+write items: 1
+wrote: 1
+
+2024-10-06 21:23:05: 1...2...3
+202 entries
+
+2024-10-06 21:23:37: 1...2...3
+202 entries
+
+2024-10-06 21:24:09: 1...2...3
+202 entries
+
+2024-10-06 21:24:41: 1...2...3
+202 entries
+
+2024-10-06 21:25:13: 1...2...3
+202 entries
+
+2024-10-06 21:25:45: 1...2...3
+202 entries
+cooked_salmon, buy: 417 -> 405
+cooked_salmon, sell: 387 -> 375
+cooked_salmon, stock: 343 -> 346
+write items: 1
+wrote: 1
+
+2024-10-06 21:26:17: 1...2...3
+202 entries
+
+2024-10-06 21:26:50: 1...2...3
+202 entries
+
+2024-10-06 21:27:22: 1...2...3
+202 entries
+
+2024-10-06 21:27:54: 1...2...3
+202 entries
+
+2024-10-06 21:28:26: 1...2...3
+202 entries
+
+2024-10-06 21:28:58: 1...2...3
+202 entries
+
+2024-10-06 21:29:30: 1...2...3
+202 entries
+
+2024-10-06 21:30:02: 1...2...3
+202 entries
+
+2024-10-06 21:30:33: 1...2...3
+202 entries
+cooked_salmon, stock: 346 -> 349
+write items: 1
+wrote: 1
+
+2024-10-06 21:31:05: 1...2...3
+202 entries
+raw_beef, buy: 66 -> 68
+raw_beef, sell: 64 -> 66
+raw_beef, stock: 807 -> 777
+write items: 1
+wrote: 1
+
+2024-10-06 21:31:37: 1...2...3
+202 entries
+
+2024-10-06 21:32:09: 1...2...3
+202 entries
+
+2024-10-06 21:32:41: 1...2...3
+202 entries
+
+2024-10-06 21:33:13: 1...2...3
+202 entries
+
+2024-10-06 21:33:45: 1...2...3
+202 entries
+
+2024-10-06 21:34:17: 1...2...3
+202 entries
+cooked_salmon, stock: 349 -> 352
+write items: 1
+wrote: 1
+
+2024-10-06 21:34:49: 1...2...3
+202 entries
+cooked_salmon, stock: 352 -> 355
+write items: 1
+wrote: 1
+
+2024-10-06 21:35:21: 1...2...3
+202 entries
+
+2024-10-06 21:35:53: 1...2...3
+202 entries
+
+2024-10-06 21:36:25: 1...2...3
+202 entries
+
+2024-10-06 21:36:57: 1...2...3
+202 entries
+
+2024-10-06 21:37:29: 1...2...3
+202 entries
+
+2024-10-06 21:38:01: 1...2...3
+202 entries
+
+2024-10-06 21:38:33: 1...2...3
+202 entries
+
+2024-10-06 21:39:06: 1...2...3
+202 entries
+bass, stock: 6468 -> 6471
+write items: 1
+wrote: 1
+
+2024-10-06 21:39:38: 1...2...3
+202 entries
+iron_ore, buy: 23 -> 22
+iron_ore, sell: 20 -> 19
+iron_ore, stock: 35534 -> 35584
+write items: 1
+wrote: 1
+
+2024-10-06 21:40:09: 1...2...3
+202 entries
+
+2024-10-06 21:40:41: 1...2...3
+202 entries
+
+2024-10-06 21:41:13: 1...2...3
+202 entries
+
+2024-10-06 21:41:46: 1...2...3
+202 entries
+bass, stock: 6471 -> 6474
+cooked_salmon, stock: 355 -> 358
+write items: 2
+wrote: 2
+
+2024-10-06 21:42:18: 1...2...3
+202 entries
+
+2024-10-06 21:42:49: 1...2...3
+202 entries
+
+2024-10-06 21:43:21: 1...2...3
+202 entries
+
+2024-10-06 21:43:53: 1...2...3
+202 entries
+
+2024-10-06 21:44:25: 1...2...3
+202 entries
+steel, buy: 22 -> 21
+steel, sell: 21 -> 20
+steel, stock: 2213 -> 2238
+write items: 1
+wrote: 1
+
+2024-10-06 21:44:57: 1...2...3
+202 entries
+
+2024-10-06 21:45:30: 1...2...3
+202 entries
+
+2024-10-06 21:46:01: 1...2...3
+202 entries
+bass, stock: 6474 -> 6477
+write items: 1
+wrote: 1
+
+2024-10-06 21:46:33: 1...2...3
+202 entries
+
+2024-10-06 21:47:05: 1...2...3
+202 entries
+
+2024-10-06 21:47:37: 1...2...3
+202 entries
+bass, stock: 6477 -> 6480
+write items: 1
+wrote: 1
+
+2024-10-06 21:48:09: 1...2...3
+202 entries
+
+2024-10-06 21:48:41: 1...2...3
+202 entries
+
+2024-10-06 21:49:13: 1...2...3
+202 entries
+magical_cure, stock: 21 -> 23
+write items: 1
+wrote: 1
+
+2024-10-06 21:49:45: 1...2...3
+202 entries
+
+2024-10-06 21:50:17: 1...2...3
+202 entries
+
+2024-10-06 21:50:49: 1...2...3
+202 entries
+
+2024-10-06 21:51:21: 1...2...3
+202 entries
+
+2024-10-06 21:51:53: 1...2...3
+202 entries
+
+2024-10-06 21:52:25: 1...2...3
+202 entries
+bass, stock: 6480 -> 6483
+write items: 1
+wrote: 1
+
+2024-10-06 21:52:57: 1...2...3
+202 entries
+
+2024-10-06 21:53:29: 1...2...3
+202 entries
+
+2024-10-06 21:54:01: 1...2...3
+202 entries
+
+2024-10-06 21:54:33: 1...2...3
+202 entries
+
+2024-10-06 21:55:05: 1...2...3
+202 entries
+
+2024-10-06 21:55:36: 1...2...3
+202 entries
+
+2024-10-06 21:56:08: 1...2...3
+202 entries
+
+2024-10-06 21:56:41: 1...2...3
+202 entries
+
+2024-10-06 21:57:13: 1...2...3
+202 entries
+
+2024-10-06 21:57:45: 1...2...3
+202 entries
+bass, stock: 6483 -> 6489
+write items: 1
+wrote: 1
+
+2024-10-06 21:58:17: 1...2...3
+202 entries
+
+2024-10-06 21:58:49: 1...2...3
+202 entries
+bass, stock: 6489 -> 6492
+write items: 1
+wrote: 1
+
+2024-10-06 21:59:21: 1...2...3
+202 entries
+
+2024-10-06 21:59:52: 1...2...3
+202 entries
+bass, stock: 6492 -> 6495
+write items: 1
+wrote: 1
+
+2024-10-06 22:00:24: 1...2...3
+202 entries
+
+2024-10-06 22:00:56: 1...2...3
+202 entries
+
+2024-10-06 22:01:28: 1...2...3
+202 entries
+
+2024-10-06 22:02:00: 1...2...3
+202 entries
+
+2024-10-06 22:02:32: 1...2...3
+202 entries
+
+2024-10-06 22:03:04: 1...2...3
+202 entries
+
+2024-10-06 22:03:36: 1...2...3
+202 entries
+bass, buy: 379 -> 373
+bass, sell: 371 -> 365
+bass, stock: 6495 -> 6498
+write items: 1
+wrote: 1
+
+2024-10-06 22:04:08: 1...2...3
+202 entries
+
+2024-10-06 22:04:40: 1...2...3
+202 entries
+
+2024-10-06 22:05:12: 1...2...3
+202 entries
+
+2024-10-06 22:05:44: 1...2...3
+202 entries
+
+2024-10-06 22:06:16: 1...2...3
+202 entries
+
+2024-10-06 22:06:48: 1...2...3
+202 entries
+
+2024-10-06 22:07:20: 1...2...3
+202 entries
+
+2024-10-06 22:07:52: 1...2...3
+202 entries
+
+2024-10-06 22:08:24: 1...2...3
+202 entries
+
+2024-10-06 22:08:56: 1...2...3
+202 entries
+
+2024-10-06 22:09:28: 1...2...3
+202 entries
+
+2024-10-06 22:10:00: 1...2...3
+202 entries
+
+2024-10-06 22:10:32: 1...2...3
+202 entries
+bass, stock: 6498 -> 6501
+write items: 1
+wrote: 1
+
+2024-10-06 22:11:04: 1...2...3
+202 entries
+
+2024-10-06 22:11:36: 1...2...3
+202 entries
+
+2024-10-06 22:12:08: 1...2...3
+202 entries
+
+2024-10-06 22:12:40: 1...2...3
+202 entries
+
+2024-10-06 22:13:11: 1...2...3
+202 entries
+bass, stock: 6501 -> 6504
+write items: 1
+wrote: 1
+
+2024-10-06 22:13:43: 1...2...3
+202 entries
+
+2024-10-06 22:14:15: 1...2...3
+202 entries
+
+2024-10-06 22:14:47: 1...2...3
+202 entries
+dead_wood, buy: 56 -> 64
+dead_wood, sell: 52 -> 60
+dead_wood, stock: 58486 -> 58376
+write items: 1
+wrote: 1
+
+2024-10-06 22:15:19: 1...2...3
+202 entries
+
+2024-10-06 22:15:51: 1...2...3
+202 entries
+steel, stock: 2238 -> 2263
+write items: 1
+wrote: 1
+
+2024-10-06 22:16:23: 1...2...3
+202 entries
+
+2024-10-06 22:16:55: 1...2...3
+202 entries
+
+2024-10-06 22:17:27: 1...2...3
+202 entries
+
+2024-10-06 22:17:59: 1...2...3
+202 entries
+
+2024-10-06 22:18:31: 1...2...3
+202 entries
+
+2024-10-06 22:19:03: 1...2...3
+202 entries
+
+2024-10-06 22:19:35: 1...2...3
+202 entries
+
+2024-10-06 22:20:06: 1...2...3
+202 entries
+
+2024-10-06 22:20:39: 1...2...3
+202 entries
+
+2024-10-06 22:21:10: 1...2...3
+202 entries
+bass, stock: 6504 -> 6507
+write items: 1
+wrote: 1
+
+2024-10-06 22:21:43: 1...2...3
+202 entries
+cooked_bass, stock: 12059 -> 12062
+write items: 1
+wrote: 1
+
+2024-10-06 22:22:14: 1...2...3
+202 entries
+
+2024-10-06 22:22:46: 1...2...3
+202 entries
+
+2024-10-06 22:23:18: 1...2...3
+202 entries
+
+2024-10-06 22:23:50: 1...2...3
+202 entries
+
+2024-10-06 22:24:22: 1...2...3
+202 entries
+
+2024-10-06 22:24:55: 1...2...3
+202 entries
+
+2024-10-06 22:25:30: 1...2...3
+202 entries
+
+2024-10-06 22:26:02: 1...2...3
+202 entries
+
+2024-10-06 22:26:34: 1...2...3
+202 entries
+ash_plank, buy: 45 -> 48
+ash_plank, sell: 42 -> 45
+ash_plank, stock: 1822 -> 1799
+write items: 1
+wrote: 1
+
+2024-10-06 22:27:05: 1...2...3
+202 entries
+
+2024-10-06 22:27:37: 1...2...3
+202 entries
+
+2024-10-06 22:28:09: 1...2...3
+202 entries
+
+2024-10-06 22:28:42: 1...2...3
+202 entries
+
+2024-10-06 22:29:14: 1...2...3
+202 entries
+
+2024-10-06 22:29:46: 1...2...3
+202 entries
+
+2024-10-06 22:30:18: 1...2...3
+202 entries
+
+2024-10-06 22:30:50: 1...2...3
+202 entries
+
+2024-10-06 22:48:35: 1
