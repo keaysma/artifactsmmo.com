@@ -249,8 +249,6 @@ func AutomatedMarketMakerDataExplorerGUI() {
 
 	graphBuySell := widgets.NewPlot()
 	graphBuySell.Title = "Prices"
-	graphBuySell.Marker = widgets.MarkerDot
-	graphBuySell.DotMarkerRune = '+'
 
 	// graphStock
 
@@ -273,29 +271,6 @@ func AutomatedMarketMakerDataExplorerGUI() {
 		visibleCodes := codes[base:end]
 		codeList.Text = strings.Join(visibleCodes, "\n")
 
-		if obData != nil {
-			buyPts := (func() []float64 {
-				out := []float64{}
-				for _, p := range *obData {
-					out = append(out, float64(p.entry.Buy_price))
-				}
-				return out
-			})()
-			sellPts := (func() []float64 {
-				out := []float64{}
-				for _, p := range *obData {
-					out = append(out, float64(p.entry.Sell_price))
-				}
-				return out
-			})()
-			graphBuySell.Data = [][]float64{
-				buyPts,
-				sellPts,
-			}
-			// graphBuySell.HorizontalScale = len(buyPts)
-			graphBuySell.Title = fmt.Sprintf("Prices: %s", codes[codesPointer])
-		}
-
 		draw(w, h)
 	}
 
@@ -306,8 +281,30 @@ func AutomatedMarketMakerDataExplorerGUI() {
 			log.Fatalf("failed to get orderbook data: %s", err)
 		}
 		obData = data
+		buyPts := (func() []float64 {
+			out := []float64{}
+			for _, p := range *obData {
+				out = append(out, float64(p.entry.Buy_price))
+			}
+			return out
+		})()
+		sellPts := (func() []float64 {
+			out := []float64{}
+			for _, p := range *obData {
+				out = append(out, float64(p.entry.Sell_price))
+			}
+			return out
+		})()
+		graphBuySell.Data = [][]float64{
+			buyPts,
+			sellPts,
+		}
+		// graphBuySell.HorizontalScale = len(buyPts)
+		graphBuySell.Title = fmt.Sprintf("Prices: %s", codes[codesPointer])
 	}
+
 	updateObData()
+	loop()
 
 	uiEvents := ui.PollEvents()
 	for {
@@ -329,9 +326,10 @@ func AutomatedMarketMakerDataExplorerGUI() {
 				}
 
 			}
+			loop()
+
 		default:
 		}
-		loop()
 		time.Sleep(time.Second / 10)
 	}
 }
