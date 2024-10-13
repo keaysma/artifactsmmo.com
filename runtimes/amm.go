@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"slices"
 	"strings"
 	"time"
 
@@ -104,7 +105,9 @@ func AutomatedMarketMaker() {
 		var writeSet = []types.GrandExchangeItemData{}
 		res, err := snapshotGE()
 		if err != nil {
-			log.Fatalf("failed to get GE snapshot: %s", err)
+			fmt.Printf("failed to get GE snapshot: %s\n", err)
+			time.Sleep(60 * time.Second)
+			continue
 		}
 
 		fmt.Printf("%d entries\n", len(*res))
@@ -180,6 +183,9 @@ type OrderbookPoint struct {
 }
 
 var obData *[]OrderbookPoint
+var timeFactor = time.Minute
+var lastSearchValue = ""
+var lastSearchPoint = 0
 
 func getOrderbookDataForItem(code string, db *sql.DB) (*[]OrderbookPoint, error) {
 	rows, err := db.Query(
@@ -187,6 +193,7 @@ func getOrderbookDataForItem(code string, db *sql.DB) (*[]OrderbookPoint, error)
 			SELECT timestamp, buy_price, sell_price, stock 
 			FROM orderbook
 			WHERE code = ?
+			ORDER BY timestamp ASC
 		`,
 		code,
 	)
@@ -215,7 +222,7 @@ func AutomatedMarketMakerDataExplorerGUI() {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT DISTINCT code FROM orderbook")
+	rows, err := db.Query("WITH ordered as (SELECT code, COUNT(code) counts FROM orderbook GROUP BY code ORDER BY counts DESC) SELECT code FROM ordered")
 	if err != nil {
 		log.Fatalf("failed to get item codes from database: %s", err)
 	}
@@ -243,20 +250,27 @@ func AutomatedMarketMakerDataExplorerGUI() {
 		defer ui.Close()
 	}
 
+	codeSearch := widgets.NewParagraph()
+	codeSearch.Title = "Search"
+	codeSearch.Text = ""
+
 	codeList := widgets.NewParagraph()
 	codeList.Title = "Item Codes"
 	codeList.Text = ""
 
 	graphBuySell := widgets.NewPlot()
 	graphBuySell.Title = "Prices"
+	graphBuySell.MinVal = 1
 
 	// graphStock
 
 	draw := func(w int, h int) {
-		codeList.SetRect(0, 0, codesWidth, h)
+		codeSearch.SetRect(0, h-3, codesWidth, h)
+		codeList.SetRect(0, 0, codesWidth, h-3)
 		graphBuySell.SetRect(codesWidth, 0, w, h-24)
 
 		ui.Render(
+			codeSearch,
 			codeList,
 			graphBuySell,
 		)
@@ -281,26 +295,38 @@ func AutomatedMarketMakerDataExplorerGUI() {
 			log.Fatalf("failed to get orderbook data: %s", err)
 		}
 		obData = data
-		buyPts := (func() []float64 {
-			out := []float64{}
-			for _, p := range *obData {
-				out = append(out, float64(p.entry.Buy_price))
+
+		buyPts := []float64{}
+		sellPts := []float64{}
+		// stockPts := []float64{}
+		if len(*obData) > 0 {
+			timePointer, err := time.Parse(time.RFC3339, (*obData)[0].timestamp)
+			if err != nil {
+				log.Fatalf("failed to parse ts: %s", err)
 			}
-			return out
-		})()
-		sellPts := (func() []float64 {
-			out := []float64{}
-			for _, p := range *obData {
-				out = append(out, float64(p.entry.Sell_price))
+
+			for i := 0; i < len(*obData); {
+				timeAtIndex, err := time.Parse(time.RFC3339, (*obData)[i].timestamp)
+				if err != nil {
+					log.Fatalf("failed to parse ts: %s", err)
+				}
+				buyPts = append(buyPts, float64((*obData)[i].entry.Buy_price))
+				sellPts = append(sellPts, float64((*obData)[i].entry.Sell_price))
+				if timeAtIndex.Before(timePointer) {
+					i++
+				} else {
+					timePointer = timePointer.Add(time.Duration(30 * timeFactor))
+				}
 			}
-			return out
-		})()
+		}
 		graphBuySell.Data = [][]float64{
 			buyPts,
 			sellPts,
 		}
-		// graphBuySell.HorizontalScale = len(buyPts)
+		graphBuySell.HorizontalScale = 1
 		graphBuySell.Title = fmt.Sprintf("Prices: %s", codes[codesPointer])
+		graphBuySell.MinVal = slices.Min(sellPts)
+		graphBuySell.MaxVal = slices.Max(sellPts)
 	}
 
 	updateObData()
@@ -313,7 +339,7 @@ func AutomatedMarketMakerDataExplorerGUI() {
 			switch event.Type {
 			case ui.KeyboardEvent:
 				switch event.ID {
-				case "<Escape>", "q":
+				case "<Escape>":
 					return
 				case "<Up>":
 					codesPointer--
@@ -323,11 +349,54 @@ func AutomatedMarketMakerDataExplorerGUI() {
 					updateObData()
 				case "<Space>":
 					updateObData()
-				}
+				case "\\":
+					switch timeFactor {
+					case time.Second:
+						timeFactor = time.Minute
+					case time.Minute:
+						timeFactor = time.Hour
+					case time.Hour:
+						timeFactor = time.Hour * 24
+					case time.Hour * 24:
+						timeFactor = time.Second
+					}
+					updateObData()
+				case "<Enter>":
+					searchVal := codeSearch.Text
+					searchStart := 0
+					if len(codeSearch.Text) == 0 {
+						searchVal = lastSearchValue
+						searchStart = lastSearchPoint + 1
+					}
 
+					if len(searchVal) == 0 {
+						continue
+					}
+
+					new_ptr := codesPointer
+					for i, code := range codes[searchStart:] {
+						if strings.Contains(code, searchVal) {
+							new_ptr = i + searchStart
+							break
+						}
+					}
+					if new_ptr != codesPointer {
+						codesPointer = new_ptr
+						lastSearchValue = searchVal
+						lastSearchPoint = new_ptr
+						codeSearch.Title = fmt.Sprintf("%s (%d)", lastSearchValue, lastSearchPoint)
+						updateObData()
+					}
+					codeSearch.Text = ""
+				case "<Backspace>", "<C-<Backspace>>":
+					if len(codeSearch.Text) > 0 {
+						codeSearch.Text = codeSearch.Text[:len(codeSearch.Text)-1]
+					}
+				default:
+					codeSearch.Text += event.ID
+				}
 			}
 			loop()
-
 		default:
 		}
 		time.Sleep(time.Second / 10)
