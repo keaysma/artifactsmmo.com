@@ -11,13 +11,22 @@ import (
 )
 
 func Tasks(task_type string) Generator {
+	var retries = 0
 	var items_sub_generator *Generator = nil
 	log := utils.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
 
 	return func(last string, success bool) string {
 		if !success {
+			// temporary - retry last command
+			retries++
+			if retries < 10 {
+				return last
+			}
+
 			return "clear-gen"
 		}
+
+		retries = 0
 
 		char := state.GlobalCharacter.Ref()
 		current_task, current_task_type, task_progress, task_total := char.Task, char.Task_type, char.Task_progress, char.Task_total
