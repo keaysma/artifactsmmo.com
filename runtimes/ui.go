@@ -82,6 +82,9 @@ func UI() {
 		log.Fatalf("failed to get character info for %s: %s", s.Character, err)
 		os.Exit(1)
 	}
+	if char == nil {
+		log.Fatalf("char is nil: %s", err)
+	}
 	state.GlobalCharacter.With(func(value *types.Character) *types.Character { return char })
 
 	// If this fails let's just ingore it, not critical
