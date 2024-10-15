@@ -77,8 +77,43 @@ func Tasks(task_type string) Generator {
 			// - We're done with the task
 			// - The character inventory is getting close to full (>90% as an arbitrary "too full" point)
 			// TODO: Just turning in task items doesn't guarantee the inventory won't fill up, need some kind-of inventory management handler still
-			if task_item_count >= task_total-task_progress || float64(current_inventory_count) > (float64(max_inventory_count)*float64(0.9)) {
+			if task_item_count >= task_total-task_progress {
 				return "trade-task all"
+			}
+
+			if float64(current_inventory_count) > (float64(max_inventory_count) * float64(0.9)) {
+				if task_item_count > 0 {
+					return "trade-task all"
+				} else {
+					// Special case: Our inventory is full of auxiliary items
+					// Time to put some stuff in the bank
+					bank_inventory, err := api.GetBankItems()
+					if err != nil {
+						return "sleep 5" // hold-over, don't fail right now since alot of requests are being dropped by game server
+					}
+
+					held_item_code_quantity_map := map[string]int{}
+					char := state.GlobalCharacter.Ref()
+					for _, slot := range char.Inventory {
+						held_item_code_quantity_map[slot.Code] = slot.Quantity
+					}
+					state.GlobalCharacter.Unlock()
+
+					for _, slot := range *bank_inventory {
+						quantity, has := held_item_code_quantity_map[slot.Code]
+						if has && quantity > 0 {
+							return fmt.Sprintf("deposit all %s", slot.Code)
+						}
+					}
+
+					// At this point
+					// - The inventory > 90% full
+					// - None of the held items are tradable for our task
+					// - None of the held items are something we have a stack of in the bank
+					// I don't even know what I'd do manually at this point...
+					// Human discretion is required, time to quit
+					return "clear-gen"
+				}
 			}
 
 			// now we effectively need to sub-task the entire make or flip gen make
