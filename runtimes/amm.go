@@ -184,6 +184,9 @@ type OrderbookPoint struct {
 
 var obData *[]OrderbookPoint
 var timeFactor = time.Minute
+var timeFactorStr = "minute"
+var horizontalOffset = 0
+var horizontalMove = 1
 var lastSearchValue = ""
 var lastSearchPoint = 0
 
@@ -262,17 +265,27 @@ func AutomatedMarketMakerDataExplorerGUI() {
 	graphBuySell.Title = "Prices"
 	graphBuySell.MinVal = 1
 
-	// graphStock
+	graphStock := widgets.NewPlot()
+	graphStock.Title = "Stock"
+	graphStock.MinVal = 1
+
+	graphInfo := widgets.NewParagraph()
+	graphInfo.Title = "<info>"
+	graphInfo.Text = ""
 
 	draw := func(w int, h int) {
 		codeSearch.SetRect(0, h-3, codesWidth, h)
 		codeList.SetRect(0, 0, codesWidth, h-3)
 		graphBuySell.SetRect(codesWidth, 0, w, h-24)
+		graphStock.SetRect(codesWidth, h-24, w, h)
+		graphInfo.SetRect(w-20, 0, w, 3)
 
 		ui.Render(
 			codeSearch,
 			codeList,
 			graphBuySell,
+			graphStock,
+			graphInfo,
 		)
 	}
 
@@ -284,6 +297,7 @@ func AutomatedMarketMakerDataExplorerGUI() {
 
 		visibleCodes := codes[base:end]
 		codeList.Text = strings.Join(visibleCodes, "\n")
+		graphInfo.Text = fmt.Sprintf("%s (%d) <%d>", timeFactorStr, horizontalOffset, horizontalMove)
 
 		draw(w, h)
 	}
@@ -298,7 +312,7 @@ func AutomatedMarketMakerDataExplorerGUI() {
 
 		buyPts := []float64{}
 		sellPts := []float64{}
-		// stockPts := []float64{}
+		stockPts := []float64{}
 		if len(*obData) > 0 {
 			timePointer, err := time.Parse(time.RFC3339, (*obData)[0].timestamp)
 			if err != nil {
@@ -312,6 +326,7 @@ func AutomatedMarketMakerDataExplorerGUI() {
 				}
 				buyPts = append(buyPts, float64((*obData)[i].entry.Buy_price))
 				sellPts = append(sellPts, float64((*obData)[i].entry.Sell_price))
+				stockPts = append(stockPts, float64((*obData)[i].entry.Stock))
 				if timeAtIndex.Before(timePointer) {
 					i++
 				} else {
@@ -319,14 +334,27 @@ func AutomatedMarketMakerDataExplorerGUI() {
 				}
 			}
 		}
+
+		w, _ := ui.TerminalDimensions()
+		horizontalOffset = min(horizontalOffset, max(1, len(buyPts)-w-4))
+		buyPtsView := buyPts[horizontalOffset:]
+		sellPtsView := sellPts[horizontalOffset:]
+		stockPtsView := stockPts[horizontalOffset:]
+
 		graphBuySell.Data = [][]float64{
-			buyPts,
-			sellPts,
+			buyPtsView,
+			sellPtsView,
 		}
 		graphBuySell.HorizontalScale = 1
 		graphBuySell.Title = fmt.Sprintf("Prices: %s", codes[codesPointer])
 		graphBuySell.MinVal = slices.Min(sellPts)
 		graphBuySell.MaxVal = slices.Max(sellPts)
+
+		graphStock.Data = [][]float64{
+			stockPtsView,
+		}
+		graphStock.MinVal = slices.Min(stockPts)
+		graphStock.MaxVal = slices.Max(stockPts)
 	}
 
 	updateObData()
@@ -347,18 +375,32 @@ func AutomatedMarketMakerDataExplorerGUI() {
 				case "<Down>":
 					codesPointer++
 					updateObData()
+				case "<Left>":
+					horizontalOffset = max(0, horizontalOffset-horizontalMove)
+					updateObData()
+				case "<Right>":
+					horizontalOffset += horizontalMove
+					updateObData()
+				case "[":
+					horizontalMove = max(1, horizontalMove-1)
+				case "]":
+					horizontalMove++
 				case "<Space>":
 					updateObData()
 				case "\\":
 					switch timeFactor {
 					case time.Second:
 						timeFactor = time.Minute
+						timeFactorStr = "minute"
 					case time.Minute:
 						timeFactor = time.Hour
+						timeFactorStr = "hour"
 					case time.Hour:
 						timeFactor = time.Hour * 24
+						timeFactorStr = "day"
 					case time.Hour * 24:
 						timeFactor = time.Second
+						timeFactorStr = "second"
 					}
 					updateObData()
 				case "<Enter>":
