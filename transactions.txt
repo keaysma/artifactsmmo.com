@@ -1,0 +1,53 @@
+egg
+buy 50,3
+buy 50,3
+buy 50,4
+buy 50,5
+buy 50,6
+buy 50,7
+
+jasper_crystal
+sell 5,3480
+sell 5,3480
+sell 5,5220
+sell 5,4980
+sell 5,4740
+
+wolf_bone
+sell 29,324
+
+wolf_hair
+buy 50, 189
+buy 50, 189
+sell 50, 229
+sell 50, 223
+sell 33, 217
+sell 6, 217
+sell 21, 259
+
+milk_bucket
+sell 19, 64
+sell 50, 64
+sell 5,  63
+
+orge_skin
+sell 50, 472
+sell 24, 472
+sell 20, 458
+sell 50, 458
+sell 12, 444
+
+feather
+sell 18, 50
+sell 43, 62
+sell 47, 63
+
+raw_beef
+sell 41, 74
+
+skeleton_bone
+sell 10, 318
+sell 18, 318
+
+serprent_skin
+sell 29, 170
