@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"artifactsmmo.com/m/types"
 	"github.com/mitchellh/mapstructure"
 )
@@ -33,10 +35,10 @@ type Log struct {
 	Created_at          string
 }
 
-func GetLogs(page int, limit int) (*[]Log, error) {
+func GetLogs(page int, size int) (*[]Log, error) {
 	res, err := GetDataResponse("my/logs", &map[string]string{
-		"page":  string(rune(page)),
-		"limit": string(rune(limit)),
+		"page": fmt.Sprintf("%d", page),
+		"size": fmt.Sprintf("%d", size),
 	})
 	if err != nil {
 		return nil, err
