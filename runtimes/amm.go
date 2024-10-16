@@ -56,6 +56,72 @@ func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 	return &data, nil
 }
 
+type Transaction struct {
+	Timestamp string
+	Code      string
+	Quantity  int
+	Price     int
+	Side      string
+}
+
+func snapshotTransactionsFromLogs() (*[]Transaction, error) {
+	logs, err := api.GetLogs(1, 100)
+	if err != nil {
+		return nil, err
+	}
+
+	transactions := []Transaction{}
+	for _, log := range *logs {
+		if log.Type != "buy_ge" && log.Type != "sell_ge" {
+			continue
+		}
+
+		side := "buy"
+		if log.Type == "sell_ge" {
+			side = "sell"
+		}
+		content := log.Content.(map[string]interface{})
+
+		transaction := Transaction{
+			Timestamp: log.Created_at,
+			Code:      content["item"].(string),
+			Quantity:  int(content["quantity"].(float64)),
+			Price:     int(content["item_price"].(float64)),
+			Side:      side,
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	return &transactions, nil
+}
+
+func getLatestTransactionFromDB(db *sql.DB) (*time.Time, error) {
+	rows, err := db.Query(
+		`
+			SELECT timestamp
+			FROM transactions
+			ORDER BY timestamp DESC
+			LIMIT 1
+		`,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	raw_ts := ""
+	for rows.Next() {
+		rows.Scan(&raw_ts)
+	}
+
+	timePointer, err := time.Parse(time.RFC3339, raw_ts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &timePointer, nil
+}
+
 func match(list *[]types.GrandExchangeItemData, f func(types.GrandExchangeItemData) bool) *types.GrandExchangeItemData {
 	for _, i := range *list {
 		if f(i) {
@@ -170,6 +236,78 @@ func AutomatedMarketMaker() {
 		}
 
 		state = *res
+		fmt.Println()
+
+		fmt.Printf("%s: Transactions, ", time.Now().Format(time.DateTime))
+		transactions, err := snapshotTransactionsFromLogs()
+		if err != nil {
+			fmt.Printf("failed to get Logs snapshot: %s\n", err)
+			time.Sleep(60 * time.Second)
+			continue
+		}
+		fmt.Printf("%d\n", len(*transactions))
+
+		lastTimestamp, err := getLatestTransactionFromDB(db)
+		if err != nil {
+			log.Fatalf("could not get timestamp from database: %s", err)
+		}
+
+		writeTransactions := []Transaction{}
+		for _, transaction := range *transactions {
+			fmt.Printf("transaction %+v", transaction)
+			transactionTime, err := time.Parse(time.RFC3339, transaction.Timestamp)
+			if err != nil {
+				fmt.Printf(" failed to read timestamp: %s", err)
+				continue
+			}
+			// SQLite will not handle millis
+			transactionTime = transactionTime.Truncate(time.Second)
+
+			if lastTimestamp.Compare(transactionTime) < 0 {
+				writeTransactions = append(writeTransactions, transaction)
+			} else {
+				fmt.Print("...old transaction, skip")
+			}
+			fmt.Println()
+		}
+
+		if len(writeTransactions) > 0 {
+			fmt.Printf("will write transactions: %d\n", len(writeTransactions))
+
+			valuesSet := []string{}
+
+			for _, transaction := range writeTransactions {
+				valuesSet = append(
+					valuesSet,
+					fmt.Sprintf(
+						`(datetime('%s'), '%s', %d, %d, '%s')`,
+						transaction.Timestamp,
+						transaction.Code,
+						transaction.Quantity,
+						transaction.Price,
+						transaction.Side,
+					),
+				)
+			}
+
+			statement := fmt.Sprintf(
+				"INSERT INTO transactions (timestamp, code, quantity, price, side) VALUES %s",
+				strings.Join(valuesSet, ", "),
+			)
+
+			res, err := db.Exec(statement)
+			if err != nil {
+				log.Fatalf("failed to write to transactions table: %s", err)
+			}
+
+			ra, err := res.RowsAffected()
+			if err != nil {
+				fmt.Printf("can't print RowsAffected(): %s", err)
+			} else {
+				fmt.Printf("wrote: %d\n", ra)
+			}
+		}
+
 		fmt.Println()
 		time.Sleep(30 * time.Second)
 	}
