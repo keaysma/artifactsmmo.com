@@ -402,10 +402,12 @@ func AutomatedMarketMakerDataExplorerGUI() {
 	graphBuySell := widgets.NewPlot()
 	graphBuySell.Title = "Prices"
 	graphBuySell.MinVal = 1
+	graphBuySell.Marker = widgets.MarkerDot
 
 	graphStock := widgets.NewPlot()
 	graphStock.Title = "Stock"
 	graphStock.MinVal = 1
+	graphStock.Marker = widgets.MarkerDot
 
 	graphInfo := widgets.NewParagraph()
 	graphInfo.Title = "<info>"
@@ -485,14 +487,14 @@ func AutomatedMarketMakerDataExplorerGUI() {
 		}
 		graphBuySell.HorizontalScale = 1
 		graphBuySell.Title = fmt.Sprintf("Prices: %s", codes[codesPointer])
-		graphBuySell.MinVal = slices.Min(sellPts)
-		graphBuySell.MaxVal = slices.Max(sellPts)
+		graphBuySell.MinVal = slices.Min(sellPts) - 1
+		graphBuySell.MaxVal = slices.Max(buyPts) + 1
 
 		graphStock.Data = [][]float64{
 			stockPtsView,
 		}
-		graphStock.MinVal = slices.Min(stockPts)
-		graphStock.MaxVal = slices.Max(stockPts)
+		graphStock.MinVal = slices.Min(stockPts) - 1
+		graphStock.MaxVal = slices.Max(stockPts) + 1
 	}
 
 	updateObData()

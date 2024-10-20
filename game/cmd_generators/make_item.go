@@ -59,12 +59,22 @@ func Make(code string) Generator {
 		return Clear_gen
 	}
 
+	var retries = 0
+
 	return func(last string, success bool) string {
 		next_command := "clear-gen"
 
 		if !success {
+			// temporary - retry last command
+			retries++
+			if retries < 20 {
+				return last
+			}
+
 			return next_command
 		}
+
+		retries = 0
 
 		char := state.GlobalCharacter.Ref()
 		next_command = get_next_command_make(data, char, resource_tile_map, last, true)
