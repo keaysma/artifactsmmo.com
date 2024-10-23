@@ -12,8 +12,8 @@ import (
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/keaysma/termui/v3"
+	"github.com/keaysma/termui/v3/widgets"
 )
 
 var s = utils.GetSettings()
@@ -22,14 +22,6 @@ var command_value = ""
 var log_lines = []string{}
 var command_history = []string{}
 var command_history_ptr = 0
-
-var show_tracker = false
-var tracker_controls = make(chan string, 2)
-var price_updates = make(chan gui.PriceUpdate, 10)
-var price_data = [][]float64{
-	{1, 1, 1},
-	{1, 1, 1},
-}
 
 func UI() {
 	err := ui.Init()
@@ -60,15 +52,6 @@ func UI() {
 	command_entry.Text = "> "
 	command_entry.BorderStyle.Fg = ui.ColorBlue
 
-	tracker_buy := widgets.NewSparkline()
-	tracker_buy.LineColor = ui.ColorGreen
-	tracker_sell := widgets.NewSparkline()
-	tracker_sell.LineColor = ui.ColorMagenta
-	tracker_chart := widgets.NewSparklineGroup(tracker_buy, tracker_sell)
-	tracker_chart.Title = "Tracking"
-	// tracker_chart.AxesColor = ui.ColorWhite
-	// tracker_chart.LineColors[0] = ui.ColorMagenta
-
 	gauge_skill_mining := widgets.NewGauge()
 	gauge_skill_woodcutting := widgets.NewGauge()
 	gauge_skill_fishing := widgets.NewGauge()
@@ -97,15 +80,9 @@ func UI() {
 	}
 
 	go gui.Gameloop()
-	go gui.Trackloop(tracker_controls, price_updates)
 
 	draw := func(w int, h int) {
-		if show_tracker {
-			logs.SetRect(0, 0, w/2, h-24)
-			tracker_chart.SetRect(0, h-24, w/2, h-3)
-		} else {
-			logs.SetRect(0, 0, w/2, h-3)
-		}
+		logs.SetRect(0, 0, w/2, h-3)
 		command_list.SetRect(w/2, 0, w-(w/4)-1, h-6)
 		character_display.SetRect((3*w)/4, 0, w, h-21-6)
 		cooldown_gauge.SetRect(w/2, h-6, w, h-3)
@@ -124,9 +101,6 @@ func UI() {
 			logs, command_list, command_entry, character_display, cooldown_gauge,
 			gauge_skill_mining, gauge_skill_woodcutting, gauge_skill_fishing, gauge_skill_weaponcrafting, gauge_skill_gearcrafting, gauge_skill_jewelrycrafting, gauge_skill_cooking,
 		)
-		if show_tracker {
-			ui.Render(tracker_chart)
-		}
 	}
 
 	draw(ui.TerminalDimensions())
@@ -135,9 +109,6 @@ func UI() {
 		select {
 		case line := <-utils.LogsChannel:
 			log_lines = append(log_lines, line)
-		case price_update := <-price_updates:
-			price_data[0] = append(price_data[0], float64(price_update.Buy))
-			price_data[1] = append(price_data[1], float64(price_update.Sell))
 		default:
 		}
 		h := logs.Inner.Dy()
@@ -220,16 +191,6 @@ func UI() {
 				gauge_skill_cooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
 				gauge_skill_cooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
 			}
-
-			tracker_buy.Data = price_data[0][max(0, len(price_data[0])-tracker_chart.Inner.Dx()):]
-			tracker_sell.Data = price_data[1][max(0, len(price_data[1])-tracker_chart.Inner.Dx()):]
-
-			if len(price_data[0]) > 0 {
-				tracker_buy.Title = fmt.Sprintf("buy: %d", int(price_data[0][len(price_data[0])-1]))
-			}
-			if len(price_data[1]) > 0 {
-				tracker_sell.Title = fmt.Sprintf("sell: %d", int(price_data[1][len(price_data[1])-1]))
-			}
 		}
 
 		draw(ui.TerminalDimensions())
@@ -295,23 +256,6 @@ func UI() {
 							value.Commands = []string{}
 							return value
 						})
-					} else if strings.HasPrefix(command_value, "track") {
-						parts := strings.Split(command_value, " ")
-						price_data = [][]float64{
-							{},
-							{},
-						}
-
-						stop_tracking := len(parts) != 2
-
-						show_tracker = !stop_tracking
-						if show_tracker {
-							tracker_chart.Title = fmt.Sprintf("Tracking: %s", parts[1])
-							tracker_controls <- parts[1]
-						} else {
-							tracker_controls <- ""
-						}
-
 					} else if command_value != "" {
 						command_history = append(command_history[max(0, len(command_history)-50):], command_value)
 						shared := gui.SharedState.Ref()
