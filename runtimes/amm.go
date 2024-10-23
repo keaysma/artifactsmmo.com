@@ -10,9 +10,10 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
+	"artifactsmmo.com/m/utils"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/keaysma/termui/v3"
+	"github.com/keaysma/termui/v3/widgets"
 	_ "modernc.org/sqlite"
 )
 
@@ -172,7 +173,7 @@ func AutomatedMarketMaker() {
 		res, err := snapshotGE()
 		if err != nil {
 			fmt.Printf("failed to get GE snapshot: %s\n", err)
-			time.Sleep(60 * time.Second)
+			time.Sleep((30 - utils.CLIENT_TIMEOUT_SECONDS) * time.Second)
 			continue
 		}
 
@@ -402,12 +403,10 @@ func AutomatedMarketMakerDataExplorerGUI() {
 	graphBuySell := widgets.NewPlot()
 	graphBuySell.Title = "Prices"
 	graphBuySell.MinVal = 1
-	graphBuySell.Marker = widgets.MarkerDot
 
 	graphStock := widgets.NewPlot()
 	graphStock.Title = "Stock"
 	graphStock.MinVal = 1
-	graphStock.Marker = widgets.MarkerDot
 
 	graphInfo := widgets.NewParagraph()
 	graphInfo.Title = "<info>"

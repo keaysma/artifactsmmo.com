@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 const URL_BASE = "https://api.artifactsmmo.com"
@@ -14,6 +15,12 @@ var BaseHeaders = http.Header{
 	"Content-Type":  []string{"application/json"},
 	"Accept":        []string{"application/json"},
 	"Authorization": []string{fmt.Sprintf("Bearer %s", settings.Api_token)},
+}
+
+const CLIENT_TIMEOUT_SECONDS = 15
+
+var client = http.Client{
+	Timeout: CLIENT_TIMEOUT_SECONDS * time.Second,
 }
 
 func AddQueryParams(r *http.Request, params *map[string]string) *http.Request {
@@ -57,7 +64,9 @@ func HttpGet(url string, headers map[string]string, params *map[string]string) (
 	}
 	r = AddHeaders(r, headers)
 
-	return http.DefaultClient.Do(r)
+	client.CloseIdleConnections()
+
+	return client.Do(r)
 }
 
 func HttpPost(url string, headers map[string]string, body io.Reader) (*http.Response, error) {
@@ -73,5 +82,7 @@ func HttpPost(url string, headers map[string]string, body io.Reader) (*http.Resp
 
 	r = AddHeaders(r, headers)
 
-	return http.DefaultClient.Do(r)
+	client.CloseIdleConnections()
+
+	return client.Do(r)
 }
