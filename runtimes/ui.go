@@ -31,6 +31,9 @@ func UI() {
 
 	defer ui.Close()
 
+	tabs := widgets.NewTabPane("mainframe", "charts", "md")
+	tabs.Border = true
+
 	logs := widgets.NewParagraph()
 	logs.Title = "Logs"
 	logs.Text = ""
@@ -81,10 +84,14 @@ func UI() {
 
 	go gui.Gameloop()
 
-	draw := func(w int, h int) {
-		logs.SetRect(0, 0, w/2, h-3)
-		command_list.SetRect(w/2, 0, w-(w/4)-1, h-6)
-		character_display.SetRect((3*w)/4, 0, w, h-21-6)
+	resizeWidgets := func(w int, h int) {
+		tabHeight := 3
+		tabs.SetRect(0, 0, w, tabHeight)
+
+		// mainframe
+		logs.SetRect(0, tabHeight, w/2, h-3)
+		command_list.SetRect(w/2, tabHeight, w-(w/4)-1, h-6)
+		character_display.SetRect((3*w)/4, tabHeight, w, h-21-6)
 		cooldown_gauge.SetRect(w/2, h-6, w, h-3)
 		command_entry.SetRect(0, h-3, w, h)
 
@@ -96,14 +103,20 @@ func UI() {
 		gauge_skill_gearcrafting.SetRect((3*w)/4, base_h+12, w, base_h+15)
 		gauge_skill_jewelrycrafting.SetRect((3*w)/4, base_h+15, w, base_h+18)
 		gauge_skill_cooking.SetRect((3*w)/4, base_h+18, w, base_h+21)
-
-		ui.Render(
-			logs, command_list, command_entry, character_display, cooldown_gauge,
-			gauge_skill_mining, gauge_skill_woodcutting, gauge_skill_fishing, gauge_skill_weaponcrafting, gauge_skill_gearcrafting, gauge_skill_jewelrycrafting, gauge_skill_cooking,
-		)
 	}
 
-	draw(ui.TerminalDimensions())
+	draw := func() {
+		switch tabs.ActiveTabIndex {
+		case 0:
+			ui.Render(
+				tabs, logs, command_list, command_entry, character_display, cooldown_gauge,
+				gauge_skill_mining, gauge_skill_woodcutting, gauge_skill_fishing, gauge_skill_weaponcrafting, gauge_skill_gearcrafting, gauge_skill_jewelrycrafting, gauge_skill_cooking,
+			)
+		}
+	}
+
+	resizeWidgets(ui.TerminalDimensions())
+	draw()
 
 	loop := func(heavy bool) {
 		select {
@@ -166,8 +179,6 @@ func UI() {
 					{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
 					{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
 					{"Gold", fmt.Sprintf("%d", character.Gold)},
-					// {"Mining", fmt.Sprintf("%d %d/%d", character.Mining_level, character.Mining_xp, character.Mining_max_xp)},
-					// {"Woodcutting", fmt.Sprintf("%d %d/%d", character.Woodcutting_level, character.Woodcutting_xp, character.Woodcutting_max_xp)},
 				}
 
 				gauge_skill_mining.Title = fmt.Sprintf("Mining: %d", character.Mining_level)
@@ -193,7 +204,7 @@ func UI() {
 			}
 		}
 
-		draw(ui.TerminalDimensions())
+		draw()
 
 		// 10 fps, 0.1 seconds
 		// time.Sleep(100_000_000)
@@ -218,7 +229,8 @@ func UI() {
 			switch event.Type {
 			case ui.ResizeEvent:
 				payload := event.Payload.(ui.Resize)
-				draw(payload.Width, payload.Height)
+				resizeWidgets(payload.Width, payload.Height)
+
 			case ui.KeyboardEvent:
 				switch event.ID {
 				// no-ops
