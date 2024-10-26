@@ -109,10 +109,15 @@ func UI() {
 		switch tabs.ActiveTabIndex {
 		case 0:
 			ui.Render(
-				tabs, logs, command_list, command_entry, character_display, cooldown_gauge,
+				logs, command_list, command_entry, character_display, cooldown_gauge,
 				gauge_skill_mining, gauge_skill_woodcutting, gauge_skill_fishing, gauge_skill_weaponcrafting, gauge_skill_gearcrafting, gauge_skill_jewelrycrafting, gauge_skill_cooking,
 			)
+		case 1:
+		case 2:
+		default:
 		}
+
+		ui.Render(tabs)
 	}
 
 	resizeWidgets(ui.TerminalDimensions())
@@ -236,7 +241,10 @@ func UI() {
 				// no-ops
 				case "<Escape>":
 				case "<C-c>", "<C-v>":
-				case "<Left>", "<Right>":
+				case "<Left>":
+					tabs.ActiveTabIndex = (tabs.ActiveTabIndex - 1 + len(tabs.TabNames)) % len(tabs.TabNames)
+				case "<Right>":
+					tabs.ActiveTabIndex = (tabs.ActiveTabIndex + 1) % len(tabs.TabNames)
 				case "<Up>":
 					if command_history_ptr >= len(command_history) {
 						command_history_ptr = 0
