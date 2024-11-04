@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"artifactsmmo.com/m/api"
-	mainframe "artifactsmmo.com/m/gui"
 	gui "artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/gui/charts"
+	"artifactsmmo.com/m/gui/mainframe"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
@@ -17,6 +18,19 @@ import (
 
 var s = utils.GetSettings()
 
+type GUIWidget struct {
+	Draw                func()
+	ResizeWidgets       func(w int, h int)
+	Loop                func(heavy bool)
+	HandleKeyboardInput func(event ui.Event)
+}
+
+func (g *GUIWidget) WidgetList() []ui.Drawable {
+	return []ui.Drawable{}
+}
+
+var wxs = []GUIWidget{}
+
 func UI() {
 	err := ui.Init()
 	if err != nil {
@@ -25,10 +39,30 @@ func UI() {
 
 	defer ui.Close()
 
-	tabs := widgets.NewTabPane("mainframe", "charts", "md")
+	conn, err := gui.NewDBConnection()
+	if err != nil {
+		panic(err)
+	}
+
+	// tabs := widgets.NewTabPane("mainframe", "charts", "md")
+	tabs := widgets.NewTabPane("mainframe", "charts")
 	tabs.Border = true
 
 	mainframeWidgets := mainframe.Init(s)
+	wxs = append(wxs, GUIWidget{
+		Draw:                mainframeWidgets.Draw,
+		ResizeWidgets:       mainframeWidgets.ResizeWidgets,
+		Loop:                mainframeWidgets.Loop,
+		HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
+	})
+
+	chartsWidgets := charts.Init(s, conn)
+	wxs = append(wxs, GUIWidget{
+		Draw:                chartsWidgets.Draw,
+		ResizeWidgets:       chartsWidgets.ResizeWidgets,
+		Loop:                chartsWidgets.Loop,
+		HandleKeyboardInput: chartsWidgets.HandleKeyboardInput,
+	})
 
 	char, err := api.GetCharacterByName(s.Character)
 	if err != nil {
@@ -40,7 +74,7 @@ func UI() {
 	}
 	state.GlobalCharacter.With(func(value *types.Character) *types.Character { return char })
 
-	// If this fails let's just ingore it, not critical
+	// If this fails let's just ignore it, not critical
 	end, err := time.Parse(time.RFC3339, char.Cooldown_expiration)
 	if err == nil {
 		state.GlobalCooldown.Set(&state.CooldownData{
@@ -52,28 +86,14 @@ func UI() {
 	go gui.Gameloop()
 
 	draw := func() {
-		switch tabs.ActiveTabIndex {
-		case 0:
-			mainframeWidgets.Draw()
-		case 1:
-		case 2:
-		default:
-		}
-
+		wxs[tabs.ActiveTabIndex].Draw()
 		ui.Render(tabs)
 	}
 
 	resize := func(w int, h int) {
 		tabHeight := 3
 		tabs.SetRect(0, 0, w, tabHeight)
-
-		switch tabs.ActiveTabIndex {
-		case 0:
-			mainframeWidgets.ResizeWidgets(w, h)
-		case 1:
-		case 2:
-		default:
-		}
+		wxs[tabs.ActiveTabIndex].ResizeWidgets(w, h)
 	}
 
 	w, h := ui.TerminalDimensions()
@@ -82,14 +102,7 @@ func UI() {
 
 	heavy := 0
 	loop := func() {
-		switch tabs.ActiveTabIndex {
-		case 0:
-			mainframeWidgets.Wigets.Loop(heavy == 0)
-		case 1:
-		case 2:
-		default:
-		}
-
+		wxs[tabs.ActiveTabIndex].Loop(heavy == 0)
 		heavy = (heavy + 1) % 6
 	}
 
@@ -109,10 +122,12 @@ func UI() {
 				case "<C-c>", "<C-v>":
 				case "<Left>":
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex - 1 + len(tabs.TabNames)) % len(tabs.TabNames)
+					resize(ui.TerminalDimensions())
 				case "<Right>":
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex + 1) % len(tabs.TabNames)
+					resize(ui.TerminalDimensions())
 				default:
-					mainframeWidgets.HandleKeyboardInput(event)
+					wxs[tabs.ActiveTabIndex].HandleKeyboardInput(event)
 				}
 			}
 		default:

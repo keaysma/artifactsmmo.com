@@ -21,7 +21,5 @@ func main() {
 		runtimes.HardCoded()
 	case "amm":
 		runtimes.AutomatedMarketMaker()
-	case "geui":
-		runtimes.AutomatedMarketMakerDataExplorerGUI()
 	}
 }

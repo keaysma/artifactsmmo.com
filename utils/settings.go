@@ -10,6 +10,7 @@ type Settings struct {
 	Character string
 	Debug     bool
 	Raw       map[string]string
+	TabHeight int
 	// character_name string
 }
 
@@ -41,6 +42,7 @@ func GetSettings() *Settings {
 		Character: character,
 		Debug:     debug,
 		Raw:       raw,
+		TabHeight: 3,
 	}
 
 	return &settings

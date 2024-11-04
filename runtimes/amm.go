@@ -1,30 +1,18 @@
 package runtimes
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	"slices"
 	"strings"
 	"time"
 
 	"artifactsmmo.com/m/api"
+	gui "artifactsmmo.com/m/gui/backend"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 
-	ui "github.com/keaysma/termui/v3"
-	"github.com/keaysma/termui/v3/widgets"
 	_ "modernc.org/sqlite"
 )
-
-const DB_DRIVER = "sqlite"
-const GE_DATABASE = "ge.sql"
-const PAGE_SIZE = 100
-
-// type Connection struct {
-// 	mu sync.Mutex
-// 	db *sql.DB
-// }
 
 func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 	data := []types.GrandExchangeItemData{}
@@ -32,7 +20,7 @@ func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 	page := 1
 	for {
 		fmt.Printf("%d", page)
-		res, err := api.GetAllGrandExchangeItemDetails(page, PAGE_SIZE)
+		res, err := api.GetAllGrandExchangeItemDetails(page, gui.PAGE_SIZE)
 		if err != nil {
 			return nil, err
 		}
@@ -43,7 +31,7 @@ func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 
 		data = append(data, *res...)
 
-		if len(*res) < PAGE_SIZE {
+		if len(*res) < gui.PAGE_SIZE {
 			break
 		}
 
@@ -96,7 +84,7 @@ func snapshotTransactionsFromLogs() (*[]Transaction, error) {
 	return &transactions, nil
 }
 
-func getLatestTransactionFromDB(db *sql.DB) (*time.Time, error) {
+func getLatestTransactionFromDB(db *gui.Connection) (*time.Time, error) {
 	rows, err := db.Query(
 		`
 			SELECT timestamp
@@ -134,12 +122,11 @@ func match(list *[]types.GrandExchangeItemData, f func(types.GrandExchangeItemDa
 }
 
 func AutomatedMarketMaker() {
-	db, err := sql.Open(DB_DRIVER, GE_DATABASE)
+	db, err := gui.NewDBConnection()
 	if err != nil {
-		log.Fatalf("failed to open %s db: %s", DB_DRIVER, err)
+		panic(err)
 	}
 	defer db.Close()
-	fmt.Printf("Connected to database %s\n", GE_DATABASE)
 
 	rows, err := db.Query(`
 		WITH X AS (
@@ -154,7 +141,7 @@ func AutomatedMarketMaker() {
 			AND O.code = X.code
 	`)
 	if err != nil {
-		log.Fatalf("failed to read from %s db: %s", DB_DRIVER, err)
+		log.Fatalf("failed to read from %s db: %s", gui.DB_DRIVER, err)
 	}
 
 	var state = []types.GrandExchangeItemData{}
@@ -311,275 +298,5 @@ func AutomatedMarketMaker() {
 
 		fmt.Println()
 		time.Sleep(30 * time.Second)
-	}
-}
-
-var codesPointer = 0
-
-type OrderbookPoint struct {
-	timestamp string
-	entry     types.GrandExchangeItemData
-}
-
-var obData *[]OrderbookPoint
-var timeFactor = time.Minute
-var timeFactorStr = "minute"
-var horizontalOffset = 0
-var horizontalMove = 1
-var lastSearchValue = ""
-var lastSearchPoint = 0
-
-func getOrderbookDataForItem(code string, db *sql.DB) (*[]OrderbookPoint, error) {
-	rows, err := db.Query(
-		`
-			SELECT timestamp, buy_price, sell_price, stock 
-			FROM orderbook
-			WHERE code = ?
-			ORDER BY timestamp ASC
-		`,
-		code,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	out := []OrderbookPoint{}
-	for rows.Next() {
-		row := OrderbookPoint{}
-		entry := types.GrandExchangeItemData{}
-		rows.Scan(&row.timestamp, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
-
-		row.entry = entry
-		out = append(out, row)
-	}
-
-	return &out, nil
-}
-
-func AutomatedMarketMakerDataExplorerGUI() {
-	db, err := sql.Open(DB_DRIVER, GE_DATABASE)
-	if err != nil {
-		log.Fatalf("failed to open %s db: %s", DB_DRIVER, err)
-	}
-	defer db.Close()
-
-	rows, err := db.Query("WITH ordered as (SELECT code, COUNT(code) counts FROM orderbook GROUP BY code ORDER BY counts DESC) SELECT code FROM ordered")
-	if err != nil {
-		log.Fatalf("failed to get item codes from database: %s", err)
-	}
-
-	codes := []string{}
-	for rows.Next() {
-		code := ""
-		rows.Scan(&code)
-		codes = append(codes, code)
-	}
-	longestCode := (func() string {
-		longest := ""
-		for _, code := range codes {
-			if len(code) > len(longest) {
-				longest = code
-			}
-		}
-		return longest
-	})()
-	codesWidth := len(longestCode) + 3
-
-	if err := ui.Init(); err != nil {
-		log.Fatalf("failed to initialize termui: %s", err)
-	} else {
-		defer ui.Close()
-	}
-
-	codeSearch := widgets.NewParagraph()
-	codeSearch.Title = "Search"
-	codeSearch.Text = ""
-
-	codeList := widgets.NewParagraph()
-	codeList.Title = "Item Codes"
-	codeList.Text = ""
-
-	graphBuySell := widgets.NewPlot()
-	graphBuySell.Title = "Prices"
-	graphBuySell.MinVal = 1
-
-	graphStock := widgets.NewPlot()
-	graphStock.Title = "Stock"
-	graphStock.MinVal = 1
-
-	graphInfo := widgets.NewParagraph()
-	graphInfo.Title = "<info>"
-	graphInfo.Text = ""
-
-	draw := func(w int, h int) {
-		codeSearch.SetRect(0, h-3, codesWidth, h)
-		codeList.SetRect(0, 0, codesWidth, h-3)
-		graphBuySell.SetRect(codesWidth, 0, w, h-24)
-		graphStock.SetRect(codesWidth, h-24, w, h)
-		graphInfo.SetRect(w-20, 0, w, 3)
-
-		ui.Render(
-			codeSearch,
-			codeList,
-			graphBuySell,
-			graphStock,
-			graphInfo,
-		)
-	}
-
-	loop := func() {
-		w, h := ui.TerminalDimensions()
-
-		base := max(0, min(len(codes)-2, codesPointer))
-		end := min(len(codes)-1, h+codesPointer)
-
-		visibleCodes := codes[base:end]
-		codeList.Text = strings.Join(visibleCodes, "\n")
-		graphInfo.Text = fmt.Sprintf("%s (%d) <%d>", timeFactorStr, horizontalOffset, horizontalMove)
-
-		draw(w, h)
-	}
-
-	updateObData := func() {
-		codesPointer = max(0, min(len(codes)-1, codesPointer))
-		data, err := getOrderbookDataForItem(codes[codesPointer], db)
-		if err != nil {
-			log.Fatalf("failed to get orderbook data: %s", err)
-		}
-		obData = data
-
-		buyPts := []float64{}
-		sellPts := []float64{}
-		stockPts := []float64{}
-		if len(*obData) > 0 {
-			timePointer, err := time.Parse(time.RFC3339, (*obData)[0].timestamp)
-			if err != nil {
-				log.Fatalf("failed to parse ts: %s", err)
-			}
-
-			for i := 0; i < len(*obData); {
-				timeAtIndex, err := time.Parse(time.RFC3339, (*obData)[i].timestamp)
-				if err != nil {
-					log.Fatalf("failed to parse ts: %s", err)
-				}
-				buyPts = append(buyPts, float64((*obData)[i].entry.Buy_price))
-				sellPts = append(sellPts, float64((*obData)[i].entry.Sell_price))
-				stockPts = append(stockPts, float64((*obData)[i].entry.Stock))
-				if timeAtIndex.Before(timePointer) {
-					i++
-				} else {
-					timePointer = timePointer.Add(time.Duration(30 * timeFactor))
-				}
-			}
-		}
-
-		w, _ := ui.TerminalDimensions()
-		horizontalOffset = min(horizontalOffset, max(1, len(buyPts)-w-4))
-		buyPtsView := buyPts[horizontalOffset:]
-		sellPtsView := sellPts[horizontalOffset:]
-		stockPtsView := stockPts[horizontalOffset:]
-
-		graphBuySell.Data = [][]float64{
-			buyPtsView,
-			sellPtsView,
-		}
-		graphBuySell.HorizontalScale = 1
-		graphBuySell.Title = fmt.Sprintf("Prices: %s", codes[codesPointer])
-		graphBuySell.MinVal = slices.Min(sellPts) - 1
-		graphBuySell.MaxVal = slices.Max(buyPts) + 1
-
-		graphStock.Data = [][]float64{
-			stockPtsView,
-		}
-		graphStock.MinVal = slices.Min(stockPts) - 1
-		graphStock.MaxVal = slices.Max(stockPts) + 1
-	}
-
-	updateObData()
-	loop()
-
-	uiEvents := ui.PollEvents()
-	for {
-		select {
-		case event := <-uiEvents:
-			switch event.Type {
-			case ui.KeyboardEvent:
-				switch event.ID {
-				case "<Escape>":
-					return
-				case "<Up>":
-					codesPointer--
-					updateObData()
-				case "<Down>":
-					codesPointer++
-					updateObData()
-				case "<Left>":
-					horizontalOffset = max(0, horizontalOffset-horizontalMove)
-					updateObData()
-				case "<Right>":
-					horizontalOffset += horizontalMove
-					updateObData()
-				case "[":
-					horizontalMove = max(1, horizontalMove-1)
-				case "]":
-					horizontalMove++
-				case "<Space>":
-					updateObData()
-				case "\\":
-					switch timeFactor {
-					case time.Second:
-						timeFactor = time.Minute
-						timeFactorStr = "minute"
-					case time.Minute:
-						timeFactor = time.Hour
-						timeFactorStr = "hour"
-					case time.Hour:
-						timeFactor = time.Hour * 24
-						timeFactorStr = "day"
-					case time.Hour * 24:
-						timeFactor = time.Second
-						timeFactorStr = "second"
-					}
-					updateObData()
-				case "<Enter>":
-					searchVal := codeSearch.Text
-					searchStart := 0
-					if len(codeSearch.Text) == 0 {
-						searchVal = lastSearchValue
-						searchStart = lastSearchPoint + 1
-					}
-
-					if len(searchVal) == 0 {
-						continue
-					}
-
-					new_ptr := codesPointer
-					for i, code := range codes[searchStart:] {
-						if strings.Contains(code, searchVal) {
-							new_ptr = i + searchStart
-							break
-						}
-					}
-					if new_ptr != codesPointer {
-						codesPointer = new_ptr
-						lastSearchValue = searchVal
-						lastSearchPoint = new_ptr
-						codeSearch.Title = fmt.Sprintf("%s (%d)", lastSearchValue, lastSearchPoint)
-						updateObData()
-					}
-					codeSearch.Text = ""
-				case "<Backspace>", "<C-<Backspace>>":
-					if len(codeSearch.Text) > 0 {
-						codeSearch.Text = codeSearch.Text[:len(codeSearch.Text)-1]
-					}
-				default:
-					codeSearch.Text += event.ID
-				}
-			}
-			loop()
-		default:
-		}
-		time.Sleep(time.Second / 10)
 	}
 }
