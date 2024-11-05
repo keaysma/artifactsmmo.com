@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"artifactsmmo.com/m/api"
-	gui "artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/db"
+	"artifactsmmo.com/m/gui/backend"
 	"artifactsmmo.com/m/gui/charts"
 	"artifactsmmo.com/m/gui/mainframe"
 	"artifactsmmo.com/m/state"
@@ -39,7 +40,7 @@ func UI() {
 
 	defer ui.Close()
 
-	conn, err := gui.NewDBConnection()
+	conn, err := db.NewDBConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +84,7 @@ func UI() {
 		})
 	}
 
-	go gui.Gameloop()
+	go backend.Gameloop()
 
 	draw := func() {
 		wxs[tabs.ActiveTabIndex].Draw()

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	gui "artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/db"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 	ui "github.com/keaysma/termui/v3"
@@ -28,7 +28,7 @@ type Charts struct {
 	CodesWidth int
 	TabHeight  int
 
-	conn *gui.Connection
+	conn *db.Connection
 }
 
 type OrderbookPoint struct {
@@ -147,7 +147,7 @@ func (m *Charts) updateObData() {
 	m.GraphStock.MaxVal = slices.Max(stockPts) + 1
 }
 
-func Init(s *utils.Settings, conn *gui.Connection) *Charts {
+func Init(s *utils.Settings, conn *db.Connection) *Charts {
 	codeSearch := widgets.NewParagraph()
 	codeSearch.Title = "Search"
 	codeSearch.Text = ""

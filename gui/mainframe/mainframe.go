@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	gui "artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/gui/backend"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
@@ -124,10 +124,10 @@ func (m *Mainframe) Loop(heavy bool) {
 	m.Logs.Text = strings.Join(logLines, "\n")
 
 	generator_name := ""
-	shared := gui.SharedState.Ref()
+	shared := backend.SharedState.Ref()
 	m.CommandList.Text = strings.Join(shared.Commands, "\n")
 	generator_name = shared.Current_Generator_Name
-	gui.SharedState.Unlock()
+	backend.SharedState.Unlock()
 
 	if generator_name != "" {
 		m.CommandList.Title = fmt.Sprintf("Commands (generator: %s)", generator_name)
@@ -229,15 +229,15 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 		} else if commandValue == "clear" {
 			logLines = []string{}
 		} else if commandValue == "stop" {
-			gui.SharedState.With(func(value *gui.SharedStateType) *gui.SharedStateType {
+			backend.SharedState.With(func(value *backend.SharedStateType) *backend.SharedStateType {
 				value.Commands = []string{}
 				return value
 			})
 		} else if commandValue != "" {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
-			shared := gui.SharedState.Ref()
+			shared := backend.SharedState.Ref()
 			shared.Commands = append(shared.Commands, commandValue)
-			gui.SharedState.Unlock()
+			backend.SharedState.Unlock()
 		}
 		commandValue = ""
 		commandHistory_ptr = 0

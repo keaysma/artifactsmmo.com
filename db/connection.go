@@ -1,23 +1,17 @@
-package gui
+package db
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
 	"sync"
+
+	_ "modernc.org/sqlite"
 )
 
 type Connection struct {
 	mu sync.Mutex
 	db *sql.DB
-}
-
-type Transaction struct {
-	Timestamp string
-	Code      string
-	Quantity  int
-	Price     int
-	Side      string
 }
 
 const DB_DRIVER = "sqlite"

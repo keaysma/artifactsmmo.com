@@ -1,4 +1,4 @@
-package gui
+package backend
 
 import (
 	"artifactsmmo.com/m/utils"

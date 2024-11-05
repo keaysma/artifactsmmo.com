@@ -7,11 +7,9 @@ import (
 	"time"
 
 	"artifactsmmo.com/m/api"
-	gui "artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/db"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
-
-	_ "modernc.org/sqlite"
 )
 
 func snapshotGE() (*[]types.GrandExchangeItemData, error) {
@@ -20,7 +18,7 @@ func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 	page := 1
 	for {
 		fmt.Printf("%d", page)
-		res, err := api.GetAllGrandExchangeItemDetails(page, gui.PAGE_SIZE)
+		res, err := api.GetAllGrandExchangeItemDetails(page, db.PAGE_SIZE)
 		if err != nil {
 			return nil, err
 		}
@@ -31,7 +29,7 @@ func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 
 		data = append(data, *res...)
 
-		if len(*res) < gui.PAGE_SIZE {
+		if len(*res) < db.PAGE_SIZE {
 			break
 		}
 
@@ -45,21 +43,13 @@ func snapshotGE() (*[]types.GrandExchangeItemData, error) {
 	return &data, nil
 }
 
-type Transaction struct {
-	Timestamp string
-	Code      string
-	Quantity  int
-	Price     int
-	Side      string
-}
-
-func snapshotTransactionsFromLogs() (*[]Transaction, error) {
+func snapshotTransactionsFromLogs() (*[]db.Transaction, error) {
 	logs, err := api.GetLogs(1, 100)
 	if err != nil {
 		return nil, err
 	}
 
-	transactions := []Transaction{}
+	transactions := []db.Transaction{}
 	for _, log := range *logs {
 		if log.Type != "buy_ge" && log.Type != "sell_ge" {
 			continue
@@ -71,7 +61,7 @@ func snapshotTransactionsFromLogs() (*[]Transaction, error) {
 		}
 		content := log.Content.(map[string]interface{})
 
-		transaction := Transaction{
+		transaction := db.Transaction{
 			Timestamp: log.Created_at,
 			Code:      content["item"].(string),
 			Quantity:  int(content["quantity"].(float64)),
@@ -84,34 +74,7 @@ func snapshotTransactionsFromLogs() (*[]Transaction, error) {
 	return &transactions, nil
 }
 
-func getLatestTransactionFromDB(db *gui.Connection) (*time.Time, error) {
-	rows, err := db.Query(
-		`
-			SELECT timestamp
-			FROM transactions
-			ORDER BY timestamp DESC
-			LIMIT 1
-		`,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	raw_ts := ""
-	for rows.Next() {
-		rows.Scan(&raw_ts)
-	}
-
-	timePointer, err := time.Parse(time.RFC3339, raw_ts)
-	if err != nil {
-		return nil, err
-	}
-
-	return &timePointer, nil
-}
-
-func match(list *[]types.GrandExchangeItemData, f func(types.GrandExchangeItemData) bool) *types.GrandExchangeItemData {
+func matchGEItemDataByCallback(list *[]types.GrandExchangeItemData, f func(types.GrandExchangeItemData) bool) *types.GrandExchangeItemData {
 	for _, i := range *list {
 		if f(i) {
 			return &i
@@ -122,36 +85,18 @@ func match(list *[]types.GrandExchangeItemData, f func(types.GrandExchangeItemDa
 }
 
 func AutomatedMarketMaker() {
-	db, err := gui.NewDBConnection()
+	conn, err := db.NewDBConnection()
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
-
-	rows, err := db.Query(`
-		WITH X AS (
-			SELECT code, MAX(timestamp) as tx
-			FROM orderbook
-			GROUP BY code
-		)
-			SELECT O.code, O.buy_price, O.sell_price, O.stock
-		 	FROM orderbook O
-			INNER JOIN X
-			ON O.timestamp = X.tx
-			AND O.code = X.code
-	`)
-	if err != nil {
-		log.Fatalf("failed to read from %s db: %s", gui.DB_DRIVER, err)
-	}
+	defer conn.Close()
 
 	var state = []types.GrandExchangeItemData{}
-	for rows.Next() {
-		var entry = types.GrandExchangeItemData{Max_quantity: -1}
-		rows.Scan(&entry.Code, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
-		state = append(state, entry)
+	data, err := conn.GetLatestTransactionByCode()
+	if err != nil {
+		log.Fatalf("failed to read from %s db: %s", db.DB_DRIVER, err)
 	}
-	rows.Close()
-	fmt.Printf("Read %d rows\n", len(state))
+	state = *data
 
 	fmt.Println("Begin watch loop")
 	for {
@@ -167,7 +112,7 @@ func AutomatedMarketMaker() {
 		fmt.Printf("%d entries\n", len(*res))
 
 		for _, item := range *res {
-			stateItem := match(&state, func(geid types.GrandExchangeItemData) bool {
+			stateItem := matchGEItemDataByCallback(&state, func(geid types.GrandExchangeItemData) bool {
 				return geid.Code == item.Code
 			})
 
@@ -210,7 +155,7 @@ func AutomatedMarketMaker() {
 				strings.Join(valuesSet, ", "),
 			)
 
-			res, err := db.Exec(statement)
+			res, err := conn.Exec(statement)
 			if err != nil {
 				log.Fatalf("failed to write to orderbook table: %s", err)
 			}
@@ -235,12 +180,12 @@ func AutomatedMarketMaker() {
 		}
 		fmt.Printf("%d\n", len(*transactions))
 
-		lastTimestamp, err := getLatestTransactionFromDB(db)
+		lastTimestamp, err := conn.GetLatestTransaction()
 		if err != nil {
 			log.Fatalf("could not get timestamp from database: %s", err)
 		}
 
-		writeTransactions := []Transaction{}
+		writeTransactions := []db.Transaction{}
 		for _, transaction := range *transactions {
 			fmt.Printf("transaction %+v", transaction)
 			transactionTime, err := time.Parse(time.RFC3339, transaction.Timestamp)
@@ -283,7 +228,7 @@ func AutomatedMarketMaker() {
 				strings.Join(valuesSet, ", "),
 			)
 
-			res, err := db.Exec(statement)
+			res, err := conn.Exec(statement)
 			if err != nil {
 				log.Fatalf("failed to write to transactions table: %s", err)
 			}
