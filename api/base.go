@@ -50,6 +50,10 @@ func GetDataResponse(url string, params Params) (*DataResponse, error) {
 		return nil, err
 	}
 
+	if data.Data == nil {
+		return nil, fmt.Errorf("%s", data)
+	}
+
 	return &data, nil
 }
 
