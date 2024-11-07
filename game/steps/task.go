@@ -162,7 +162,7 @@ func ExchangeTaskCoins(character string) (*types.Character, error) {
 
 	state.GlobalCharacter.Set(char_start)
 
-	taskCoinCount := CountInventory(char_start, "tasks_coin")
+	taskCoinCount := CountInventory(&char_start.Inventory, "tasks_coin")
 	if taskCoinCount < 6 {
 		log(fmt.Sprintf("does not have enough tasks coins: %d", taskCoinCount))
 		return char_start, nil

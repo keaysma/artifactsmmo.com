@@ -185,7 +185,7 @@ func parse_command(raw_command_string string) bool {
 		}
 		raw_quantity, code := parts[1], parts[2]
 
-		var quantity_func steps.QuantityCb = func(cur, max int) int { return 0 }
+		var quantity_func steps.QuantityCb
 		if raw_quantity == "all" {
 			quantity_func = func(cur, max int) int { return min(cur, max) }
 		} else {
@@ -212,6 +212,26 @@ func parse_command(raw_command_string string) bool {
 		_, err = steps.Sell(s.Character, code, quantity_func, int(min_price))
 		if err != nil {
 			log(fmt.Sprintf("failed to sell %s %s for price > %d: %s", raw_quantity, code, min_price, err))
+			return false
+		}
+
+		return true
+	case "auto-sell":
+		if len(parts) < 2 || len(parts) > 3 {
+			log("usage: auto-sell <quantity:number> <code:string>")
+			return false
+		}
+		raw_quantity, code := parts[1], parts[2]
+
+		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
+		if err != nil {
+			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
+			return false
+		}
+
+		_, err = steps.AutoSell(s.Character, code, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to auto-sell %s %s: %s", raw_quantity, code, err))
 			return false
 		}
 

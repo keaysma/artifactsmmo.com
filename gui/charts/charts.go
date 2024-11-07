@@ -10,33 +10,33 @@ import (
 	"strings"
 	"time"
 
+	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/db"
-	"artifactsmmo.com/m/types"
+	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/utils"
 	ui "github.com/keaysma/termui/v3"
 	"github.com/keaysma/termui/v3/widgets"
 )
 
+var s = utils.GetSettings()
+
 type Charts struct {
-	CodeSearch   *widgets.Paragraph
-	CodeList     *widgets.Paragraph
-	GraphBuySell *widgets.Plot
-	GraphStock   *widgets.Plot
-	GraphInfo    *widgets.Paragraph
+	CodeSearch      *widgets.Paragraph
+	CodeList        *widgets.Paragraph
+	GraphBuySell    *widgets.Plot
+	GraphStock      *widgets.Plot
+	GraphInfo       *widgets.Paragraph
+	SuggestionModal *widgets.Paragraph
 
 	// Settings
-	CodesWidth int
-	TabHeight  int
+	CodesWidth            int
+	TabHeight             int
+	transactionSuggestion string
 
 	conn *db.Connection
 }
 
-type OrderbookPoint struct {
-	timestamp string
-	entry     types.GrandExchangeItemData
-}
-
-var obData *[]OrderbookPoint
+var obData *[]db.OrderbookPoint
 
 var codes = []string{}
 var codesPointer = 0
@@ -50,32 +50,77 @@ var horizontalMove = 1
 var lastSearchValue = ""
 var lastSearchPoint = 0
 
-func (m *Charts) getOrderbookDataForItem(code string) (*[]OrderbookPoint, error) {
-	rows, err := m.conn.Query(
-		`
-				SELECT timestamp, buy_price, sell_price, stock 
-				FROM orderbook
-				WHERE code = ?
-				ORDER BY timestamp ASC
-			`,
-		code,
-	)
-
+func (m *Charts) makeTransactionSuggestionForCode(code string) {
+	mp, err := m.conn.GetMarketParameterForItem(code)
 	if err != nil {
-		return nil, err
+		// return
+		m.transactionSuggestion = fmt.Sprintf("failed to get market parameter for %s", code)
 	}
 
-	out := []OrderbookPoint{}
-	for rows.Next() {
-		row := OrderbookPoint{}
-		entry := types.GrandExchangeItemData{}
-		rows.Scan(&row.timestamp, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
-
-		row.entry = entry
-		out = append(out, row)
+	if !mp.Enabled {
+		// return
+		m.transactionSuggestion = fmt.Sprintf("market parameter for %s is not enabled", code)
 	}
 
-	return &out, nil
+	ob, err := m.conn.GetOrderbookDataForItem(code)
+	if err != nil {
+		// return
+		m.transactionSuggestion = fmt.Sprintf("failed to get orderbook data for %s", code)
+	}
+
+	if len(*ob) == 0 {
+		// return
+		m.transactionSuggestion = fmt.Sprintf("no orderbook data for %s", code)
+	}
+
+	lastOb := (*ob)[len(*ob)-1]
+
+	// Get how many we can trade
+	// Get current stock
+	itemData, err := api.GetItemDetails(code)
+	if err != nil {
+		// return
+		m.transactionSuggestion = fmt.Sprintf("failed to get item details for %s", code)
+	}
+
+	// Get how many we have
+	charData, err := api.GetCharacterByName(s.Character)
+	if err != nil {
+		// return
+		m.transactionSuggestion = fmt.Sprintf("failed to get character data for %s", s.Character)
+	}
+	inventoryCount := steps.CountInventory(&charData.Inventory, code)
+
+	bankData, err := api.GetBankItems()
+	if err != nil {
+		// return
+		m.transactionSuggestion = fmt.Sprintf("failed to get bank data for %s", s.Character)
+	}
+	bankItemCount := steps.CountBank(bankData, code)
+
+	itemCount := inventoryCount + bankItemCount
+
+	maxAmount := min(itemData.Ge.Max_quantity, itemCount)
+
+	// Selling for more than it's worth
+	if lastOb.Entry.Sell_price > mp.Theo {
+		if itemCount <= 0 || itemCount <= mp.MinStock {
+			return
+			// m.transactionSuggestion = fmt.Sprintf("not enough %s to sell", code)
+		}
+		amount := min(maxAmount, max(0, itemCount-mp.MinStock))
+		m.transactionSuggestion = fmt.Sprintf("auto-sell %d %s", amount, code)
+	}
+
+	// Buying for less than it's worth
+	if lastOb.Entry.Buy_price < mp.Theo {
+		if itemCount >= mp.MaxStock {
+			return
+			// m.transactionSuggestion = fmt.Sprintf("too much %s to buy", code)
+		}
+		amount := min(maxAmount, max(0, mp.MaxStock-itemCount))
+		m.transactionSuggestion = fmt.Sprintf("buy %d %s", amount, code)
+	}
 }
 
 func (m *Charts) updateGraphInfo() {
@@ -94,7 +139,7 @@ func (m *Charts) updateObData() {
 	m.updateGraphInfo()
 
 	codesPointer = max(0, min(len(codes)-1, codesPointer))
-	data, err := m.getOrderbookDataForItem(codes[codesPointer])
+	data, err := m.conn.GetOrderbookDataForItem(codes[codesPointer])
 	if err != nil {
 		log.Fatalf("failed to get orderbook data: %s", err)
 	}
@@ -104,19 +149,19 @@ func (m *Charts) updateObData() {
 	sellPts := []float64{}
 	stockPts := []float64{}
 	if len(*obData) > 0 {
-		timePointer, err := time.Parse(time.RFC3339, (*obData)[0].timestamp)
+		timePointer, err := time.Parse(time.RFC3339, (*obData)[0].Timestamp)
 		if err != nil {
 			log.Fatalf("failed to parse ts: %s", err)
 		}
 
 		for i := 0; i < len(*obData); {
-			timeAtIndex, err := time.Parse(time.RFC3339, (*obData)[i].timestamp)
+			timeAtIndex, err := time.Parse(time.RFC3339, (*obData)[i].Timestamp)
 			if err != nil {
 				log.Fatalf("failed to parse ts: %s", err)
 			}
-			buyPts = append(buyPts, float64((*obData)[i].entry.Buy_price))
-			sellPts = append(sellPts, float64((*obData)[i].entry.Sell_price))
-			stockPts = append(stockPts, float64((*obData)[i].entry.Stock))
+			buyPts = append(buyPts, float64((*obData)[i].Entry.Buy_price))
+			sellPts = append(sellPts, float64((*obData)[i].Entry.Sell_price))
+			stockPts = append(stockPts, float64((*obData)[i].Entry.Stock))
 			if timeAtIndex.Before(timePointer) {
 				i++
 			} else {
@@ -168,6 +213,10 @@ func Init(s *utils.Settings, conn *db.Connection) *Charts {
 	graphInfo.Title = "<info>"
 	graphInfo.Text = ""
 
+	suggestionModal := widgets.NewParagraph()
+	suggestionModal.Title = "Suggestion"
+	suggestionModal.Text = ""
+
 	rows, err := conn.Query("WITH ordered as (SELECT code, COUNT(code) counts FROM orderbook GROUP BY code ORDER BY counts DESC) SELECT code FROM ordered")
 	if err != nil {
 		log.Fatalf("failed to get item codes from database: %s", err)
@@ -190,13 +239,14 @@ func Init(s *utils.Settings, conn *db.Connection) *Charts {
 	codesWidth := len(longestCode) + 3
 
 	chartsWidgets := Charts{
-		CodeSearch:   codeSearch,
-		CodeList:     codeList,
-		GraphBuySell: graphBuySell,
-		GraphStock:   graphStock,
-		GraphInfo:    graphInfo,
-		CodesWidth:   codesWidth,
-		TabHeight:    s.TabHeight,
+		CodeSearch:      codeSearch,
+		CodeList:        codeList,
+		GraphBuySell:    graphBuySell,
+		GraphStock:      graphStock,
+		GraphInfo:       graphInfo,
+		CodesWidth:      codesWidth,
+		SuggestionModal: suggestionModal,
+		TabHeight:       s.TabHeight,
 
 		conn: conn,
 	}
@@ -214,6 +264,10 @@ func (m *Charts) Draw() {
 		m.GraphStock,
 		m.GraphInfo,
 	)
+
+	if m.transactionSuggestion != "" {
+		ui.Render(m.SuggestionModal)
+	}
 }
 
 func (m *Charts) ResizeWidgets(w int, h int) {
@@ -222,7 +276,7 @@ func (m *Charts) ResizeWidgets(w int, h int) {
 	m.GraphBuySell.SetRect(m.CodesWidth, m.TabHeight, w, h-24)
 	m.GraphStock.SetRect(m.CodesWidth, h-24, w, h)
 	m.GraphInfo.SetRect(w-20, m.TabHeight, w, m.TabHeight+3)
-
+	m.SuggestionModal.SetRect((w/2)-24, (h/2)-3, (w/2)+24, (h/2)+3)
 }
 
 func (m *Charts) Loop(heavy bool) {
@@ -231,8 +285,13 @@ func (m *Charts) Loop(heavy bool) {
 
 func (m *Charts) HandleKeyboardInput(event ui.Event) {
 	switch event.ID {
-	case "<Escape>":
-		return
+	case "x":
+		if m.transactionSuggestion == "" {
+			m.makeTransactionSuggestionForCode(codes[codesPointer])
+			m.SuggestionModal.Text = m.transactionSuggestion
+		} else {
+			m.transactionSuggestion = ""
+		}
 	case "<Up>":
 		codesPointer--
 		m.updateObData()

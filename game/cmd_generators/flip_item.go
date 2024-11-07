@@ -12,7 +12,7 @@ import (
 var debug = utils.DebugLogPre("get_next_command_flip: ")
 
 func get_next_command_flip(component *steps.ItemComponentTree, character *types.Character, last string, top bool) string {
-	currentCount := steps.CountInventory(character, component.Code)
+	currentCount := steps.CountInventory(&character.Inventory, component.Code)
 	if currentCount >= component.Quantity {
 		if top {
 			debug(fmt.Sprintf("%s: ready to sell", component.Code))

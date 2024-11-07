@@ -68,7 +68,7 @@ func Tasks(task_type string) Generator {
 
 		if current_task_type == "items" {
 			char := state.GlobalCharacter.Ref()
-			task_item_count := steps.CountInventory(char, char.Task)
+			task_item_count := steps.CountInventory(&char.Inventory, char.Task)
 			max_inventory_count := char.Inventory_max_items
 			current_inventory_count := steps.CountAllInventory(char)
 			state.GlobalCharacter.Unlock()

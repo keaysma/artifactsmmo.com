@@ -23,13 +23,28 @@ func LeaveAtleast(amount int) QuantityCb {
 	}
 }
 
-func CountInventory(character *types.Character, code string) int {
+func CountInventory(slots *[]types.InventorySlot, code string) int {
 	var total_quantity = 0
-	if character == nil {
+	if slots == nil {
 		return total_quantity
 	}
 
-	for _, slot := range character.Inventory {
+	for _, slot := range *slots {
+		if slot.Code == code {
+			total_quantity += slot.Quantity
+		}
+	}
+
+	return total_quantity
+}
+
+func CountBank(slots *[]types.InventoryItem, code string) int {
+	var total_quantity = 0
+	if slots == nil {
+		return total_quantity
+	}
+
+	for _, slot := range *slots {
 		if slot.Code == code {
 			total_quantity += slot.Quantity
 		}
@@ -82,7 +97,7 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 		return nil, err
 	}
 
-	var quantity = quantity_func(CountInventory(char, code), item_details.Max_quantity)
+	var quantity = quantity_func(CountInventory(&char.Inventory, code), item_details.Max_quantity)
 
 	// Inventory Check
 	// Quantity Calc Check
@@ -100,6 +115,66 @@ func Sell(character string, code string, quantity_func QuantityCb, min_price int
 	var price = max(item_details.Sell_price, min_price)
 
 	log(fmt.Sprintf("selling %d %s for %d gp", quantity, code, price))
+	res, err := actions.SellUnsafe(character, code, quantity, price)
+	if err != nil {
+		log(fmt.Sprintf("failed to sell %s", code))
+		return nil, err
+	}
+
+	utils.DebugLog(utils.PrettyPrint(res.Transaction))
+	state.GlobalCharacter.Set(&res.Character)
+	api.WaitForDown(res.Cooldown)
+	return &res.Character, nil
+}
+
+func AutoSell(character string, code string, quantity int) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<ge/auto-sell>", character))
+	char, err := api.GetCharacterByName(character)
+	if err != nil {
+		log(fmt.Sprintf("failed to get character details for %s", character))
+		return nil, err
+	}
+
+	item_details, err := api.GetGrandExchangeItemDetails(code)
+	if err != nil {
+		log(fmt.Sprintf("failed to get item details for %s", code))
+		return nil, err
+	}
+
+	// Inventory Check
+	// Quantity Calc Check
+	if item_details.Max_quantity < quantity {
+		log(fmt.Sprintf("can only sell %d %s, adjusting sell quantity ", quantity, code))
+		quantity = min(item_details.Max_quantity, quantity)
+	}
+
+	var bankRetrieveQuantity = 0
+	var heldQuantity = CountInventory(&char.Inventory, code)
+	if heldQuantity < quantity {
+		var bankFetchQuantity = quantity - heldQuantity
+		log(fmt.Sprintf("attempting to fetch %d %s from bank", bankFetchQuantity, code))
+		bankInfo, err := api.GetBankItems()
+		if err != nil {
+			log("failed to get bank info")
+			return nil, err
+		}
+
+		bankQuantity := CountBank(bankInfo, code)
+		bankRetrieveQuantity = min(bankQuantity, bankFetchQuantity)
+		if bankRetrieveQuantity > 0 {
+			log(fmt.Sprintf("retrieving %d %s from bank", bankRetrieveQuantity, code))
+			_, err = actions.BankWithdraw(character, code, bankRetrieveQuantity)
+			if err != nil {
+				log("failed to retrieve from bank")
+				return nil, err
+			}
+		}
+	}
+
+	var price = item_details.Sell_price
+	var sellQuantity = min(quantity, heldQuantity+bankRetrieveQuantity)
+
+	log(fmt.Sprintf("selling %d %s for %d gp", sellQuantity, code, price))
 	res, err := actions.SellUnsafe(character, code, quantity, price)
 	if err != nil {
 		log(fmt.Sprintf("failed to sell %s", code))

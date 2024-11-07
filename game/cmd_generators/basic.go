@@ -49,9 +49,9 @@ func Craft_sticky_sword(last string, success bool) string {
 	}
 
 	char := state.GlobalCharacter.Ref()
-	count_copper_ore := steps.CountInventory(char, "copper_ore")
-	count_copper := steps.CountInventory(char, "copper")
-	count_yellow_slimeball := steps.CountInventory(char, "yellow_slimeball")
+	count_copper_ore := steps.CountInventory(&char.Inventory, "copper_ore")
+	count_copper := steps.CountInventory(&char.Inventory, "copper")
+	count_yellow_slimeball := steps.CountInventory(&char.Inventory, "yellow_slimeball")
 	state.GlobalCharacter.Unlock()
 
 	if count_copper < 5 {

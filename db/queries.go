@@ -15,6 +15,19 @@ type Transaction struct {
 	Side      string
 }
 
+type OrderbookPoint struct {
+	Timestamp string
+	Entry     types.GrandExchangeItemData
+}
+
+type MarketParameter struct {
+	Enabled  bool
+	Code     string
+	Theo     int
+	MaxStock int
+	MinStock int
+}
+
 func (db *Connection) GetLatestTransaction() (*time.Time, error) {
 	rows, err := db.Query(
 		`
@@ -70,4 +83,57 @@ func (db *Connection) GetLatestTransactionByCode() (*[]types.GrandExchangeItemDa
 	fmt.Printf("Read %d rows\n", len(res))
 
 	return &res, nil
+}
+
+func (db *Connection) GetOrderbookDataForItem(code string) (*[]OrderbookPoint, error) {
+	rows, err := db.Query(
+		`
+				SELECT timestamp, buy_price, sell_price, stock 
+				FROM orderbook
+				WHERE code = ?
+				ORDER BY timestamp ASC
+			`,
+		code,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	out := []OrderbookPoint{}
+	for rows.Next() {
+		row := OrderbookPoint{}
+		entry := types.GrandExchangeItemData{}
+		rows.Scan(&row.Timestamp, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
+
+		row.Entry = entry
+		out = append(out, row)
+	}
+
+	return &out, nil
+}
+
+func (db *Connection) GetMarketParameterForItem(code string) (*MarketParameter, error) {
+	rows, err := db.Query(
+		`
+			SELECT enabled, code, theo, max_stock, min_stock
+			FROM market_parameters
+			WHERE code = ?
+			LIMIT 1	
+		`,
+		code,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	mp := MarketParameter{
+		Enabled: false,
+	}
+	for rows.Next() {
+		rows.Scan(&mp.Enabled, &mp.Code, &mp.Theo, &mp.MaxStock, &mp.MinStock)
+	}
+
+	return &mp, nil
 }
