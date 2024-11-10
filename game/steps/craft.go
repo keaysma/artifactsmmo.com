@@ -49,7 +49,7 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 		return char
 	})
 
-	for _, component := range res.Item.Craft.Items {
+	for _, component := range res.Craft.Items {
 		cur_count := CountInventory(&char.Inventory, component.Code)
 		needed_count := component.Quantity
 		if cur_count < needed_count {
@@ -58,7 +58,7 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 		}
 	}
 
-	var skill = res.Item.Craft.Skill
+	var skill = res.Craft.Skill
 
 	tiles, err := api.GetAllMapsByContentType("workshop", skill)
 	if err != nil {

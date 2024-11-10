@@ -11,6 +11,13 @@ import (
 
 var debug = utils.DebugLogPre("get_next_command_flip: ")
 
+// As of the v3 API this block of code is no longer viable
+
+func get_next_command_flip(component *steps.ItemComponentTree, character *types.Character, last string, top bool) string {
+	return "clear-gen"
+}
+
+/*
 func get_next_command_flip(component *steps.ItemComponentTree, character *types.Character, last string, top bool) string {
 	currentCount := steps.CountInventory(&character.Inventory, component.Code)
 	if currentCount >= component.Quantity {
@@ -63,6 +70,7 @@ func get_next_command_flip(component *steps.ItemComponentTree, character *types.
 
 	return fmt.Sprintf("auto-craft %d %s", 1, component.Code) // component.Quantity
 }
+*/
 
 // Similar to Make() this will figure out the crafting components for an item recursively
 // Instead of fighting and gathering for the needed resources, this will buy them

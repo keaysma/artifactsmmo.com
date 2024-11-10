@@ -10,7 +10,6 @@ type ItemComponentTree struct {
 	Subtype    string
 	CraftSkill *string
 	Quantity   int
-	BuyPrice   int
 	Components []ItemComponentTree
 }
 
@@ -20,19 +19,18 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 		return nil, err
 	}
 
-	if len(res.Item.Craft.Items) == 0 {
+	if len(res.Craft.Items) == 0 {
 		action := "gather"
 		// TODO: This is a hack to make the tree work for now
 		// Confirm if subtype of food is always a fight
-		if res.Item.Subtype == "mob" || res.Item.Subtype == "food" {
+		if res.Subtype == "mob" || res.Subtype == "food" {
 			action = "fight"
 		}
 		return &ItemComponentTree{
 			Code:       code,
 			Action:     action,
-			Subtype:    res.Item.Subtype,
+			Subtype:    res.Subtype,
 			CraftSkill: nil,
-			BuyPrice:   res.Ge.Buy_price,
 			Quantity:   1, // This will be overridden by the parent's craft recipe
 			Components: []ItemComponentTree{},
 		}, nil
@@ -41,14 +39,13 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 	tree := ItemComponentTree{
 		Code:       code,
 		Action:     "craft",
-		Subtype:    res.Item.Subtype,
-		CraftSkill: &res.Item.Craft.Skill,
-		BuyPrice:   res.Ge.Buy_price,
-		Quantity:   res.Item.Craft.Quantity,
+		Subtype:    res.Subtype,
+		CraftSkill: &res.Craft.Skill,
+		Quantity:   res.Craft.Quantity,
 		Components: []ItemComponentTree{},
 	}
 
-	for _, component := range res.Item.Craft.Items {
+	for _, component := range res.Craft.Items {
 		subtree, err := GetItemComponentsTree(component.Code)
 		if err != nil {
 			return nil, err

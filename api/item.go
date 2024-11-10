@@ -24,12 +24,10 @@ type ItemDetails struct {
 	Description string
 	Effects     []types.Effect
 	Craft       ItemCraftDetails
+	Tradeable   bool
 }
 
-type ItemDetailResponse struct {
-	Item ItemDetails                 `json:"item"`
-	Ge   types.GrandExchangeItemData `json:"ge"`
-}
+type ItemDetailResponse = ItemDetails
 
 func GetItemDetails(code string) (*ItemDetailResponse, error) {
 	utils.Log(fmt.Sprintf("Getting item details for %s", code))

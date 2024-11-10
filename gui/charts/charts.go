@@ -50,6 +50,7 @@ var horizontalMove = 1
 var lastSearchValue = ""
 var lastSearchPoint = 0
 
+// TODO: Revise me to work with sell orders
 func (m *Charts) makeTransactionSuggestionForCode(code string) {
 	mp, err := m.conn.GetMarketParameterForItem(code)
 	if err != nil {
@@ -77,11 +78,11 @@ func (m *Charts) makeTransactionSuggestionForCode(code string) {
 
 	// Get how many we can trade
 	// Get current stock
-	itemData, err := api.GetItemDetails(code)
-	if err != nil {
-		// return
-		m.transactionSuggestion = fmt.Sprintf("failed to get item details for %s", code)
-	}
+	// itemData, err := api.GetItemDetails(code)
+	// if err != nil {
+	// 	// return
+	// 	m.transactionSuggestion = fmt.Sprintf("failed to get item details for %s", code)
+	// }
 
 	// Get how many we have
 	charData, err := api.GetCharacterByName(s.Character)
@@ -100,7 +101,7 @@ func (m *Charts) makeTransactionSuggestionForCode(code string) {
 
 	itemCount := inventoryCount + bankItemCount
 
-	maxAmount := min(itemData.Ge.Max_quantity, itemCount)
+	maxAmount := itemCount //min(itemData.Ge.Max_quantity, itemCount)
 
 	// Selling for more than it's worth
 	if lastOb.Entry.Sell_price > mp.Theo {
