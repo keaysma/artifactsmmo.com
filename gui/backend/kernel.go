@@ -9,6 +9,7 @@ import (
 	coords "artifactsmmo.com/m/consts/places"
 	generators "artifactsmmo.com/m/game/cmd_generators"
 	"artifactsmmo.com/m/game/steps"
+	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -93,6 +94,14 @@ func parse_command(raw_command_string string) bool {
 		return true
 	case "fight":
 		_, err := steps.Fight(s.Character, 0)
+		if err != nil {
+			log(fmt.Sprintf("failed to fight: %s", err))
+			return false
+		}
+
+		return true
+	case "rest":
+		_, err := steps.Rest(s.Character)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -185,17 +194,19 @@ func parse_command(raw_command_string string) bool {
 		}
 		raw_quantity, code := parts[1], parts[2]
 
-		var quantity_func steps.QuantityCb
+		var sellQuantity = 0
 		if raw_quantity == "all" {
-			quantity_func = func(cur, max int) int { return min(cur, max) }
+			state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+				sellQuantity = utils.CountInventory(&value.Inventory, code)
+				return value
+			})
 		} else {
 			quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
 			if err != nil {
 				log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
 				return false
 			}
-
-			quantity_func = func(cur, _ int) int { return min(cur, int(quantity)) }
+			sellQuantity = int(quantity)
 		}
 
 		var err error
@@ -209,32 +220,24 @@ func parse_command(raw_command_string string) bool {
 			}
 		}
 
-		_, err = steps.Sell(s.Character, code, quantity_func, int(min_price))
+		_, err = steps.Sell(s.Character, code, sellQuantity, int(min_price))
 		if err != nil {
 			log(fmt.Sprintf("failed to sell %s %s for price > %d: %s", raw_quantity, code, min_price, err))
 			return false
 		}
 
 		return true
-	case "auto-sell":
-		if len(parts) < 2 || len(parts) > 3 {
-			log("usage: auto-sell <quantity:number> <code:string>")
-			return false
-		}
-		raw_quantity, code := parts[1], parts[2]
-
-		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
-		if err != nil {
-			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
-			return false
-		}
-
-		_, err = steps.AutoSell(s.Character, code, int(quantity))
-		if err != nil {
-			log(fmt.Sprintf("failed to auto-sell %s %s: %s", raw_quantity, code, err))
-			return false
-		}
-
+	case "orders":
+		// get orders for something particular
+		// all-orders <code>
+		return true
+	case "my-orders":
+		// get all my orders
+		// my-orders <code/all>
+		return true
+	case "cancel-order":
+		// cancel my orders on something
+		// cancel-order <code> <id/all>
 		return true
 	case "deposit":
 		if len(parts) != 3 {
