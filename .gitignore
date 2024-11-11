@@ -23,3 +23,6 @@ go.work.sum
 
 # env file
 .env
+
+# I write most of my code from a Mac
+**/.DS_Store
