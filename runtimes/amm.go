@@ -1,5 +1,6 @@
 package runtimes
 
+/*
 import (
 	"fmt"
 	"log"
@@ -245,3 +246,4 @@ func AutomatedMarketMaker() {
 		time.Sleep(30 * time.Second)
 	}
 }
+*/

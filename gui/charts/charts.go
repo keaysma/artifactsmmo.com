@@ -1,8 +1,8 @@
 package charts
 
-// gonna move all the mainframe widgets + loop logic here
-// do the same thing for amm after in another file
+// Well, with v3, this is effectively fully dead
 
+/*
 import (
 	"fmt"
 	"log"
@@ -370,3 +370,4 @@ func (m *Charts) HandleKeyboardInput(event ui.Event) {
 		m.CodeSearch.Text += event.ID
 	}
 }
+*/

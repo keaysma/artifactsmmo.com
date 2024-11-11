@@ -19,7 +19,7 @@ func main() {
 		runtimes.UI()
 	case "hc":
 		runtimes.HardCoded()
-	case "amm":
-		runtimes.AutomatedMarketMaker()
+		// case "amm":
+		// runtimes.AutomatedMarketMaker()
 	}
 }

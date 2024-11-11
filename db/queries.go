@@ -15,10 +15,13 @@ type Transaction struct {
 	Side      string
 }
 
+// Deprecated
+/*
 type OrderbookPoint struct {
 	Timestamp string
 	Entry     types.GrandExchangeItemData
 }
+*/
 
 type MarketParameter struct {
 	Enabled  bool
@@ -55,7 +58,7 @@ func (db *Connection) GetLatestTransaction() (*time.Time, error) {
 	return &timePointer, nil
 }
 
-func (db *Connection) GetLatestTransactionByCode() (*[]types.GrandExchangeItemData, error) {
+func (db *Connection) GetLatestTransactionByCode() (*[]types.HistoricalOrder, error) {
 	rows, err := db.Query(`
 		WITH X AS (
 			SELECT code, MAX(timestamp) as tx
@@ -73,11 +76,13 @@ func (db *Connection) GetLatestTransactionByCode() (*[]types.GrandExchangeItemDa
 		return nil, err
 	}
 
-	var res = []types.GrandExchangeItemData{}
+	var res = []types.HistoricalOrder{}
 	for rows.Next() {
-		var entry = types.GrandExchangeItemData{Max_quantity: -1}
-		rows.Scan(&entry.Code, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
-		res = append(res, entry)
+		// WIP
+		// var entry = types.HistoricalOrder{Max_quantity: -1}
+		// rows.Scan(&entry.Code, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
+		// res = append(res, entry)
+		continue
 	}
 	rows.Close()
 	fmt.Printf("Read %d rows\n", len(res))
@@ -85,7 +90,7 @@ func (db *Connection) GetLatestTransactionByCode() (*[]types.GrandExchangeItemDa
 	return &res, nil
 }
 
-func (db *Connection) GetOrderbookDataForItem(code string) (*[]OrderbookPoint, error) {
+func (db *Connection) GetOrderbookDataForItem(code string) (*[]types.HistoricalOrder, error) {
 	rows, err := db.Query(
 		`
 				SELECT timestamp, buy_price, sell_price, stock 
@@ -100,14 +105,16 @@ func (db *Connection) GetOrderbookDataForItem(code string) (*[]OrderbookPoint, e
 		return nil, err
 	}
 
-	out := []OrderbookPoint{}
+	out := []types.HistoricalOrder{}
 	for rows.Next() {
-		row := OrderbookPoint{}
-		entry := types.GrandExchangeItemData{}
-		rows.Scan(&row.Timestamp, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
+		// WIP
+		// row := types.HistoricalOrder{}
+		// entry := types.HistoricalOrder{}
+		// rows.Scan(&row.Timestamp, &entry.Buy_price, &entry.Sell_price, &entry.Stock)
 
-		row.Entry = entry
-		out = append(out, row)
+		// row.Entry = entry
+		// out = append(out, row)
+		continue
 	}
 
 	return &out, nil

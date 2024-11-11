@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"artifactsmmo.com/m/api"
-	"artifactsmmo.com/m/db"
 	"artifactsmmo.com/m/gui/backend"
-	"artifactsmmo.com/m/gui/charts"
 	"artifactsmmo.com/m/gui/mainframe"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
@@ -40,13 +38,13 @@ func UI() {
 
 	defer ui.Close()
 
-	conn, err := db.NewDBConnection()
-	if err != nil {
-		panic(err)
-	}
+	// conn, err := db.NewDBConnection()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// tabs := widgets.NewTabPane("mainframe", "charts", "md")
-	tabs := widgets.NewTabPane("mainframe", "charts")
+	tabs := widgets.NewTabPane("mainframe")
 	tabs.Border = true
 
 	mainframeWidgets := mainframe.Init(s)
@@ -57,13 +55,13 @@ func UI() {
 		HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
 	})
 
-	chartsWidgets := charts.Init(s, conn)
-	wxs = append(wxs, GUIWidget{
-		Draw:                chartsWidgets.Draw,
-		ResizeWidgets:       chartsWidgets.ResizeWidgets,
-		Loop:                chartsWidgets.Loop,
-		HandleKeyboardInput: chartsWidgets.HandleKeyboardInput,
-	})
+	// chartsWidgets := charts.Init(s, conn)
+	// wxs = append(wxs, GUIWidget{
+	// 	Draw:                chartsWidgets.Draw,
+	// 	ResizeWidgets:       chartsWidgets.ResizeWidgets,
+	// 	Loop:                chartsWidgets.Loop,
+	// 	HandleKeyboardInput: chartsWidgets.HandleKeyboardInput,
+	// })
 
 	char, err := api.GetCharacterByName(s.Character)
 	if err != nil {
