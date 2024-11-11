@@ -1,8 +1,8 @@
 package generators
 
 import (
-	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
+	"artifactsmmo.com/m/utils"
 )
 
 type Generator func(ctx string, success bool) string
@@ -49,9 +49,9 @@ func Craft_sticky_sword(last string, success bool) string {
 	}
 
 	char := state.GlobalCharacter.Ref()
-	count_copper_ore := steps.CountInventory(&char.Inventory, "copper_ore")
-	count_copper := steps.CountInventory(&char.Inventory, "copper")
-	count_yellow_slimeball := steps.CountInventory(&char.Inventory, "yellow_slimeball")
+	count_copper_ore := utils.CountInventory(&char.Inventory, "copper_ore")
+	count_copper := utils.CountInventory(&char.Inventory, "copper")
+	count_yellow_slimeball := utils.CountInventory(&char.Inventory, "yellow_slimeball")
 	state.GlobalCharacter.Unlock()
 
 	if count_copper < 5 {

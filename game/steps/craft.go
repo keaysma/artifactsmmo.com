@@ -50,7 +50,7 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 	})
 
 	for _, component := range res.Craft.Items {
-		cur_count := CountInventory(&char.Inventory, component.Code)
+		cur_count := utils.CountInventory(&char.Inventory, component.Code)
 		needed_count := component.Quantity
 		if cur_count < needed_count {
 			log(fmt.Sprintf("doesn't have enough %s, has: %d, needs: %d", component.Code, cur_count, needed_count))

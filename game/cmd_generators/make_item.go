@@ -11,7 +11,7 @@ import (
 )
 
 func get_next_command_make(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
-	if !top && steps.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
+	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
 		return ""
 	}
 

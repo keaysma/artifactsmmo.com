@@ -31,6 +31,7 @@ func Tasks(task_type string) Generator {
 		char := state.GlobalCharacter.Ref()
 		current_task, current_task_type, task_progress, task_total := char.Task, char.Task_type, char.Task_progress, char.Task_total
 		x, y := char.X, char.Y
+		hp, max_hp := char.Hp, char.Max_hp
 		state.GlobalCharacter.Unlock()
 
 		if current_task == "" {
@@ -59,8 +60,12 @@ func Tasks(task_type string) Generator {
 			closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, maps)
 
 			move := fmt.Sprintf("move %d %d", closest_map.X, closest_map.Y)
-			if last != move && last != "fight" {
+			if last != move && last != "rest" && last != "fight" {
 				return move
+			}
+
+			if max_hp-hp > 10 {
+				return "rest"
 			}
 
 			return "fight"
@@ -68,9 +73,9 @@ func Tasks(task_type string) Generator {
 
 		if current_task_type == "items" {
 			char := state.GlobalCharacter.Ref()
-			task_item_count := steps.CountInventory(&char.Inventory, char.Task)
+			task_item_count := utils.CountInventory(&char.Inventory, char.Task)
 			max_inventory_count := char.Inventory_max_items
-			current_inventory_count := steps.CountAllInventory(char)
+			current_inventory_count := utils.CountAllInventory(char)
 			state.GlobalCharacter.Unlock()
 
 			// Turn in items if
@@ -112,6 +117,7 @@ func Tasks(task_type string) Generator {
 					// - None of the held items are something we have a stack of in the bank
 					// I don't even know what I'd do manually at this point...
 					// Human discretion is required, time to quit
+					log("inventory full, no tradable items, no bank space")
 					return "clear-gen"
 				}
 			}
