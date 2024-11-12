@@ -15,3 +15,4 @@ type CooldownData struct {
 
 var GlobalCooldown = utils.SyncData[CooldownData]{}
 var GlobalCharacter = utils.SyncData[types.Character]{}
+var OrderIdsReference = utils.SyncData[[]string]{}

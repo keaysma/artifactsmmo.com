@@ -25,6 +25,7 @@ var commandHistory_ptr = 0
 type Mainframe struct {
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
+	OrderReferenceList        *widgets.Paragraph
 	CharacterDisplay          *widgets.Table
 	CooldownGauge             *widgets.Gauge
 	CommandEntry              *widgets.Paragraph
@@ -48,6 +49,10 @@ func Init(s *utils.Settings) *Mainframe {
 	commandList := widgets.NewParagraph()
 	commandList.Title = "Commands"
 	commandList.Text = ""
+
+	orderReferenceList := widgets.NewParagraph()
+	orderReferenceList.Title = "Order Reference"
+	orderReferenceList.Text = ""
 
 	characterDisplay := widgets.NewTable()
 	characterDisplay.Title = s.Character
@@ -73,6 +78,7 @@ func Init(s *utils.Settings) *Mainframe {
 	mainframeWigets := Mainframe{
 		Logs:                      logs,
 		CommandList:               commandList,
+		OrderReferenceList:        orderReferenceList,
 		CharacterDisplay:          characterDisplay,
 		CooldownGauge:             cooldownGauge,
 		CommandEntry:              command_entry,
@@ -92,11 +98,16 @@ func Init(s *utils.Settings) *Mainframe {
 
 func (m *Mainframe) Draw() {
 	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking)
+
+	if m.OrderReferenceList.Text != "" {
+		ui.Render(m.OrderReferenceList)
+	}
 }
 
 func (m *Mainframe) ResizeWidgets(w int, h int) {
 	m.Logs.SetRect(0, m.TabHeight, w/2, h-3)
 	m.CommandList.SetRect(w/2, m.TabHeight, w-(w/4)-1, h-6)
+	m.OrderReferenceList.SetRect(w/2, h-18, w-(w/4)-1, h-6)
 	m.CharacterDisplay.SetRect((3*w)/4, m.TabHeight, w, h-21-6)
 	m.CooldownGauge.SetRect(w/2, h-6, w, h-3)
 	m.CommandEntry.SetRect(0, h-3, w, h)
@@ -195,6 +206,13 @@ func (m *Mainframe) Loop(heavy bool) {
 			m.GaugeSkillCooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
 			m.GaugeSkillCooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
 		}
+
+		m.OrderReferenceList.Text = ""
+		ordersList := state.OrderIdsReference.Ref()
+		for i, id := range *ordersList {
+			m.OrderReferenceList.Text += fmt.Sprintf("%d: %s\n", i, id)
+		}
+		state.OrderIdsReference.Unlock()
 	}
 }
 
@@ -229,6 +247,7 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 			utils.Log("help message")
 		} else if commandValue == "clear" {
 			logLines = []string{}
+			state.OrderIdsReference.Set(&[]string{})
 		} else if commandValue == "stop" {
 			backend.SharedState.With(func(value *backend.SharedStateType) *backend.SharedStateType {
 				value.Commands = []string{}

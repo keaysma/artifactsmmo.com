@@ -2,6 +2,7 @@ package steps
 
 import (
 	"fmt"
+	"strconv"
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
@@ -21,9 +22,13 @@ func ListSellOrders(code string) error {
 		return err
 	}
 
+	ordersCache := []string{}
 	for _, order := range *orders {
 		log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
+		ordersCache = append(ordersCache, order.Id)
 	}
+
+	state.OrderIdsReference.Set(&ordersCache)
 
 	history, err := api.GetSellOrderHistory(code, nil, nil)
 	if err != nil {
@@ -48,21 +53,41 @@ func ListMySellOrders(code *string) error {
 		return err
 	}
 
+	ordersCache := []string{}
 	for _, order := range *orders {
 		if code != nil {
 			log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
 		} else {
 			log(fmt.Sprintf("%s, %s: %d * %d gp = %d gp", order.Code, order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
 		}
+
+		ordersCache = append(ordersCache, order.Id)
 	}
+
+	state.OrderIdsReference.Set(&ordersCache)
 
 	return nil
 }
 
-func CancelOrder(character string, id string) (*types.Character, error) {
+func CancelOrder(character string, idMaybe string) (*types.Character, error) {
 	log := utils.LogPre("<ge/cancel-order>")
 
-	_, err := Move(character, coords.GrandExchange)
+	// convert idMaybe to int
+	id := idMaybe
+	refNum, err := strconv.ParseInt(idMaybe, 10, 64)
+	if err == nil {
+		ordersCache := state.OrderIdsReference.Ref()
+		if refNum < 0 || refNum >= int64(len(*ordersCache)) {
+			log(fmt.Sprintf("invalid order reference %s", idMaybe))
+			return nil, err
+		}
+		id = (*ordersCache)[refNum]
+		state.OrderIdsReference.Unlock()
+	}
+
+	log(fmt.Sprintf("getting ready to cancel order %s", id))
+
+	_, err = Move(character, coords.GrandExchange)
 	if err != nil {
 		return nil, err
 	}
@@ -112,10 +137,14 @@ func Sell(character string, code string, quantity int, minPrice int) (*types.Cha
 	// Price Check
 	if minPrice < averageSellPrice {
 		log(fmt.Sprintf("min price %d for item %s is below the historical average: %d", minPrice, code, averageSellPrice))
-		return nil, err
+		// return nil, err
 	}
 
-	var price = max(averageSellPrice, minPrice)
+	var price = minPrice
+	if minPrice == 0 {
+		log(fmt.Sprintf("no min price specified, using historical average: %d", averageSellPrice))
+		price = averageSellPrice
+	}
 
 	log(fmt.Sprintf("creating sell order for %d %s at %d gp", quantity, code, price))
 	res, err := actions.CreateSellOrder(character, code, quantity, price)
