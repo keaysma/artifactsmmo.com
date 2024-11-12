@@ -11,6 +11,74 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
+func ListSellOrders(code string) error {
+	logHead := utils.LogPre("<ge/list-sell-orders> (o): ")
+	log := utils.LogPre("")
+
+	orders, err := api.GetSellOrders(code, nil)
+	if err != nil {
+		logHead(fmt.Sprintf("failed to get sell orders for %s: %s", code, err))
+		return err
+	}
+
+	for _, order := range *orders {
+		log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
+	}
+
+	history, err := api.GetSellOrderHistory(code, nil, nil)
+	if err != nil {
+		logHead(fmt.Sprintf("failed to get sell order history for %s: %s", code, err))
+		return err
+	}
+
+	for _, order := range (*history)[:min(len(*history), 10)] {
+		log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Order_id, order.Quantity, order.Price, order.Quantity*order.Price))
+	}
+
+	return nil
+}
+
+func ListMySellOrders(code *string) error {
+	logHead := utils.LogPre("<ge/list-my-sell-orders> (o): ")
+	log := utils.LogPre("")
+
+	orders, err := api.GetMySellOrders(code, nil, nil)
+	if err != nil {
+		logHead(fmt.Sprintf("failed to get my sell orders: %s", err))
+		return err
+	}
+
+	for _, order := range *orders {
+		if code != nil {
+			log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
+		} else {
+			log(fmt.Sprintf("%s, %s: %d * %d gp = %d gp", order.Code, order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
+		}
+	}
+
+	return nil
+}
+
+func CancelOrder(character string, id string) (*types.Character, error) {
+	log := utils.LogPre("<ge/cancel-order>")
+
+	_, err := Move(character, coords.GrandExchange)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := actions.CancelSellOrder(character, id)
+	if err != nil {
+		log(fmt.Sprintf("failed to cancel order %s: %s", id, err))
+		return nil, err
+	}
+
+	utils.DebugLog(utils.PrettyPrint(res.Order))
+	state.GlobalCharacter.Set(&res.Character)
+	api.WaitForDown(res.Cooldown)
+	return &res.Character, nil
+}
+
 func Sell(character string, code string, quantity int, minPrice int) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<ge/sell>", character))
 
@@ -81,7 +149,7 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 		return nil, err
 	}
 
-	var bestOrder *api.SellOrderEntry = nil
+	var bestOrder *types.SellOrderEntry = nil
 	bestPrice := maxPrice
 	for _, order := range *sellOrders {
 		if order.Price <= bestPrice {

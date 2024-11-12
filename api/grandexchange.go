@@ -10,15 +10,7 @@ import (
 
 type SellOrderHistoryResponse = []types.HistoricalOrder
 
-type SellOrderEntry struct {
-	Id         string
-	Seller     string
-	Code       string
-	Quantity   int
-	Price      int
-	Created_at string
-}
-type SellOrdersResponse = []SellOrderEntry
+type SellOrdersResponse = []types.SellOrderEntry
 
 func GetSellOrderHistory(code string, seller *string, buyer *string) (*SellOrderHistoryResponse, error) {
 	utils.Log(fmt.Sprintf("Getting sell history for %s", code))
@@ -75,7 +67,7 @@ func GetSellOrders(code string, seller *string) (*SellOrdersResponse, error) {
 	return &out, nil
 }
 
-func GetSellOrder(id string) (*SellOrderEntry, error) {
+func GetSellOrder(id string) (*types.SellOrderEntry, error) {
 	utils.Log(fmt.Sprintf("Getting sell order %s", id))
 
 	res, err := GetDataResponse(
@@ -87,7 +79,7 @@ func GetSellOrder(id string) (*SellOrderEntry, error) {
 		return nil, err
 	}
 
-	var out SellOrderEntry
+	var out types.SellOrderEntry
 	uerr := mapstructure.Decode(res.Data, &out)
 	if uerr != nil {
 		return nil, uerr

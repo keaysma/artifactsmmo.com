@@ -30,8 +30,8 @@ var internalState = InternalState{
 	Last_command_success: false,
 }
 
-func parse_command(raw_command_string string) bool {
-	parts := strings.Split(raw_command_string, " ")
+func ParseCommand(rawCommand string) bool {
+	parts := strings.Split(rawCommand, " ")
 	if len(parts) <= 0 {
 		utils.Log("unparsable command")
 		return true
@@ -93,7 +93,7 @@ func parse_command(raw_command_string string) bool {
 
 		return true
 	case "fight":
-		_, err := steps.Fight(s.Character, 0)
+		_, err := steps.Fight(s.Character, 0.9)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -227,17 +227,57 @@ func parse_command(raw_command_string string) bool {
 		}
 
 		return true
-	case "orders":
+	case "o":
 		// get orders for something particular
 		// all-orders <code>
+
+		if len(parts) != 2 {
+			log("usage: o <code:string>")
+			return false
+		}
+
+		code := parts[1]
+		err := steps.ListSellOrders(code)
+		if err != nil {
+			log(fmt.Sprintf("failed to list orders for %s: %s", code, err))
+			return false
+		}
+
 		return true
-	case "my-orders":
-		// get all my orders
-		// my-orders <code/all>
+	case "myo":
+		if len(parts) > 2 {
+			log("usage: myo[ <code:string>]")
+			return false
+		}
+
+		var logCode = "all"
+		var code *string = nil
+		if len(parts) == 2 {
+			code = &parts[1]
+			logCode = *code
+		}
+		err := steps.ListMySellOrders(code)
+		if err != nil {
+			log(fmt.Sprintf("failed to list orders for %s: %s", logCode, err))
+			return false
+		}
+
 		return true
 	case "cancel-order":
 		// cancel my orders on something
 		// cancel-order <code> <id/all>
+		if len(parts) != 2 {
+			log("usage: cancel-order <id:string>")
+			return false
+		}
+
+		id := parts[1]
+		_, err := steps.CancelOrder(s.Character, id)
+		if err != nil {
+			log(fmt.Sprintf("failed to cancel order %s: %s", id, err))
+			return false
+		}
+
 		return true
 	case "deposit":
 		if len(parts) != 3 {
@@ -520,14 +560,28 @@ func Gameloop() {
 			shared.Commands = commands
 			SharedState.Unlock()
 
-			is_success := parse_command(cmd)
+			is_success := ParseCommand(cmd)
 			internalState.Last_command = cmd
 			internalState.Last_command_success = is_success
 		}
 
 		// Nothing happened this loop,
 		// Add a small sleep to prevent rapid looping
-		time.Sleep(100_000_000) // 100ms (0.1s)
-		// time.Sleep(100_000) // 0.1ms
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func PriorityLoop(commands chan string) {
+	for {
+		// This loop is for high priority tasks
+		// that need to be done immediately
+		// stuff immune to cooldowns
+
+		select {
+		case cmd := <-commands:
+			ParseCommand(cmd)
+		default:
+			time.Sleep(100 * time.Millisecond) // 100ms (0.1s)
+		}
 	}
 }

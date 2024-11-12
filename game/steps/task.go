@@ -73,7 +73,7 @@ func TradeTaskItem(character string, quantitySelect BankDepositQuantityCb) (*typ
 		return char_start, nil
 	}
 
-	inventory_slot := FindInventorySlot(char_start, char_start.Task)
+	inventory_slot := utils.FindInventorySlot(char_start, char_start.Task)
 	current_count, quantity := 0, 0
 	if inventory_slot != nil {
 		current_count = inventory_slot.Quantity
@@ -162,7 +162,7 @@ func ExchangeTaskCoins(character string) (*types.Character, error) {
 
 	state.GlobalCharacter.Set(char_start)
 
-	taskCoinCount := CountInventory(&char_start.Inventory, "tasks_coin")
+	taskCoinCount := utils.CountInventory(&char_start.Inventory, "tasks_coin")
 	if taskCoinCount < 6 {
 		log(fmt.Sprintf("does not have enough tasks coins: %d", taskCoinCount))
 		return char_start, nil

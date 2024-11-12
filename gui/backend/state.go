@@ -15,3 +15,5 @@ var SharedState = utils.SyncData[SharedStateType]{
 		Commands:               []string{},
 	},
 }
+
+var PriorityCommands = make(chan string, 100)

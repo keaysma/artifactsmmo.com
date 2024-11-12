@@ -83,6 +83,7 @@ func UI() {
 	}
 
 	go backend.Gameloop()
+	go backend.PriorityLoop(backend.PriorityCommands)
 
 	draw := func() {
 		wxs[tabs.ActiveTabIndex].Draw()

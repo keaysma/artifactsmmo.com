@@ -225,7 +225,8 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 			os.Exit(0)
 		} else if commandValue == "help" {
 			// utils.Log pushes to log channel and that deadlocks
-			logLines = append(logLines, "help message")
+			// logLines = append(logLines, "help message")
+			utils.Log("help message")
 		} else if commandValue == "clear" {
 			logLines = []string{}
 		} else if commandValue == "stop" {
@@ -233,6 +234,9 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 				value.Commands = []string{}
 				return value
 			})
+		} else if strings.Split(commandValue, " ")[0] == "o" || strings.Split(commandValue, " ")[0] == "myo" {
+			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
+			backend.PriorityCommands <- commandValue
 		} else if commandValue != "" {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
 			shared := backend.SharedState.Ref()

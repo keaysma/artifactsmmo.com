@@ -53,6 +53,15 @@ type CreateOrderData struct {
 	Created_at  string
 }
 
+type SellOrderEntry struct {
+	Id         string
+	Seller     string
+	Code       string
+	Quantity   int
+	Price      int
+	Created_at string
+}
+
 type HistoricalOrder struct {
 	Order_id string
 	Seller   string
