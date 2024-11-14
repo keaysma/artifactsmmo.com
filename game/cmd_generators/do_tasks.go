@@ -2,6 +2,7 @@ package generators
 
 import (
 	"fmt"
+	"time"
 
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
@@ -19,7 +20,16 @@ func Tasks(task_type string) Generator {
 		if !success {
 			// temporary - retry last command
 			retries++
-			if retries < 10 {
+
+			// maybe its just a network issue
+			if retries < 3 {
+				return last
+			}
+
+			// ok... maybe the game server is down
+			// give it a second...
+			if retries < 15 {
+				time.Sleep(5 * time.Second * time.Duration(retries))
 				return last
 			}
 
@@ -64,7 +74,7 @@ func Tasks(task_type string) Generator {
 				return move
 			}
 
-			if max_hp-hp > 10 {
+			if !steps.FightHpSafetyCheck(hp, max_hp) {
 				return "rest"
 			}
 
@@ -74,8 +84,6 @@ func Tasks(task_type string) Generator {
 		if current_task_type == "items" {
 			char := state.GlobalCharacter.Ref()
 			task_item_count := utils.CountInventory(&char.Inventory, char.Task)
-			max_inventory_count := char.Inventory_max_items
-			current_inventory_count := utils.CountAllInventory(char)
 			state.GlobalCharacter.Unlock()
 
 			// Turn in items if
@@ -86,40 +94,9 @@ func Tasks(task_type string) Generator {
 				return "trade-task all"
 			}
 
-			if float64(current_inventory_count) > (float64(max_inventory_count) * float64(0.9)) {
-				if task_item_count > 0 {
-					return "trade-task all"
-				} else {
-					// Special case: Our inventory is full of auxiliary items
-					// Time to put some stuff in the bank
-					bank_inventory, err := api.GetBankItems()
-					if err != nil {
-						return "sleep 5" // hold-over, don't fail right now since alot of requests are being dropped by game server
-					}
-
-					held_item_code_quantity_map := map[string]int{}
-					char := state.GlobalCharacter.Ref()
-					for _, slot := range char.Inventory {
-						held_item_code_quantity_map[slot.Code] = slot.Quantity
-					}
-					state.GlobalCharacter.Unlock()
-
-					for _, slot := range *bank_inventory {
-						quantity, has := held_item_code_quantity_map[slot.Code]
-						if has && quantity > 0 {
-							return fmt.Sprintf("deposit all %s", slot.Code)
-						}
-					}
-
-					// At this point
-					// - The inventory > 90% full
-					// - None of the held items are tradable for our task
-					// - None of the held items are something we have a stack of in the bank
-					// I don't even know what I'd do manually at this point...
-					// Human discretion is required, time to quit
-					log("inventory full, no tradable items, no bank space")
-					return "clear-gen"
-				}
+			cmdInventoryManagement := InventoryCheckLoop(log)
+			if cmdInventoryManagement != "" {
+				return cmdInventoryManagement
 			}
 
 			// now we effectively need to sub-task the entire make or flip gen make

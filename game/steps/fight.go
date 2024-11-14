@@ -38,7 +38,18 @@ func FightUnsafe(character string) (*types.Character, error) {
 	return &mres.Character, nil
 }
 
-func Fight(character string, hpSafetyPercent float64) (*types.Character, error) {
+var HP_SAFETY_PERCENT = 0.51
+
+func FightSafeHpAmount(max_hp int) int {
+	return int(float64(max_hp) * HP_SAFETY_PERCENT)
+}
+
+func FightHpSafetyCheck(hp int, max_hp int) bool {
+	hpSafety := FightSafeHpAmount(max_hp)
+	return hp >= hpSafety
+}
+
+func Fight(character string) (*types.Character, error) {
 	utils.Log(fmt.Sprintf("[%s]<fight>: Fighting", character))
 
 	char_start, err := api.GetCharacterByName(character)
@@ -51,9 +62,8 @@ func Fight(character string, hpSafetyPercent float64) (*types.Character, error) 
 		return char_start
 	})
 
-	hpSafety := int(float64(char_start.Max_hp) * hpSafetyPercent)
-	if char_start.Hp < hpSafety {
-		utils.Log(fmt.Sprintf("[%s]<fight>: Will not fight, HP below safety (%d < %d)", character, char_start.Hp, hpSafety))
+	if !FightHpSafetyCheck(char_start.Hp, char_start.Max_hp) {
+		utils.Log(fmt.Sprintf("[%s]<fight>: Will not fight, HP below safety (%d < %d)", character, char_start.Hp, FightSafeHpAmount(char_start.Max_hp)))
 		return char_start, nil
 	}
 
