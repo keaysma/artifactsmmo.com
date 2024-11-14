@@ -8,22 +8,20 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type EquipResponse struct {
-	Cooldown  types.Cooldown    `json:"cooldown"`
-	Slot      string            `json:"slot"`
-	Item      types.ItemDetails `json:"item"`
-	Character types.Character   `json:"character"`
+type UseResponse struct {
+	Cooldown  types.Cooldown
+	Item      types.ItemDetails
+	Character types.Character
 }
 
-func EquipItem(character string, code string, slot string, quantity int) (*EquipResponse, error) {
+func Use(character string, code string, quantity int) (*UseResponse, error) {
 	var payload = map[string]interface{}{
 		"code":     code,
-		"slot":     slot,
 		"quantity": quantity,
 	}
 
 	res, err := api.PostDataResponse(
-		fmt.Sprintf("my/%s/action/equip", character),
+		fmt.Sprintf("my/%s/action/use", character),
 		&payload,
 	)
 
@@ -31,7 +29,7 @@ func EquipItem(character string, code string, slot string, quantity int) (*Equip
 		return nil, err
 	}
 
-	var out EquipResponse
+	var out UseResponse
 	uerr := mapstructure.Decode(res.Data, &out)
 
 	if uerr != nil {

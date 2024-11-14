@@ -156,3 +156,22 @@ type Character struct {
 	Inventory_max_items    int
 	Inventory              []InventorySlot
 }
+
+type ItemCraftDetails struct {
+	Skill    string
+	Level    int
+	Items    []InventoryItem
+	Quantity int
+}
+
+type ItemDetails struct {
+	Name        string
+	Code        string
+	Level       int
+	Type        string
+	Subtype     string
+	Description string
+	Effects     []Effect
+	Craft       ItemCraftDetails
+	Tradeable   bool
+}

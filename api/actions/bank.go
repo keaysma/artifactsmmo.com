@@ -10,7 +10,7 @@ import (
 
 type BankItemResponse struct {
 	Cooldown  types.Cooldown        `json:"cooldown"`
-	Item      api.ItemDetails       `json:"item"`
+	Item      types.ItemDetails     `json:"item"`
 	Bank      []types.InventoryItem `json:"bank"`
 	Character types.Character       `json:"character"`
 }
