@@ -181,7 +181,7 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 	var bestOrder *types.SellOrderEntry = nil
 	bestPrice := maxPrice
 	for _, order := range *sellOrders {
-		if order.Price <= bestPrice {
+		if order.Price <= bestPrice || bestPrice < 0 {
 			bestOrder = &order
 			bestPrice = order.Price
 		}
@@ -197,6 +197,52 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 	res, err := actions.HitSellOrder(character, bestOrder.Id, quantity)
 	if err != nil {
 		log(fmt.Sprintf("failed to buy %s", code))
+		return nil, err
+	}
+
+	utils.DebugLog(utils.PrettyPrint(res.Order))
+	state.GlobalCharacter.Set(&res.Character)
+	api.WaitForDown(res.Cooldown)
+	return &res.Character, nil
+}
+
+func HitOrder(character string, idMaybe string, quantity int) (*types.Character, error) {
+	log := utils.LogPre("<ge/hit-order>")
+
+	// convert idMaybe to int
+	id := idMaybe
+	refNum, err := strconv.ParseInt(idMaybe, 10, 64)
+	if err == nil {
+		ordersCache := state.OrderIdsReference.Ref()
+		if refNum < 0 || refNum >= int64(len(*ordersCache)) {
+			log(fmt.Sprintf("invalid order reference %s", idMaybe))
+			return nil, err
+		}
+		id = (*ordersCache)[refNum]
+		state.OrderIdsReference.Unlock()
+	}
+
+	_, err = Move(character, coords.GrandExchange)
+	if err != nil {
+		return nil, err
+	}
+
+	orderQuantity := quantity
+	if orderQuantity < 0 {
+		info, err := api.GetSellOrder(id)
+		if err != nil {
+			log(fmt.Sprintf("failed to get order %s: %s", id, err))
+			return nil, err
+		}
+
+		log(fmt.Sprintf("order %s has %d items", id, info.Quantity))
+
+		orderQuantity = info.Quantity
+	}
+
+	res, err := actions.HitSellOrder(character, id, orderQuantity)
+	if err != nil {
+		log(fmt.Sprintf("failed to hit order  %s: %s", id, err))
 		return nil, err
 	}
 

@@ -62,6 +62,7 @@ func ParseCommand(rawCommand string) bool {
 	case "move":
 		if len(parts) != 3 {
 			log("usage: move <x:number> <y:number>")
+			return false
 		}
 		raw_x, raw_y := parts[1], parts[2]
 
@@ -84,6 +85,26 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		return true
+	case "use":
+		if len(parts) != 3 {
+			log("usage: use <quantity:number> <code:string>")
+			return false
+		}
+		rawQuantity, code := parts[1], parts[2]
+
+		quantity, err := strconv.ParseInt(rawQuantity, 10, 64)
+		if err != nil {
+			log(fmt.Sprintf("can't parse quantity: %s", rawQuantity))
+			return false
+		}
+
+		_, err = steps.Use(s.Character, code, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to use %d %s: %s", quantity, code, err))
+			return false
+		}
+
+		return true
 	case "gather":
 		_, err := steps.Gather(s.Character)
 		if err != nil {
@@ -93,7 +114,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "fight":
-		_, err := steps.Fight(s.Character, 0.9)
+		_, err := steps.Fight(s.Character)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -275,6 +296,33 @@ func ParseCommand(rawCommand string) bool {
 		_, err := steps.CancelOrder(s.Character, id)
 		if err != nil {
 			log(fmt.Sprintf("failed to cancel order %s: %s", id, err))
+			return false
+		}
+
+		return true
+	case "hit-order":
+		// buy a specific order
+		// hit-order <id:string>[ <quantity:number>]
+		if len(parts) < 2 || len(parts) > 3 {
+			log("usage: hit-order <id:string>[ <quantity:number>]")
+			return false
+		}
+
+		id := parts[1]
+		var quantity int64 = -1
+		if len(parts) == 3 {
+			raw_quantity := parts[2]
+			parsedQuantity, err := strconv.ParseInt(raw_quantity, 10, 64)
+			if err != nil {
+				log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
+				return false
+			}
+			quantity = parsedQuantity
+		}
+
+		_, err := steps.HitOrder(s.Character, id, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to hit order %s: %s", id, err))
 			return false
 		}
 
