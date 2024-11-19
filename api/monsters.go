@@ -20,12 +20,15 @@ type Monster struct {
 	Drops        []ResourceDrop
 }
 
-func GetAllMonstersByDrop(drop string) (*[]Monster, error) {
+func GetAllMonsters(drop *string) (*[]Monster, error) {
+	var payload = map[string]string{}
+	if drop != nil {
+		payload["drop"] = *drop
+	}
+
 	res, err := GetDataResponse(
 		"monsters",
-		&map[string]string{
-			"drop": drop,
-		},
+		&payload,
 	)
 
 	if err != nil {
