@@ -43,6 +43,11 @@ func InventoryCheckLoop(log func(string)) string {
 	}
 
 	for _, slot := range *bank_inventory {
+		// special skip case: we can't deposit tasks_coin into the bank
+		if slot.Code == "tasks_coin" {
+			continue
+		}
+
 		quantity, has := held_item_code_quantity_map[slot.Code]
 		if has && quantity > 0 {
 			return fmt.Sprintf("deposit all %s", slot.Code)
@@ -56,7 +61,12 @@ func InventoryCheckLoop(log func(string)) string {
 		}
 	}
 
-	if filled_bank_slots <= int(float64(len(*bank_inventory))*0.9) {
+	bank_details, err := api.GetBankDetails()
+	if err != nil {
+		return "sleep 5" // hold-over, don't fail right now since alot of requests are being dropped by game server
+	}
+
+	if filled_bank_slots <= bank_details.Slots {
 		// Special case: Our bank has plenty of space
 		// Chuck the first item in the inventory into the bank
 		for k, v := range held_item_code_quantity_map {
