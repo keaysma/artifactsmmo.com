@@ -33,7 +33,7 @@ func FindMapsForSubtypes(subtype_map ActionMap) (*map[string]api.MapTile, error)
 		if action == "fight" {
 			utils.Log(fmt.Sprintf("fight for: %s", code))
 
-			monsters, err := api.GetAllMonstersByDrop(code)
+			monsters, err := api.GetAllMonsters(&code)
 			if err != nil {
 				utils.Log(fmt.Sprintf("failed to get monster info: %s", err))
 				return nil, err
