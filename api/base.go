@@ -38,6 +38,7 @@ func GetDataResponse(url string, params Params) (*DataResponse, error) {
 	}
 
 	text, err := io.ReadAll(res.Body)
+	utils.DebugLog(fmt.Sprintf("response: %s", text))
 
 	if err != nil {
 		return nil, err
