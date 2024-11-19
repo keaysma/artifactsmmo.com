@@ -511,6 +511,13 @@ func ParseCommand(rawCommand string) bool {
 		new_name := ""
 
 		switch generator_name {
+		case "level":
+			if generator_arg == "" {
+				log("missing generator argument")
+				return false
+			}
+			internalState.Current_Generator = generators.Level(generator_arg)
+			new_name = fmt.Sprintf("level <%s>", generator_arg)
 		case "forever":
 			if generator_arg == "" {
 				log("missing generator argument")
