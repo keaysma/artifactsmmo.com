@@ -1,6 +1,10 @@
 package api
 
-import "github.com/mitchellh/mapstructure"
+import (
+	"fmt"
+
+	"github.com/mitchellh/mapstructure"
+)
 
 type ResourceDrop struct {
 	Code         string
@@ -22,6 +26,30 @@ func GetAllResourcesByDrop(drop string) (*[]Resource, error) {
 		"resources",
 		&map[string]string{
 			"drop": drop,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var out []Resource
+	uerr := mapstructure.Decode(res.Data, &out)
+
+	if uerr != nil {
+		return nil, uerr
+	}
+
+	return &out, nil
+}
+
+func GetAllResourcesBySkill(skill string, page int, size int) (*[]Resource, error) {
+	res, err := GetDataResponse(
+		"resources",
+		&map[string]string{
+			"skill": skill,
+			"page":  fmt.Sprintf("%d", page),
+			"size":  fmt.Sprintf("%d", size),
 		},
 	)
 
