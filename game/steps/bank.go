@@ -106,5 +106,9 @@ func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySe
 		api.WaitForDown(res.Cooldown)
 	}
 
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return char
+	})
+
 	return char, nil
 }
