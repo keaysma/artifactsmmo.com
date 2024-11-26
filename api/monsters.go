@@ -1,7 +1,5 @@
 package api
 
-import "github.com/mitchellh/mapstructure"
-
 type Monster struct {
 	Name         string
 	Code         string
@@ -20,26 +18,25 @@ type Monster struct {
 	Drops        []ResourceDrop
 }
 
-func GetAllMonsters(drop *string) (*[]Monster, error) {
+type GetAllMonstersParams struct {
+	Drop *string
+}
+
+func GetAllMonsters(in GetAllMonstersParams) (*[]Monster, error) {
 	var payload = map[string]string{}
-	if drop != nil {
-		payload["drop"] = *drop
+	if in.Drop != nil {
+		payload["drop"] = *in.Drop
 	}
 
-	res, err := GetDataResponse(
+	var out []Monster
+	err := GetDataResponseFuture(
 		"monsters",
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out []Monster
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

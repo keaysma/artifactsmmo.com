@@ -1,9 +1,5 @@
 package api
 
-import (
-	"github.com/mitchellh/mapstructure"
-)
-
 type MapTileContent struct {
 	Type string
 	Code string
@@ -26,20 +22,15 @@ func GetAllMapsByContentType(content_type string, content_code string) (*[]MapTi
 		payload["content_code"] = content_code
 	}
 
-	res, err := GetDataResponse(
+	var out []MapTile
+	err := GetDataResponseFuture(
 		"maps",
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out []MapTile
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

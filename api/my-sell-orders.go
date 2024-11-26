@@ -1,33 +1,24 @@
 package api
 
 import (
-	"fmt"
-
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
-func GetMySellOrders(code *string, page *int, size *int) (*[]types.SellOrderEntry, error) {
-	params := map[string]string{}
-	if code != nil {
-		params["code"] = *code
-	}
-	if page != nil {
-		params["page"] = fmt.Sprintf("%d", *page)
-	}
-	if size != nil {
-		params["size"] = fmt.Sprintf("%d", *size)
-	}
+type GetMySellOrdersParams struct {
+	Page string
+	Size string
+	Code string
+}
 
-	res, err := GetDataResponse("my/grandexchange/orders", &params)
+func GetMySellOrders(in GetMySellOrdersParams) (*[]types.SellOrderEntry, error) {
+	var out []types.SellOrderEntry
+	err := GetDataResponseFuture(
+		"my/grandexchange/orders",
+		in,
+		&out,
+	)
 	if err != nil {
 		return nil, err
-	}
-
-	var out []types.SellOrderEntry
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

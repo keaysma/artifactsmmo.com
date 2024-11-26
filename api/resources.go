@@ -1,11 +1,5 @@
 package api
 
-import (
-	"fmt"
-
-	"github.com/mitchellh/mapstructure"
-)
-
 type ResourceDrop struct {
 	Code         string
 	Rate         int
@@ -21,47 +15,23 @@ type Resource struct {
 	Drops []ResourceDrop
 }
 
-func GetAllResourcesByDrop(drop string) (*[]Resource, error) {
-	res, err := GetDataResponse(
-		"resources",
-		&map[string]string{
-			"drop": drop,
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var out []Resource
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
-	}
-
-	return &out, nil
+type GetAllResourcesParams struct {
+	Drop  string
+	Skill string
+	Page  string
+	Size  string
 }
 
-func GetAllResourcesBySkill(skill string, page int, size int) (*[]Resource, error) {
-	res, err := GetDataResponse(
+func GetAllResources(in GetAllResourcesParams) (*[]Resource, error) {
+	var out []Resource
+	err := GetDataResponseFuture(
 		"resources",
-		&map[string]string{
-			"skill": skill,
-			"page":  fmt.Sprintf("%d", page),
-			"size":  fmt.Sprintf("%d", size),
-		},
+		in,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out []Resource
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

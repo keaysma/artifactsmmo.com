@@ -1,22 +1,19 @@
 package api
 
 import (
-	"fmt"
-
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 func GetAllMyCharacters() (*[]types.Character, error) {
-	res, err := GetDataResponse("my/characters", nil)
+	var out []types.Character
+	err := GetDataResponseFuture(
+		"my/characters",
+		nil,
+		&out,
+	)
+
 	if err != nil {
 		return nil, err
-	}
-
-	var out []types.Character
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil
@@ -35,19 +32,20 @@ type Log struct {
 	Created_at          string
 }
 
-func GetLogs(page int, size int) (*[]Log, error) {
-	res, err := GetDataResponse("my/logs", &map[string]string{
-		"page": fmt.Sprintf("%d", page),
-		"size": fmt.Sprintf("%d", size),
-	})
+type GetLogsParams struct {
+	Page int
+	Size int
+}
+
+func GetLogs(in GetLogsParams) (*[]Log, error) {
+	var out []Log
+	err := GetDataResponseFuture(
+		"my/logs",
+		in,
+		&out,
+	)
 	if err != nil {
 		return nil, err
-	}
-
-	var out []Log
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

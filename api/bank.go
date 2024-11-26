@@ -2,7 +2,6 @@ package api
 
 import (
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type BankDetailsResponse struct {
@@ -13,30 +12,28 @@ type BankDetailsResponse struct {
 }
 
 func GetBankItems() (*[]types.InventoryItem, error) {
-	res, err := GetDataResponse("my/bank/items", nil)
+	var out []types.InventoryItem
+	err := GetDataResponseFuture(
+		"my/bank/items",
+		nil,
+		&out,
+	)
 	if err != nil {
 		return nil, err
-	}
-
-	var out []types.InventoryItem
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil
 }
 
 func GetBankDetails() (*BankDetailsResponse, error) {
-	res, err := GetDataResponse("my/bank", nil)
+	var out BankDetailsResponse
+	err := GetDataResponseFuture(
+		"my/bank",
+		nil,
+		&out,
+	)
 	if err != nil {
 		return nil, err
-	}
-
-	var out BankDetailsResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

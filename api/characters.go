@@ -4,21 +4,19 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 // https://api.artifactsmmo.com/docs/#/operations/get_character_characters__name__get
 
 func GetCharacterByName(name string) (*types.Character, error) {
-	res, err := GetDataResponse(fmt.Sprintf("characters/%s", name), nil)
+	var out types.Character
+	err := GetDataResponseFuture(
+		fmt.Sprintf("characters/%s", name),
+		nil,
+		&out,
+	)
 
 	if err != nil {
-		return nil, err
-	}
-
-	var out types.Character
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
 		return nil, err
 	}
 
@@ -26,14 +24,14 @@ func GetCharacterByName(name string) (*types.Character, error) {
 }
 
 func GetAllCharacters() (*[]types.Character, error) {
-	res, err := GetDataResponse("characters", nil)
-	if err != nil {
-		return nil, err
-	}
-
 	var out []types.Character
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
+	err := GetDataResponseFuture(
+		"characters",
+		nil,
+		&out,
+	)
+
+	if err != nil {
 		return nil, err
 	}
 
