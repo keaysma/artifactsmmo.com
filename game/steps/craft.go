@@ -70,8 +70,13 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 		return nil, fmt.Errorf("failed to find place to do %s", skill)
 	}
 
-	// TODO: Pick closest one instead of just [0]
-	var tile = (*tiles)[0]
+	tile := PickClosestMap(
+		coords.Coord{
+			X: char.X,
+			Y: char.Y,
+		},
+		tiles,
+	)
 	var place *coords.Coord = &coords.Coord{X: tile.X, Y: tile.Y, Name: tile.Name}
 
 	_, move_err := Move(character, *place)
