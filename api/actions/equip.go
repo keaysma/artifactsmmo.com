@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type EquipResponse struct {
@@ -22,20 +21,15 @@ func EquipItem(character string, code string, slot string, quantity int) (*Equip
 		"quantity": quantity,
 	}
 
-	res, err := api.PostDataResponse(
+	var out EquipResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/equip", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out EquipResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

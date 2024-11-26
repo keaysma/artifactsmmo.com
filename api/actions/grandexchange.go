@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type CreateSellOrderResponse struct {
@@ -33,19 +32,15 @@ func CreateSellOrder(character string, code string, quantity int, price int) (*C
 		"price":    price,
 	}
 
-	res, err := api.PostDataResponse(
+	var out CreateSellOrderResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/grandexchange/sell", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out CreateSellOrderResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil
@@ -56,18 +51,14 @@ func CancelSellOrder(character string, id string) (*CancelSellOrderResponse, err
 		"id": id,
 	}
 
-	res, err := api.PostDataResponse(
+	var out CancelSellOrderResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/grandexchange/cancel", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
-		return nil, err
-	}
-
-	var out CancelSellOrderResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
 		return nil, err
 	}
 
@@ -80,18 +71,14 @@ func HitSellOrder(character string, id string, quantity int) (*BuyItemResponse, 
 		"quantity": quantity,
 	}
 
-	res, err := api.PostDataResponse(
+	var out BuyItemResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/grandexchange/buy", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
-		return nil, err
-	}
-
-	var out BuyItemResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-	if uerr != nil {
 		return nil, err
 	}
 

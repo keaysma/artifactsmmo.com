@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type MoveResponse struct {
@@ -20,20 +19,15 @@ func Move(character string, x int, y int) (*MoveResponse, error) {
 		"y": y,
 	}
 
-	res, err := api.PostDataResponse(
+	var out MoveResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/move", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out MoveResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

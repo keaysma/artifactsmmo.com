@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type BlockedHits struct {
@@ -36,20 +35,15 @@ type FightResponse struct {
 func Fight(character string) (*FightResponse, error) {
 	var payload = map[string]interface{}{}
 
-	res, err := api.PostDataResponse(
+	var out FightResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/fight", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out FightResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type ExchangeTaskCoinsResponse struct {
@@ -15,20 +14,15 @@ type ExchangeTaskCoinsResponse struct {
 }
 
 func ExchangeTaskCoins(character string) (*ExchangeTaskCoinsResponse, error) {
-	res, err := api.PostDataResponse(
+	var out ExchangeTaskCoinsResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/task/exchange", character),
 		&map[string]interface{}{},
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out ExchangeTaskCoinsResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

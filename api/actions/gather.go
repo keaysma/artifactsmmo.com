@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type GatheringDetails struct {
@@ -20,22 +19,15 @@ type GatherResponse struct {
 }
 
 func Gather(character string) (*GatherResponse, error) {
-	var payload = map[string]interface{}{}
-
-	res, err := api.PostDataResponse(
+	var out GatherResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/gathering", character),
-		&payload,
+		nil,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out GatherResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

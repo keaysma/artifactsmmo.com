@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type CraftingDetails struct {
@@ -25,20 +24,15 @@ func Craft(character string, code string, quantity int) (*CraftingResponse, erro
 		"quantity": quantity,
 	}
 
-	res, err := api.PostDataResponse(
+	var out CraftingResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/crafting", character),
 		&payload,
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out CraftingResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil

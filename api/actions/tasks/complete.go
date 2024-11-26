@@ -5,7 +5,6 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 type CompleteTaskResponse struct {
@@ -15,20 +14,15 @@ type CompleteTaskResponse struct {
 }
 
 func CompleteTask(character string) (*CompleteTaskResponse, error) {
-	res, err := api.PostDataResponse(
+	var out CompleteTaskResponse
+	err := api.PostDataResponseFuture(
 		fmt.Sprintf("my/%s/action/task/complete", character),
 		&map[string]interface{}{},
+		&out,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var out CompleteTaskResponse
-	uerr := mapstructure.Decode(res.Data, &out)
-
-	if uerr != nil {
-		return nil, uerr
 	}
 
 	return &out, nil
