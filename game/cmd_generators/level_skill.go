@@ -330,7 +330,7 @@ func Level(skill string) Generator {
 						return "ping" // "clear-gen" // lets just stupidly try again
 					}
 
-					next_command := InventoryCheckLoop(map[string]int{})
+					next_command := DepositCheck(map[string]int{})
 					if next_command != "" {
 						return next_command
 					}
@@ -375,7 +375,7 @@ func Level(skill string) Generator {
 						return "ping" // "clear-gen" // lets just stupidly try again
 					}
 
-					next_command := InventoryCheckLoop(map[string]int{})
+					next_command := DepositCheck(map[string]int{})
 					if next_command != "" {
 						return next_command
 					}

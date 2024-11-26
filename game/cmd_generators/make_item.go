@@ -11,93 +11,85 @@ import (
 )
 
 var INVENTORY_CLEAR_THRESHOLD = 1.0 // 0.9
+var BANK_CLEAR_THRESHOLD = 1.0
 
-func InventoryCheckLoop(countByResource map[string]int) string {
-	log := utils.LogPre("<inv-check>: ")
-	held_item_code_quantity_map := map[string]int{}
+func DepositCheck(needsCodeQuantity map[string]int) string {
+	log := utils.LogPre("<deposit-check>: ")
+	heldCodeQuantity := map[string]int{}
 
 	char := state.GlobalCharacter.Ref()
-	max_inventory_count := char.Inventory_max_items
+	currentInventoryCount := 0
+	maxInventoryCount := char.Inventory_max_items
 	for _, slot := range char.Inventory {
-		held_item_code_quantity_map[slot.Code] = slot.Quantity
+		heldCodeQuantity[slot.Code] = slot.Quantity
+		currentInventoryCount += slot.Quantity
 	}
 	state.GlobalCharacter.Unlock()
 
-	current_inventory_count := 0
-	for _, v := range held_item_code_quantity_map {
-		current_inventory_count += v
-	}
-
-	if float64(current_inventory_count) < (float64(max_inventory_count) * INVENTORY_CLEAR_THRESHOLD) {
+	if float64(currentInventoryCount) < (float64(maxInventoryCount) * INVENTORY_CLEAR_THRESHOLD) {
 		// Inventory is not full
+		// Skip this check
 		return ""
 	}
 
-	task_item_count := held_item_code_quantity_map[char.Task]
+	// TODO: Reverse this check, inefficient
+	// Special case: Our inventory is full of auxiliary items
+	// Time to put some stuff in the bank
+	bankItems, err := api.GetBankItems()
+	if err != nil {
+		log(fmt.Sprintf("Check failed, fetching bank items was unsuccessful: %s", err))
+		return "sleep 5"
+	}
+
+	maxBankCount := len(*bankItems)
+	currentBankCount := 0
+	bankCodeQuantity := map[string]int{}
+	for _, slot := range *bankItems {
+		if slot.Code != "" {
+			currentBankCount++
+			bankCodeQuantity[slot.Code] = slot.Quantity
+		}
+	}
+	bankIsFull := float64(currentBankCount) >= (float64(maxBankCount) * BANK_CLEAR_THRESHOLD)
+
+	// First try to get rid of things we do not need
+	for code := range heldCodeQuantity {
+		_, needs := needsCodeQuantity[code]
+		if !needs {
+			if bankIsFull {
+				_, bankHas := bankCodeQuantity[code]
+				if !bankHas {
+					// skip me, the bank is too full
+					continue
+				}
+			}
+			log(fmt.Sprintf("Depositing all %s", code))
+			return fmt.Sprintf("deposit all %s", code)
+		}
+	}
+
+	// If nothing was otherwise deposited, this is a good time to turn in task items
+	task_item_count := heldCodeQuantity[char.Task]
 	if task_item_count > 0 {
 		return "trade-task all"
 	}
 
-	// Special case: Our inventory is full of auxiliary items
-	// Time to put some stuff in the bank
-	bank_inventory, err := api.GetBankItems()
-	if err != nil {
-		return "sleep 5" // hold-over, don't fail right now since alot of requests are being dropped by game server
+	// Now try to reduce overstock on items we need, but are holding too much of
+	// At this point, we are only holding things we need
+	// so we can assume that we're able maximize craft amounts,
+	// so anything more than required for the max amounts of crafts needs to go
+	spaceRequiredPerCraft := 0
+	for _, v := range needsCodeQuantity {
+		spaceRequiredPerCraft += v
 	}
-
-	for _, slot := range *bank_inventory {
-		// special skip case: we can't deposit tasks_coin into the bank
-		if slot.Code == "tasks_coin" {
-			continue
+	maxCanMake := max(1, float64(maxInventoryCount)/float64(spaceRequiredPerCraft))
+	for code, quantity := range heldCodeQuantity {
+		maxNeeded := int(maxCanMake * float64(needsCodeQuantity[code]))
+		excessHeldQuantity := quantity - maxNeeded
+		if excessHeldQuantity > 0 {
+			log(fmt.Sprintf("Need %s, but holding %d in excess, depositing", code, quantity))
+			return fmt.Sprintf("deposit %d %s", quantity, code)
 		}
-
-		_, needs := countByResource[slot.Code]
-		quantity, has := held_item_code_quantity_map[slot.Code]
-		if !needs && has && quantity > 0 {
-			log(fmt.Sprintf("Depositing all %s", slot.Code))
-			return fmt.Sprintf("deposit all %s", slot.Code)
-		}
-	}
-
-	filled_bank_slots := 0
-	for _, slot := range *bank_inventory {
-		if slot.Code != "" {
-			filled_bank_slots++
-		}
-	}
-
-	bank_details, err := api.GetBankDetails()
-	if err != nil {
-		return "sleep 5" // hold-over, don't fail right now since alot of requests are being dropped by game server
-	}
-
-	allItemsHeldAreRequired := true
-	if filled_bank_slots <= bank_details.Slots {
-		// Special case: Our bank has plenty of space
-		// Chuck the first item in the inventory into the bank
-		for k, v := range held_item_code_quantity_map {
-			if k == "" {
-				continue
-			}
-
-			// do not deposit things we current need
-			_, needs := countByResource[k]
-			if needs {
-				continue
-			}
-
-			log(fmt.Sprintf("doesnt need %s", k))
-			allItemsHeldAreRequired = false
-
-			if v > 0 {
-				log(fmt.Sprintf("Depositing all %s", k))
-				return fmt.Sprintf("deposit all %s", k)
-			}
-		}
-	}
-
-	if allItemsHeldAreRequired {
-		return ""
 	}
 
 	// At this point
@@ -112,67 +104,57 @@ func InventoryCheckLoop(countByResource map[string]int) string {
 	return "clear-gen"
 }
 
-func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[string]int, includeThisLevel bool) {
-	// if component.Action == "gather" || component.Action == "fight" {
-	if includeThisLevel {
-		resourceMap[component.Code] = component.Quantity
-	}
-
-	for _, subcomponent := range component.Components {
-		BuildResourceCountMap(&subcomponent, resourceMap, true)
-	}
-}
-
-func BankCheck(data *steps.ItemComponentTree, countByResource map[string]int) string {
-	log := utils.DebugLogPre("bank check: ")
-
-	bank, err := api.GetBankItems()
-	if err != nil {
-		return ""
-	}
+func WithdrawCheck(needsCodeQuantity map[string]int) string {
+	log := utils.DebugLogPre("<withdraw-check>: ")
+	heldCodeQuantity := map[string]int{}
 
 	spaceRequiredPerCraft := 0
-	for _, v := range countByResource {
+	for _, v := range needsCodeQuantity {
 		spaceRequiredPerCraft += v
 	}
 
-	currentInventoryCountByCode := map[string]int{}
-
 	char := state.GlobalCharacter.Ref()
-	defer state.GlobalCharacter.Unlock()
-
-	// maxInventoryCount := int(float64(char.Inventory_max_items)*INVENTORY_CLEAR_THRESHOLD) - 1
+	currentInventoryCount := 0
 	maxInventoryCount := char.Inventory_max_items
-	inventoryCount := utils.CountAllInventory(char)
-	freeSpace := maxInventoryCount - inventoryCount
+	for _, slot := range char.Inventory {
+		heldCodeQuantity[slot.Code] = slot.Quantity
+	}
+	state.GlobalCharacter.Unlock()
+
+	freeSpace := maxInventoryCount - currentInventoryCount
 	if freeSpace <= 0 {
 		return ""
 	}
 
-	for _, slot := range char.Inventory {
-		currentInventoryCountByCode[slot.Code] = slot.Quantity
+	maxCanMake := max(1, float64(freeSpace)/float64(spaceRequiredPerCraft))
+	log(fmt.Sprintf("max can make: %f", maxCanMake))
+
+	bankItems, err := api.GetBankItems()
+	if err != nil {
+		log(fmt.Sprintf("Check failed, fetching bank items was unsuccessful: %s", err))
+		return "sleep 5"
 	}
 
-	for _, slot := range *bank {
-		requiredAmount := countByResource[slot.Code]
-		if requiredAmount <= 0 {
+	for _, slot := range *bankItems {
+		needsPerQuantity, needs := needsCodeQuantity[slot.Code]
+		if !needs {
 			continue
 		}
 
-		amountInBank := slot.Quantity
-		log(fmt.Sprintf("amount in bank: %d", amountInBank))
-		amountInInventory := currentInventoryCountByCode[slot.Code]
-		log(fmt.Sprintf("amount in inv: %d", amountInInventory))
+		storedQuantity := slot.Quantity
+		log(fmt.Sprintf("%s amount in bank: %d", slot.Code, storedQuantity))
 
-		maxCanMake := max(1, float64(freeSpace)/float64(spaceRequiredPerCraft))
-		log(fmt.Sprintf("max can make: %f", maxCanMake))
-		maxCanHold := int(maxCanMake) * requiredAmount
-		log(fmt.Sprintf("max can hold: %d", maxCanHold))
-		neededAmount := (maxCanHold - amountInInventory)
-		log(fmt.Sprintf("needed: %d", neededAmount))
+		heldQuantity := heldCodeQuantity[slot.Code]
+		log(fmt.Sprintf("%s amount in inv: %d", slot.Code, heldQuantity))
 
-		amountToWithdraw := min(neededAmount, amountInBank, freeSpace)
-		log(fmt.Sprintf("withdrawing: %d", amountToWithdraw))
+		targetQuantity := int(maxCanMake) * needsPerQuantity
+		log(fmt.Sprintf("%s target: %d", slot.Code, targetQuantity))
+
+		maxWithdrawQuantity := targetQuantity - heldQuantity
+		log(fmt.Sprintf("%s wants to withdraw: %d", slot.Code, maxWithdrawQuantity))
+
+		amountToWithdraw := min(maxWithdrawQuantity, storedQuantity, freeSpace)
+		log(fmt.Sprintf("%s withdrawing: %d", slot.Code, amountToWithdraw))
 
 		if amountToWithdraw > 0 {
 			return fmt.Sprintf("withdraw %d %s", amountToWithdraw, slot.Code)
@@ -182,7 +164,17 @@ func BankCheck(data *steps.ItemComponentTree, countByResource map[string]int) st
 	return ""
 }
 
-func get_next_command_make(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
+func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[string]int, includeThisLevel bool) {
+	if includeThisLevel {
+		resourceMap[component.Code] = component.Quantity
+	}
+
+	for _, subcomponent := range component.Components {
+		BuildResourceCountMap(&subcomponent, resourceMap, true)
+	}
+}
+
+func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
 	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
 		return ""
 	}
@@ -210,7 +202,7 @@ func get_next_command_make(component *steps.ItemComponentTree, character *types.
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command := get_next_command_make(&subcomponent, character, skill_map, last, false)
+		next_command := NextMakeAction(&subcomponent, character, skill_map, last, false)
 		if next_command != "" {
 			return next_command
 		}
@@ -219,7 +211,11 @@ func get_next_command_make(component *steps.ItemComponentTree, character *types.
 	return fmt.Sprintf("auto-craft %d %s", 1, component.Code) // component.Quantity
 }
 
-func Make(code string, doWithdrawFinishedFromBank bool) Generator {
+func Make(code string, needsFinishedItem bool) Generator {
+	// needsFinishedItem:
+	// ... sometimes we want to permit putting the finished product in the bank (we're skilling, need more space to make more items)
+	// ... other times we need to hold on to that finished item (we're doing tasks, need to turn these finished items in to the task master)
+
 	data, err := steps.GetItemComponentsTree(code)
 	if err != nil {
 		utils.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
@@ -227,7 +223,7 @@ func Make(code string, doWithdrawFinishedFromBank bool) Generator {
 	}
 
 	countByResource := map[string]int{}
-	BuildResourceCountMap(data, countByResource, doWithdrawFinishedFromBank)
+	BuildResourceCountMap(data, countByResource, needsFinishedItem)
 
 	var subtype_map = steps.ActionMap{}
 	steps.BuildItemActionMapFromComponentTree(data, &subtype_map)
@@ -259,18 +255,18 @@ func Make(code string, doWithdrawFinishedFromBank bool) Generator {
 
 		retries = 0
 
-		next_command = InventoryCheckLoop(countByResource)
+		next_command = DepositCheck(countByResource)
 		if next_command != "" {
 			return next_command
 		}
 
-		next_command = BankCheck(data, countByResource)
+		next_command = WithdrawCheck(countByResource)
 		if next_command != "" {
 			return next_command
 		}
 
 		char := state.GlobalCharacter.Ref()
-		next_command = get_next_command_make(data, char, resource_tile_map, last, true)
+		next_command = NextMakeAction(data, char, resource_tile_map, last, true)
 		state.GlobalCharacter.Unlock()
 
 		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {
