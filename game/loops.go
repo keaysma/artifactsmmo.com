@@ -48,7 +48,7 @@ func FightAt(character string, coord coords.Coord, count int, hpSafety int) erro
 	}
 
 	for i := 0; i < count; i++ {
-		_, err := steps.Fight(character, hpSafety)
+		_, err := steps.Fight(character)
 		if err != nil {
 			return err
 		}

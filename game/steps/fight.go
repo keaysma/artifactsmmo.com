@@ -27,11 +27,11 @@ func FightUnsafe(character string) (*types.Character, error) {
 		"hp":     mres.Character.Hp,
 	}
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+	utils.Log(fmt.Sprintf("[%s]<fight>: Result: %s", character, mres.Fight.Result))
 
 	api.WaitForDown(mres.Cooldown)
 
 	if mres.Fight.Result != "win" {
-		utils.Log(fmt.Sprintf("[%s]<fight>: Result is not win: %s\n", character, mres.Fight.Result))
 		return nil, fmt.Errorf("[%s]<fight>: result is %s", character, mres.Fight.Result)
 	}
 
