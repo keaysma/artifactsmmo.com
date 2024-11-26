@@ -16,7 +16,9 @@ func ListSellOrders(code string) error {
 	logHead := utils.LogPre("<ge/list-sell-orders> (o): ")
 	log := utils.LogPre("")
 
-	orders, err := api.GetSellOrders(code, nil)
+	orders, err := api.GetSellOrders(api.GetSellOrdersParams{
+		Code: code,
+	})
 	if err != nil {
 		logHead(fmt.Sprintf("failed to get sell orders for %s: %s", code, err))
 		return err
@@ -30,7 +32,7 @@ func ListSellOrders(code string) error {
 
 	state.OrderIdsReference.Set(&ordersCache)
 
-	history, err := api.GetSellOrderHistory(code, nil, nil)
+	history, err := api.GetSellOrderHistory(code, api.GetSellOrderHistoryParams{})
 	if err != nil {
 		logHead(fmt.Sprintf("failed to get sell order history for %s: %s", code, err))
 		return err
@@ -43,11 +45,15 @@ func ListSellOrders(code string) error {
 	return nil
 }
 
-func ListMySellOrders(code *string) error {
+func ListMySellOrders(code string) error {
 	logHead := utils.LogPre("<ge/list-my-sell-orders> (o): ")
 	log := utils.LogPre("")
 
-	orders, err := api.GetMySellOrders(code, nil, nil)
+	orders, err := api.GetMySellOrders(
+		api.GetMySellOrdersParams{
+			Code: code,
+		},
+	)
 	if err != nil {
 		logHead(fmt.Sprintf("failed to get my sell orders: %s", err))
 		return err
@@ -55,10 +61,10 @@ func ListMySellOrders(code *string) error {
 
 	ordersCache := []string{}
 	for _, order := range *orders {
-		if code != nil {
-			log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
-		} else {
+		if code == "" {
 			log(fmt.Sprintf("%s, %s: %d * %d gp = %d gp", order.Code, order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
+		} else {
+			log(fmt.Sprintf("%s: %d * %d gp = %d gp", order.Id, order.Quantity, order.Price, order.Quantity*order.Price))
 		}
 
 		ordersCache = append(ordersCache, order.Id)
@@ -112,13 +118,20 @@ func Sell(character string, code string, quantity int, minPrice int) (*types.Cha
 		return nil, err
 	}
 
-	sellOrders, err := api.GetSellOrders(code, nil)
+	sellOrders, err := api.GetSellOrders(
+		api.GetSellOrdersParams{
+			Code: code,
+		},
+	)
 	if err != nil {
 		log(fmt.Sprintf("failed to get sell orders for %s: %s", code, err))
 		return nil, err
 	}
 
-	sellOrderHistory, err := api.GetSellOrderHistory(code, nil, nil)
+	sellOrderHistory, err := api.GetSellOrderHistory(
+		code,
+		api.GetSellOrderHistoryParams{},
+	)
 	if err != nil {
 		log(fmt.Sprintf("failed to get sell order history for %s: %s", code, err))
 		return nil, err
@@ -167,7 +180,11 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 		return nil, err
 	}
 
-	sellOrders, err := api.GetSellOrders(code, nil)
+	sellOrders, err := api.GetSellOrders(
+		api.GetSellOrdersParams{
+			Code: code,
+		},
+	)
 	if err != nil {
 		log(fmt.Sprintf("failed to get sell orders for %s: %s", code, err))
 		return nil, err
