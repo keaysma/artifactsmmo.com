@@ -43,7 +43,7 @@ func GetLevelBySkill(char *types.Character, skill string) int {
 }
 
 func GenLevelTargetsFromMonsters(drop *string) (*[]LevelTarget, error) {
-	info, err := api.GetAllMonsters(nil)
+	info, err := api.GetAllMonsters(api.GetAllMonstersParams{})
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,13 @@ func GenLevelTargetsFromResourceBySkill(skill string) (*[]LevelTarget, error) {
 	page := 1
 	for {
 		log(fmt.Sprintf("... fetching page %d", page))
-		segment, err := api.GetAllResourcesBySkill(skill, page, 100)
+		segment, err := api.GetAllResources(
+			api.GetAllResourcesParams{
+				Skill: skill,
+				Page:  fmt.Sprintf("%d", page),
+				Size:  fmt.Sprintf("%d", 100),
+			},
+		)
 		if err != nil {
 			log(fmt.Sprintf("failed to get gather targets: %s", err))
 			return nil, err
@@ -222,6 +228,8 @@ func Level(skill string) Generator {
 
 	return func(last string, success bool) string {
 		if !success {
+			log("Failed, retrying")
+
 			// temporary - retry last command
 			retries++
 
@@ -322,7 +330,7 @@ func Level(skill string) Generator {
 						return "ping" // "clear-gen" // lets just stupidly try again
 					}
 
-					next_command := InventoryCheckLoop(log)
+					next_command := InventoryCheckLoop(map[string]int{})
 					if next_command != "" {
 						return next_command
 					}
@@ -367,7 +375,7 @@ func Level(skill string) Generator {
 						return "ping" // "clear-gen" // lets just stupidly try again
 					}
 
-					next_command := InventoryCheckLoop(log)
+					next_command := InventoryCheckLoop(map[string]int{})
 					if next_command != "" {
 						return next_command
 					}
@@ -379,7 +387,7 @@ func Level(skill string) Generator {
 					return "gather"
 				}
 			case "weaponcrafting", "gearcrafting", "jewelrycrafting", "cooking", "alchemy", "mining", "woodcutting":
-				subGenerator = Make(currentTarget.Target)
+				subGenerator = Make(currentTarget.Target, false)
 			default:
 				log(fmt.Sprintf("Unhandled skill: %s", skill))
 				return "clear-gen"

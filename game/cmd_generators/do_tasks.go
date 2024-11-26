@@ -94,15 +94,10 @@ func Tasks(task_type string) Generator {
 				return "trade-task all"
 			}
 
-			cmdInventoryManagement := InventoryCheckLoop(log)
-			if cmdInventoryManagement != "" {
-				return cmdInventoryManagement
-			}
-
 			// now we effectively need to sub-task the entire make or flip gen make
 			if items_sub_generator == nil {
 				log(fmt.Sprintf("building item generator for %s", current_task))
-				generator := Make(current_task)
+				generator := Make(current_task, true)
 				items_sub_generator = &generator
 			}
 

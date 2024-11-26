@@ -272,10 +272,10 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		var logCode = "all"
-		var code *string = nil
+		var code string = ""
 		if len(parts) == 2 {
-			code = &parts[1]
-			logCode = *code
+			code = parts[1]
+			logCode = code
 		}
 		err := steps.ListMySellOrders(code)
 		if err != nil {
@@ -536,7 +536,7 @@ func ParseCommand(rawCommand string) bool {
 				log("missing generator argument")
 				return false
 			}
-			internalState.Current_Generator = generators.Make(generator_arg)
+			internalState.Current_Generator = generators.Make(generator_arg, false)
 			new_name = fmt.Sprintf("make <%s>", generator_arg)
 		case "flip":
 			if generator_arg == "" {
