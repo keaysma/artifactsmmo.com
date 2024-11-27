@@ -16,21 +16,40 @@ func EquipItem(character string, code string, slot string, quantity int) error {
 		return err
 	}
 
-	cur_slot := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(slot))).String()
-	if cur_slot != "" {
-		log(fmt.Sprintf("unequipping %d %s from %s", quantity, cur_slot, slot))
-		err = UnequipItem(character, slot, 1)
+	selectedSlot := ""
+	if slot == "" {
+		// automatically select slot
+		itemDetails, err := api.GetItemDetails(code)
 		if err != nil {
-			log(fmt.Sprintf("failed to unequip %s", slot))
+			log(fmt.Sprintf("failed to get item details for %s", code))
+			return err
+		}
+
+		selectedSlot = itemDetails.Type
+
+		// Special case for utility, rings, and artifacts
+		// TODO: Select the best slot for these items based on the character's current equipment
+		switch itemDetails.Type {
+		case "utility", "ring", "artifact":
+			selectedSlot = selectedSlot + "1"
+		}
+	}
+
+	curSlot := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(selectedSlot))).String()
+	if curSlot != "" {
+		log(fmt.Sprintf("unequipping %d %s from %s", quantity, curSlot, selectedSlot))
+		err = UnequipItem(character, selectedSlot, 1)
+		if err != nil {
+			log(fmt.Sprintf("failed to unequip %s", selectedSlot))
 			return err
 		}
 	}
 
-	log(fmt.Sprintf("equipping %d %s to %s", quantity, code, slot))
+	log(fmt.Sprintf("equipping %d %s to %s", quantity, code, selectedSlot))
 
-	mres, err := actions.EquipItem(character, code, slot, quantity)
+	mres, err := actions.EquipItem(character, code, selectedSlot, quantity)
 	if err != nil {
-		log(fmt.Sprintf("failed to equip %d %s to %s", quantity, code, slot))
+		log(fmt.Sprintf("failed to equip %d %s to %s", quantity, code, selectedSlot))
 		return err
 	}
 

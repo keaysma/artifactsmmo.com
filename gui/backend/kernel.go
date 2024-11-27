@@ -130,11 +130,17 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "equip":
-		if len(parts) < 3 || len(parts) > 4 {
-			log("usage: equip <slot:number> <code:number>[ <quantity:number>]")
+		if len(parts) < 2 || len(parts) > 4 {
+			log("usage: equip [<slot:string> ]<code:string>[ <quantity:number>]")
 			return false
 		}
-		slot, code := parts[1], parts[2]
+
+		slot := ""
+		code := parts[1]
+
+		if len(parts) == 3 {
+			slot, code = parts[1], parts[2]
+		}
 
 		var err error
 		var quantity int64 = 1
