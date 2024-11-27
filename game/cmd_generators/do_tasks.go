@@ -88,8 +88,7 @@ func Tasks(task_type string) Generator {
 
 			// Turn in items if
 			// - We're done with the task
-			// - The character inventory is getting close to full (>90% as an arbitrary "too full" point)
-			// TODO: Just turning in task items doesn't guarantee the inventory won't fill up, need some kind-of inventory management handler still
+			// Otherwise, "Make" runs its own Deposit and Withdraw checks
 			if task_item_count >= task_total-task_progress {
 				return "trade-task all"
 			}
