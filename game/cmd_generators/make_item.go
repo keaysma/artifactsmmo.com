@@ -32,7 +32,6 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 		return ""
 	}
 
-	// TODO: Reverse this check, inefficient
 	// Special case: Our inventory is full of auxiliary items
 	// Time to put some stuff in the bank
 	bankItems, err := api.GetBankItems()
@@ -175,11 +174,13 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 }
 
 func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
+	log := utils.DebugLogPre("<next-make-action>: ")
+
 	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
 		return ""
 	}
 
-	if component.Action == "gather" || component.Action == "fight" {
+	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
 		tile, ok := (*skill_map)[component.Code]
 		if !ok {
 			utils.Log(fmt.Sprintf("no map for resource %s", component.Code))
@@ -190,15 +191,31 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 
 		utils.DebugLog(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
 
-		if last != move && last != component.Action && last != "rest" {
-			return move
+		switch component.Action {
+		case "gather":
+			if last != move && last != "gather" {
+				return move
+			}
+			return "gather"
+		case "fight":
+			if last != move && last != "rest" && last != "fight" {
+				return move
+			}
+			if steps.FightHpSafetyCheck(character.Hp, character.Max_hp) {
+				return "fight"
+			} else {
+				return "rest"
+			}
+		case "withdraw":
+			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
+			if last != move && last != withdraw {
+				return move
+			}
+			return withdraw
+		default:
+			log(fmt.Sprintf("HOW DID WE GET HERE??? action is %s", component.Action))
+			return "clear-gen"
 		}
-
-		if component.Action == "fight" && !steps.FightHpSafetyCheck(character.Hp, character.Max_hp) {
-			return "rest"
-		}
-
-		return component.Action
 	}
 
 	for _, subcomponent := range component.Components {
@@ -225,10 +242,10 @@ func Make(code string, needsFinishedItem bool) Generator {
 	countByResource := map[string]int{}
 	BuildResourceCountMap(data, countByResource, needsFinishedItem)
 
-	var subtype_map = steps.ActionMap{}
-	steps.BuildItemActionMapFromComponentTree(data, &subtype_map)
+	var mapCodeAction = steps.ActionMap{}
+	steps.BuildItemActionMapFromComponentTree(data, &mapCodeAction)
 
-	resource_tile_map, err := steps.FindMapsForSubtypes(subtype_map)
+	resource_tile_map, err := steps.FindMapsForActions(mapCodeAction)
 	if err != nil {
 		utils.Log(fmt.Sprintf("failed to get map info: %s", err))
 		return Clear_gen

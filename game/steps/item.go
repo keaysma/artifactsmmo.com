@@ -22,9 +22,12 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 	if len(res.Craft.Items) == 0 {
 		action := "gather"
 		// TODO: This is a hack to make the tree work for now
-		// Confirm if subtype of food is always a fight
+		// Confirm if subtype of food is always a fight?
 		if res.Subtype == "mob" || res.Subtype == "food" {
 			action = "fight"
+		}
+		if res.Subtype == "task" {
+			action = "withdraw"
 		}
 		return &ItemComponentTree{
 			Code:       code,
@@ -59,12 +62,12 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 
 type ActionMap = map[string]string
 
-func BuildItemActionMapFromComponentTree(component_tree *ItemComponentTree, action_map *ActionMap) {
-	if (*component_tree).Action == "gather" || (*component_tree).Action == "fight" {
-		(*action_map)[(*component_tree).Code] = (*component_tree).Action
+func BuildItemActionMapFromComponentTree(componentsTree *ItemComponentTree, mapCodeAction *ActionMap) {
+	if (*componentsTree).Action != "craft" {
+		(*mapCodeAction)[(*componentsTree).Code] = (*componentsTree).Action
 	}
 
-	for _, subcomponent := range (*component_tree).Components {
-		BuildItemActionMapFromComponentTree(&subcomponent, action_map)
+	for _, subcomponent := range (*componentsTree).Components {
+		BuildItemActionMapFromComponentTree(&subcomponent, mapCodeAction)
 	}
 }

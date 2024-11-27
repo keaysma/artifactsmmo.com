@@ -26,10 +26,21 @@ func PickClosestMap(coord coords.Coord, maps *[]api.MapTile) *api.MapTile {
 	return &closest
 }
 
-func FindMapsForSubtypes(subtype_map ActionMap) (*map[string]api.MapTile, error) {
-	resource_tile_map := &map[string]api.MapTile{}
+func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error) {
+	mapCodeTile := &map[string]api.MapTile{}
 
-	for code, action := range subtype_map {
+	for code, action := range mapCodeAction {
+		if action == "withdraw" {
+			utils.Log(fmt.Sprintf("get from bank: %s", code))
+
+			// :shrug: deal with it
+			(*mapCodeTile)[code] = api.MapTile{
+				X:    coords.Bank.X,
+				Y:    coords.Bank.Y,
+				Name: coords.Bank.Name,
+			}
+		}
+
 		if action == "fight" {
 			utils.Log(fmt.Sprintf("fight for: %s", code))
 
@@ -59,7 +70,7 @@ func FindMapsForSubtypes(subtype_map ActionMap) (*map[string]api.MapTile, error)
 				}
 
 				// TODO: pick the best map
-				(*resource_tile_map)[code] = (*tiles)[0]
+				(*mapCodeTile)[code] = (*tiles)[0]
 
 				continue
 			} else {
@@ -99,8 +110,8 @@ func FindMapsForSubtypes(subtype_map ActionMap) (*map[string]api.MapTile, error)
 		}
 
 		// TODO: pick the best map
-		(*resource_tile_map)[code] = (*tiles)[0]
+		(*mapCodeTile)[code] = (*tiles)[0]
 	}
 
-	return resource_tile_map, nil
+	return mapCodeTile, nil
 }
