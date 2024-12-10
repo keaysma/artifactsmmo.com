@@ -175,3 +175,38 @@ type ItemDetails struct {
 	Craft       ItemCraftDetails
 	Tradeable   bool
 }
+
+type EventDetails struct {
+	Name string
+	Code string
+	Maps []struct {
+		X int
+		Y int
+	}
+	Skin     string
+	Duration int
+	Rate     int
+	Content  struct {
+		Type string
+		Code string
+	}
+}
+
+type ActiveEventDetails struct {
+	Name string
+	Code string
+	Map  struct {
+		Name    string
+		Skin    string
+		X       int
+		Y       int
+		Content struct {
+			Type string
+			Code string
+		}
+	}
+	Previous_skin string
+	Duration      int
+	Expiration    string
+	Created_at    string
+}

@@ -39,6 +39,8 @@ func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error
 				Y:    coords.Bank.Y,
 				Name: coords.Bank.Name,
 			}
+
+			continue
 		}
 
 		if action == "fight" {
@@ -105,8 +107,41 @@ func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error
 		}
 
 		if len(*tiles) == 0 {
-			utils.Log(fmt.Sprintf("no maps for resource %s", resource_code))
-			return nil, err
+			utils.Log(fmt.Sprintf("no maps for resource %s, is this an event resource?", resource_code))
+
+			events, err := api.GetAllEvents(1, 100)
+			if err != nil {
+				utils.Log(fmt.Sprintf("failed to get event info: %s", err))
+				return nil, err
+			}
+
+			if len(*events) == 0 {
+				utils.Log(fmt.Sprintf("no event info found for %s", resource_code))
+				return nil, fmt.Errorf("no event info found for %s", resource_code)
+			}
+
+			didFindEventInfo := false
+			for _, event := range *events {
+				if event.Content.Code == resource_code {
+					utils.Log(fmt.Sprintf("event: %s", event.Code))
+					(*mapCodeTile)[code] = api.MapTile{
+						Content: api.MapTileContent{
+							Type: "event",
+							Code: resource_code,
+						},
+					}
+
+					didFindEventInfo = true
+					break
+				}
+			}
+
+			if didFindEventInfo {
+				continue
+			}
+
+			utils.Log(fmt.Sprintf("no relevant event info found for resource %s", resource_code))
+			return nil, fmt.Errorf("no relevant event info found for resource %s", resource_code)
 		}
 
 		// TODO: pick the best map

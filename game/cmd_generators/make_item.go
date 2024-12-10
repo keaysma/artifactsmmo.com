@@ -18,15 +18,20 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 	heldCodeQuantity := map[string]int{}
 
 	char := state.GlobalCharacter.Ref()
+	currentFilledSlots := 0
+	totalSlots := len(char.Inventory)
 	currentInventoryCount := 0
 	maxInventoryCount := char.Inventory_max_items
 	for _, slot := range char.Inventory {
 		heldCodeQuantity[slot.Code] = slot.Quantity
 		currentInventoryCount += slot.Quantity
+		if slot.Code != "" {
+			currentFilledSlots++
+		}
 	}
 	state.GlobalCharacter.Unlock()
 
-	if float64(currentInventoryCount) < (float64(maxInventoryCount) * INVENTORY_CLEAR_THRESHOLD) {
+	if float64(currentInventoryCount) < (float64(maxInventoryCount)*INVENTORY_CLEAR_THRESHOLD) && currentFilledSlots < totalSlots {
 		// Inventory is not full
 		// Skip this check
 		return ""
@@ -62,7 +67,7 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 					continue
 				}
 			}
-			log(fmt.Sprintf("Depositing all %s", code))
+			log(fmt.Sprintf("Junk item, depositing all %s", code))
 			return fmt.Sprintf("deposit all %s", code)
 		}
 	}
@@ -103,24 +108,37 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 	return "clear-gen"
 }
 
-func WithdrawCheck(needsCodeQuantity map[string]int) string {
-	log := utils.DebugLogPre("<withdraw-check>: ")
+func WithdrawCheck(needsCodeQuantity map[string]int, targetItemCode string) string {
+	// targetItemCode is the item we're trying to make
+	// do not consider it when calculating how much space we need
+	// to make that item
+
+	log := utils.LogPre("<withdraw-check>: ")
 	heldCodeQuantity := map[string]int{}
 
 	spaceRequiredPerCraft := 0
-	for _, v := range needsCodeQuantity {
+	for code, v := range needsCodeQuantity {
+		if code == targetItemCode {
+			continue
+		}
+
 		spaceRequiredPerCraft += v
 	}
+
+	// Incase there are 0 requirements for the item
+	spaceRequiredPerCraft = max(1, spaceRequiredPerCraft)
 
 	char := state.GlobalCharacter.Ref()
 	currentInventoryCount := 0
 	maxInventoryCount := char.Inventory_max_items
 	for _, slot := range char.Inventory {
 		heldCodeQuantity[slot.Code] = slot.Quantity
+		currentInventoryCount += slot.Quantity
 	}
 	state.GlobalCharacter.Unlock()
 
 	freeSpace := maxInventoryCount - currentInventoryCount
+	log(fmt.Sprintf("free space: %d", freeSpace))
 	if freeSpace <= 0 {
 		return ""
 	}
@@ -153,9 +171,8 @@ func WithdrawCheck(needsCodeQuantity map[string]int) string {
 		log(fmt.Sprintf("%s wants to withdraw: %d", slot.Code, maxWithdrawQuantity))
 
 		amountToWithdraw := min(maxWithdrawQuantity, storedQuantity, freeSpace)
-		log(fmt.Sprintf("%s withdrawing: %d", slot.Code, amountToWithdraw))
-
 		if amountToWithdraw > 0 {
+			log(fmt.Sprintf("%s withdrawing: %d", slot.Code, amountToWithdraw))
 			return fmt.Sprintf("withdraw %d %s", amountToWithdraw, slot.Code)
 		}
 	}
@@ -188,6 +205,34 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 		}
 
 		move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
+
+		if tile.Content.Type == "event" {
+			utils.Log(fmt.Sprintf("find event tile for resource %s", component.Code))
+			events, err := api.GetAllActiveEvents(1, 100)
+			if err != nil {
+				utils.Log(fmt.Sprintf("failed to get event info: %s", err))
+				return "sleep 10"
+			}
+
+			if len(*events) == 0 {
+				utils.Log(fmt.Sprintf("no event info found for %s", component.Code))
+				return "sleep 10"
+			}
+
+			didFindActiveEvent := false
+			for _, event := range *events {
+				if event.Map.Content.Code == tile.Content.Code {
+					utils.Log(fmt.Sprintf("event: %s", event.Code))
+					move = fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
+					didFindActiveEvent = true
+				}
+			}
+
+			if !didFindActiveEvent {
+				utils.Log(fmt.Sprintf("no active events for %s, tile %s - sleep", component.Code, tile.Content.Code))
+				return "sleep 10"
+			}
+		}
 
 		utils.DebugLog(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
 
@@ -246,7 +291,7 @@ func Make(code string, needsFinishedItem bool) Generator {
 	steps.BuildItemActionMapFromComponentTree(data, &mapCodeAction)
 
 	resource_tile_map, err := steps.FindMapsForActions(mapCodeAction)
-	if err != nil {
+	if err != nil || resource_tile_map == nil || len(*resource_tile_map) == 0 {
 		utils.Log(fmt.Sprintf("failed to get map info: %s", err))
 		return Clear_gen
 	}
@@ -277,7 +322,7 @@ func Make(code string, needsFinishedItem bool) Generator {
 			return next_command
 		}
 
-		next_command = WithdrawCheck(countByResource)
+		next_command = WithdrawCheck(countByResource, code)
 		if next_command != "" {
 			return next_command
 		}
