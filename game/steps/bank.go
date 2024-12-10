@@ -1,6 +1,8 @@
 package steps
 
 import (
+	"fmt"
+
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
@@ -104,11 +106,9 @@ func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySe
 
 		char = &res.Character
 		api.WaitForDown(res.Cooldown)
+		state.GlobalCharacter.Set(char)
+		return char, nil
 	}
 
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char
-	})
-
-	return char, nil
+	return nil, fmt.Errorf("no items to withdraw")
 }
