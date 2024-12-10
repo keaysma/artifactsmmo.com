@@ -138,7 +138,7 @@ func ParseCommand(rawCommand string) bool {
 		slot := ""
 		code := parts[1]
 
-		if len(parts) == 3 {
+		if len(parts) >= 3 {
 			slot, code = parts[1], parts[2]
 		}
 

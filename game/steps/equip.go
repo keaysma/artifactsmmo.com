@@ -16,7 +16,7 @@ func EquipItem(character string, code string, slot string, quantity int) error {
 		return err
 	}
 
-	selectedSlot := ""
+	selectedSlot := slot
 	if slot == "" {
 		// automatically select slot
 		itemDetails, err := api.GetItemDetails(code)
