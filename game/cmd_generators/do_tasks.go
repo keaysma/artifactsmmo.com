@@ -45,6 +45,8 @@ func Tasks(task_type string) Generator {
 		state.GlobalCharacter.Unlock()
 
 		if current_task == "" {
+			items_sub_generator = nil
+
 			// Allow breaking task loop
 			if task_type == "finish" {
 				return "clear-gen"
