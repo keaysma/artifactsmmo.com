@@ -15,7 +15,9 @@ func GetBankItems() (*[]types.InventoryItem, error) {
 	var out []types.InventoryItem
 	err := GetDataResponseFuture(
 		"my/bank/items",
-		nil,
+		&map[string]string{
+			"size": "100",
+		},
 		&out,
 	)
 	if err != nil {
