@@ -492,6 +492,14 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		return true
+	case "cancel-task":
+		_, err := steps.CancelTask(s.Character)
+		if err != nil {
+			log(fmt.Sprintf("failed to cancel task: %s", err))
+			return false
+		}
+
+		return true
 	case "exchange-tasks-coins":
 		_, err := steps.ExchangeTaskCoins(s.Character)
 		if err != nil {

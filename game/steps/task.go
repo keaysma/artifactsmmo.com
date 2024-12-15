@@ -151,6 +151,78 @@ func CompleteTask(character string) (*types.Character, error) {
 	return &res.Character, nil
 }
 
+func CancelTask(character string) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<task/cancel>: ", character))
+
+	char_start, err := api.GetCharacterByName(character)
+	if err != nil {
+		log("failed to get character info")
+		return nil, err
+	}
+
+	state.GlobalCharacter.Set(char_start)
+
+	if char_start.Task == "" {
+		log("does not have a task to cancel!")
+		return char_start, nil
+	}
+
+	tasks_coins_count := utils.CountInventory(&char_start.Inventory, "tasks_coin")
+	if tasks_coins_count < 1 {
+		bank_items, err := api.GetBankItems()
+		if err != nil {
+			log(fmt.Sprintf("failed to get bank items: %s", err))
+			return nil, err
+		}
+
+		bank_tasks_coins_count := utils.CountBank(bank_items, "tasks_coin")
+		if bank_tasks_coins_count < 1 {
+			log(fmt.Sprintf("does not have enough tasks coins: %d", tasks_coins_count))
+			return nil, fmt.Errorf("not enough tasks coins to cancel task")
+		}
+
+		log("withdrawing tasks coins from bank")
+		_, err = WithdrawBySelect(
+			character,
+			func(item types.InventoryItem) bool {
+				return item.Code == "tasks_coin"
+			},
+			func(item types.InventoryItem) int {
+				return 1
+			},
+		)
+
+		if err != nil {
+			log(fmt.Sprintf("failed to withdraw tasks coins: %s", err))
+			return nil, err
+		}
+	}
+
+	log("canceling task")
+	maps, err := api.GetAllMapsByContentType("tasks_master", char_start.Task_type)
+	if err != nil {
+		log(fmt.Sprintf("failed to get map info: %s", err))
+		return nil, err
+	}
+
+	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
+	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
+	if err != nil {
+		log(fmt.Sprintf("failed to move to task master: %s", err))
+	}
+
+	res, err := tasks.CancelTask(character)
+	if err != nil {
+		log(fmt.Sprintf("failed to cancel task: %s", err))
+		return nil, err
+	}
+
+	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
+	state.GlobalCharacter.Set(&res.Character)
+	api.WaitForDown(res.Cooldown)
+	return &res.Character, nil
+}
+
 func ExchangeTaskCoins(character string) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<task/exchange>: ", character))
 
