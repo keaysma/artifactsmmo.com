@@ -387,6 +387,46 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		return true
+	case "deposit-gold":
+		if len(parts) != 2 {
+			log("usage: deposit-gold <quantity:number>")
+			return false
+		}
+
+		raw_quantity := parts[1]
+		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
+		if err != nil {
+			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
+			return false
+		}
+
+		_, err = steps.DepositGold(s.Character, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to deposit %d gold: %s", quantity, err))
+			return false
+		}
+
+		return true
+	case "withdraw-gold":
+		if len(parts) != 2 {
+			log("usage: withdraw-gold <quantity:number>")
+			return false
+		}
+
+		raw_quantity := parts[1]
+		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
+		if err != nil {
+			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
+			return false
+		}
+
+		_, err = steps.WithdrawGold(s.Character, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to withdraw %d gold: %s", quantity, err))
+			return false
+		}
+
+		return true
 	case "craft":
 		if len(parts) < 2 || len(parts) > 3 {
 			log("usage: craft[ <quantity:number>] <code:string>")

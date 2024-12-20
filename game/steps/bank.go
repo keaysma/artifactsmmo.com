@@ -112,3 +112,37 @@ func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySe
 
 	return nil, fmt.Errorf("no items to withdraw")
 }
+
+func DepositGold(character string, quantity int) (*types.Character, error) {
+	_, err := Move(character, coords.Bank)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := actions.BankDepositGold(character, quantity)
+	if err != nil {
+		return nil, err
+	}
+
+	api.WaitForDown(res.Cooldown)
+	state.GlobalCharacter.Set(&res.Character)
+
+	return &res.Character, nil
+}
+
+func WithdrawGold(character string, quantity int) (*types.Character, error) {
+	_, err := Move(character, coords.Bank)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := actions.BankWithdrawGold(character, quantity)
+	if err != nil {
+		return nil, err
+	}
+
+	api.WaitForDown(res.Cooldown)
+	state.GlobalCharacter.Set(&res.Character)
+
+	return &res.Character, nil
+}
