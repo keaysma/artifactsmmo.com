@@ -57,6 +57,15 @@ func Tasks(task_type string) Generator {
 
 		if task_progress >= task_total {
 			items_sub_generator = nil
+
+			// Put away any items we can
+			// make sure we have enough space
+			// for tasks_coins
+			next_command := DepositCheck(map[string]int{})
+			if next_command != "" {
+				return next_command
+			}
+
 			return "complete-task"
 		}
 
