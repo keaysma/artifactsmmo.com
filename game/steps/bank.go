@@ -62,6 +62,12 @@ func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySele
 	return char, nil
 }
 
+func DepositEverything(character string) (*types.Character, error) {
+	return DepositBySelect(character, func(slot types.InventorySlot) bool {
+		return true
+	}, SlotMaxQuantity())
+}
+
 type BankWithdrawCodeCb func(item types.InventoryItem) bool
 type BankWithdrawQuantityCb func(item types.InventoryItem) int
 

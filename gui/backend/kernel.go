@@ -360,6 +360,19 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		return true
+	case "deposit-everything":
+		if len(parts) != 1 {
+			log("usage: deposit-everything")
+			return false
+		}
+
+		_, err := steps.DepositEverything(s.Character)
+		if err != nil {
+			log(fmt.Sprintf("failed to deposit everything: %s", err))
+			return false
+		}
+
+		return true
 	case "withdraw":
 		if len(parts) != 3 {
 			log("usage: withdraw <quantity:number or 'all'> <code:string>")
