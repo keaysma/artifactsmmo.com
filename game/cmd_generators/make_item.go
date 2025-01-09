@@ -201,51 +201,53 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 		tile, ok := (*skill_map)[component.Code]
 		if !ok {
 			utils.Log(fmt.Sprintf("no map for resource %s", component.Code))
-			return "clear-gen"
+			return "cancel-task"
 		}
-
-		move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
 
 		if tile.Content.Type == "event" {
-			utils.Log(fmt.Sprintf("find event tile for resource %s", component.Code))
-			events, err := api.GetAllActiveEvents(1, 100)
-			if err != nil {
-				utils.Log(fmt.Sprintf("failed to get event info: %s", err))
-				return "sleep 10"
-			}
+			// want to skip events for now
+			// they tend to take too much time
+			return "cancel-task"
 
-			if len(*events) == 0 {
-				utils.Log(fmt.Sprintf("no event info found for %s", component.Code))
-				return "sleep 10"
-			}
-
-			didFindActiveEvent := false
-			for _, event := range *events {
-				if event.Map.Content.Code == tile.Content.Code {
-					utils.Log(fmt.Sprintf("event: %s", event.Code))
-					move = fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
-					didFindActiveEvent = true
+			/*
+				utils.Log(fmt.Sprintf("find event tile for resource %s", component.Code))
+				events, err := api.GetAllActiveEvents(1, 100)
+				if err != nil {
+					utils.Log(fmt.Sprintf("failed to get event info: %s", err))
+					return "sleep 10"
 				}
-			}
 
-			if !didFindActiveEvent {
-				utils.Log(fmt.Sprintf("no active events for %s, tile %s - sleep", component.Code, tile.Content.Code))
-				return "sleep 10"
-			}
+				if len(*events) == 0 {
+					utils.Log(fmt.Sprintf("no event info found for %s", component.Code))
+					return "sleep 10"
+				}
+
+				didFindActiveEvent := false
+				for _, event := range *events {
+					if event.Map.Content.Code == tile.Content.Code {
+						didFindActiveEvent = true
+						utils.Log(fmt.Sprintf("event: %s", event.Code))
+						if character.X != event.Map.X || character.Y != event.Map.Y {
+							return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
+						}
+					}
+				}
+
+				if !didFindActiveEvent {
+					utils.Log(fmt.Sprintf("no active events for %s, tile %s - sleep", component.Code, tile.Content.Code))
+					return "sleep 10"
+				}
+			*/
+		} else if character.X != tile.X || character.Y != tile.Y {
+			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
+			utils.DebugLog(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
+			return move
 		}
-
-		utils.DebugLog(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
 
 		switch component.Action {
 		case "gather":
-			if last != move && last != "gather" {
-				return move
-			}
 			return "gather"
 		case "fight":
-			if last != move && last != "rest" && last != "fight" {
-				return move
-			}
 			if steps.FightHpSafetyCheck(character.Hp, character.Max_hp) {
 				return "fight"
 			} else {
@@ -253,9 +255,6 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 			}
 		case "withdraw":
 			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
-			if last != move && last != withdraw {
-				return move
-			}
 			return withdraw
 		default:
 			log(fmt.Sprintf("HOW DID WE GET HERE??? action is %s", component.Action))
@@ -312,7 +311,12 @@ func Make(code string, needsFinishedItem bool) Generator {
 				return "sleep 5"
 			}
 
-			return next_command
+			// If this happens its usually not network at this point
+			// We have a task that we can't complete
+			// We're stuck, time to quit
+			// TODO: replace success bool with a more descriptive error
+			return "cancel-task"
+			//return next_command
 		}
 
 		retries = 0
