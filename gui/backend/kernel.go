@@ -121,6 +121,14 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		return true
+	case "fight-debug":
+		_, err := steps.FightDebug(s.Character)
+		if err != nil {
+			log(fmt.Sprintf("failed to fight: %s", err))
+			return false
+		}
+
+		return true
 	case "rest":
 		_, err := steps.Rest(s.Character)
 		if err != nil {

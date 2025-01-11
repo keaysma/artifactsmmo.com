@@ -10,7 +10,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-func FightUnsafe(character string) (*types.Character, error) {
+func FightUnsafe(character string, print_fight_logs bool) (*types.Character, error) {
 	utils.DebugLog(fmt.Sprintf("[%s]<fight>: Fighting (unsafe call)!", character))
 
 	mres, err := actions.Fight(character)
@@ -26,7 +26,12 @@ func FightUnsafe(character string) (*types.Character, error) {
 		"drops":  mres.Fight.Drops,
 		"hp":     mres.Character.Hp,
 	}
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+	if print_fight_logs == false {
+		utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+	} else {
+		utils.Log(fmt.Sprintln(utils.PrettyPrint(mres.Fight.Logs)))
+		utils.Log(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+	}
 	utils.Log(fmt.Sprintf("[%s]<fight>: Result: %s", character, mres.Fight.Result))
 
 	api.WaitForDown(mres.Cooldown)
@@ -67,7 +72,21 @@ func Fight(character string) (*types.Character, error) {
 		return char_start, nil
 	}
 
-	char_end, err := FightUnsafe(character)
+	char_end, err := FightUnsafe(character, false)
+	if err != nil {
+		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
+		return nil, err
+	}
+
+	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+		return char_end
+	})
+
+	return char_end, nil
+}
+
+func FightDebug(character string) (*types.Character, error) {
+	char_end, err := FightUnsafe(character, true)
 	if err != nil {
 		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
 		return nil, err
