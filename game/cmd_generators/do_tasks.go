@@ -28,12 +28,16 @@ func Tasks(task_type string) Generator {
 
 			// ok... maybe the game server is down
 			// give it a second...
-			if retries < 15 {
+			if retries < 10 {
 				time.Sleep(5 * time.Second * time.Duration(retries))
 				return last
 			}
 
-			return "clear-gen"
+			// If this happens its usually not network at this point
+			// We have a task that we can't complete
+			// We're stuck, time to quit
+			// TODO: replace success bool with a more descriptive error
+			return "cancel-task"
 		}
 
 		retries = 0
