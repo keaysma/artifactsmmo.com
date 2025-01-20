@@ -1,19 +1,6 @@
 package api
 
-type ResourceDrop struct {
-	Code         string
-	Rate         int
-	Min_quantity int
-	Max_quantity int
-}
-
-type Resource struct {
-	Name  string
-	Code  string
-	Skill string
-	Level int
-	Drops []ResourceDrop
-}
+import "artifactsmmo.com/m/types"
 
 type GetAllResourcesParams struct {
 	Drop  string
@@ -22,8 +9,8 @@ type GetAllResourcesParams struct {
 	Size  string
 }
 
-func GetAllResources(in GetAllResourcesParams) (*[]Resource, error) {
-	var out []Resource
+func GetAllResources(in GetAllResourcesParams) (*[]types.Resource, error) {
+	var out []types.Resource
 	err := GetDataResponseFuture(
 		"resources",
 		in,

@@ -1,34 +1,37 @@
 package api
 
-type Monster struct {
-	Name         string
-	Code         string
-	Level        int
-	Hp           int
-	Attack_fire  int
-	Attack_earth int
-	Attack_water int
-	Attack_air   int
-	Res_fire     int
-	Res_earth    int
-	Res_water    int
-	Res_air      int
-	Min_gold     int
-	Max_gold     int
-	Drops        []ResourceDrop
-}
+import (
+	"fmt"
+
+	"artifactsmmo.com/m/types"
+)
 
 type GetAllMonstersParams struct {
 	Drop *string
 }
 
-func GetAllMonsters(in GetAllMonstersParams) (*[]Monster, error) {
+func GetMonsterByCode(code string) (*types.Monster, error) {
+	var out types.Monster
+	err := GetDataResponseFuture(
+		fmt.Sprintf("monsters/%s", code),
+		nil,
+		&out,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
+}
+
+func GetAllMonsters(in GetAllMonstersParams) (*[]types.Monster, error) {
 	var payload = map[string]string{}
 	if in.Drop != nil {
 		payload["drop"] = *in.Drop
 	}
 
-	var out []Monster
+	var out []types.Monster
 	err := GetDataResponseFuture(
 		"monsters",
 		&payload,

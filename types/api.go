@@ -210,3 +210,55 @@ type ActiveEventDetails struct {
 	Expiration    string
 	Created_at    string
 }
+
+type ResourceDrop struct {
+	Code         string
+	Rate         int
+	Min_quantity int
+	Max_quantity int
+}
+
+type Resource struct {
+	Name  string
+	Code  string
+	Skill string
+	Level int
+	Drops []ResourceDrop
+}
+
+type Monster struct {
+	Name         string
+	Code         string
+	Level        int
+	Hp           int
+	Attack_fire  int
+	Attack_earth int
+	Attack_water int
+	Attack_air   int
+	Res_fire     int
+	Res_earth    int
+	Res_water    int
+	Res_air      int
+	Min_gold     int
+	Max_gold     int
+	Drops        []ResourceDrop
+}
+
+type BlockedHits struct {
+	Fire  int
+	Earth int
+	Water int
+	Air   int
+	Total int
+}
+
+type FightDetails struct {
+	Xp                   int
+	Gold                 int
+	Drops                []InventoryItem
+	Turns                int
+	Monster_blocked_hits BlockedHits
+	Player_blocked_hits  BlockedHits
+	Logs                 []string
+	Result               string
+}

@@ -26,11 +26,13 @@ func FightUnsafe(character string, print_fight_logs bool) (*types.Character, err
 		"drops":  mres.Fight.Drops,
 		"hp":     mres.Character.Hp,
 	}
-	if print_fight_logs == false {
-		utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
-	} else {
-		utils.Log(fmt.Sprintln(utils.PrettyPrint(mres.Fight.Logs)))
+	if print_fight_logs {
+		for _, log := range mres.Fight.Logs {
+			utils.Log(log)
+		}
 		utils.Log(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+	} else {
+		utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
 	}
 	utils.Log(fmt.Sprintf("[%s]<fight>: Result: %s", character, mres.Fight.Result))
 

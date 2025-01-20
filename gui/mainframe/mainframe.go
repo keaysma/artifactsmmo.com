@@ -179,7 +179,7 @@ func (m *Mainframe) Loop(heavy bool) {
 		if character != nil {
 			m.CharacterDisplay.Rows = [][]string{
 				{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
-				{"HP", fmt.Sprintf("%d", character.Hp)},
+				{"HP", fmt.Sprintf("%d/%d", character.Hp, character.Max_hp)},
 				{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
 				{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
 				{"Gold", fmt.Sprintf("%d", character.Gold)},
@@ -215,6 +215,8 @@ func (m *Mainframe) Loop(heavy bool) {
 		state.OrderIdsReference.Unlock()
 	}
 }
+
+var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight"}
 
 func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 	switch event.ID {
@@ -253,7 +255,8 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 				value.Commands = []string{}
 				return value
 			})
-		} else if strings.Split(commandValue, " ")[0] == "o" || strings.Split(commandValue, " ")[0] == "myo" {
+			// } else if strings.Split(commandValue, " ")[0] == "o" || strings.Split(commandValue, " ")[0] == "myo" || strings.Split(commandValue, " ")[0] == "simulate-fight" {
+		} else if utils.Contains(PRIORITY_COMMANDS, strings.Split(commandValue, " ")[0]) {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
 			backend.PriorityCommands <- commandValue
 		} else if commandValue != "" {

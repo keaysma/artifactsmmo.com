@@ -7,6 +7,7 @@ import (
 	"time"
 
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	generators "artifactsmmo.com/m/game/cmd_generators"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
@@ -664,6 +665,39 @@ func ParseCommand(rawCommand string) bool {
 		SharedState.Ref().Current_Generator_Name = ""
 		SharedState.Unlock()
 		log("generator cleared")
+		return true
+	case "simulate-fight":
+		if len(parts) != 2 {
+			log("usage: simulate-fight <monster_code:string>")
+			return false
+		}
+
+		monster_code := parts[1]
+
+		res, err := game.RunSimulations(s.Character, monster_code, 1)
+		if err != nil {
+			log(fmt.Sprintf("failed to simulate fight: %s", err))
+			return false
+		}
+
+		if len(*res) > 1 {
+			wins, losses := 0, 0
+			for _, fight := range *res {
+				if fight.Result == "win" {
+					wins++
+				} else {
+					losses++
+				}
+			}
+			log(fmt.Sprintf("simulated fight: %d wins, %d losses", wins, losses))
+		} else if len(*res) == 1 {
+			for _, log := range (*res)[0].Logs {
+				utils.Log(log)
+			}
+		} else {
+			log("no results")
+		}
+
 		return true
 	default:
 		utils.Log(fmt.Sprintf("unknown command: %s", command))
