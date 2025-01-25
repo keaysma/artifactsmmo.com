@@ -2,10 +2,12 @@ package generators
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
@@ -54,10 +56,17 @@ func GenLevelTargetsFromMonsters(drop *string) (*[]LevelTarget, error) {
 			// Apply a modifier to the level of the monster
 			// Fight monsters that are slightly below the character's level
 			// Fighting at-level monsters tends to result in a loss
-			Level:  int(float64(monster.Level) * 1.33),
+			Level:  int(float64(monster.Level) * 1),
 			Target: monster.Code,
 		}
 	}
+
+	// Sort by Level high -> low
+	sort.Slice(targets, func(i, j int) bool {
+		left := targets[i]
+		right := targets[j]
+		return left.Level > right.Level
+	})
 
 	return &targets, nil
 }
@@ -176,6 +185,7 @@ func Level(skill string) Generator {
 	var subGenerator Generator = nil
 	var mapLevelTarget *[]LevelTarget = nil
 	var targetBlacklist = []string{}
+	var lastLevelCheck = 0
 	var currentTarget *LevelTarget = nil
 	log := utils.LogPre(fmt.Sprintf("[level]<%s>: ", skill))
 
@@ -266,135 +276,153 @@ func Level(skill string) Generator {
 
 		// Ensure that that the character is working efficiently
 		// If not, clear the generator
-		log("Checking efficiency")
-		isEfficient := false
 		char := state.GlobalCharacter.Ref()
+		characterName := char.Name
 		currentLevel := GetLevelBySkill(char, skill)
 		state.GlobalCharacter.Unlock()
 
-		var newLevelTarget *LevelTarget = nil
-		for _, target := range *mapLevelTarget {
-			if utils.Contains(targetBlacklist, target.Target) {
-				continue
-			}
+		if currentLevel != lastLevelCheck {
+			log("Checking efficiency")
+			isEfficient := false
+			var newLevelTarget *LevelTarget = nil
+			for _, target := range *mapLevelTarget {
+				if utils.Contains(targetBlacklist, target.Target) {
+					continue
+				}
 
-			if target.Level > currentLevel {
-				continue
+				if target.Level > currentLevel {
+					continue
+				}
+
+				if newLevelTarget == nil {
+					if skill == "fight" && (newLevelTarget != currentTarget || currentTarget == nil) {
+						log(fmt.Sprintf("Check if can beat %s", target.Target))
+						res, err := game.RunSimulations(characterName, target.Target, 1)
+						if err == nil && (*res)[0].Result == "win" {
+							log(fmt.Sprintf("Can beat %s", target.Target))
+							newLevelTarget = &target
+							break
+						} else {
+							log(fmt.Sprintf("Can NOT beat %s", target.Target))
+							continue
+						}
+					} else {
+						newLevelTarget = &target
+					}
+				}
+
+				if target.Level > newLevelTarget.Level {
+					newLevelTarget = &target
+				}
 			}
 
 			if newLevelTarget == nil {
-				newLevelTarget = &target
-			}
-
-			if target.Level > newLevelTarget.Level {
-				newLevelTarget = &target
-			}
-		}
-
-		if newLevelTarget == nil {
-			log("Could not find a suitable leveling target, abort")
-			return "clear-gen"
-		}
-
-		if currentTarget == nil {
-			log(fmt.Sprintf("Setting target to %s (level: %d)", newLevelTarget.Target, newLevelTarget.Level))
-			currentTarget = newLevelTarget
-		} else if currentTarget.Target == newLevelTarget.Target {
-			log("Current target efficient")
-			isEfficient = true
-		} else {
-			log(fmt.Sprintf("Not efficient, switching from %s to %s", currentTarget.Target, newLevelTarget.Target))
-			currentTarget = newLevelTarget
-		}
-
-		// Need to determine what the subgenerator should be
-		if subGenerator == nil || !isEfficient {
-			log("Setting task")
-			switch skill {
-			case "fight":
-				char := state.GlobalCharacter.Ref()
-				x, y := char.X, char.Y
-				state.GlobalCharacter.Unlock()
-
-				maps, err := api.GetAllMapsByContentType("monster", currentTarget.Target)
-				if err != nil {
-					log(fmt.Sprintf("failed to get maps for monster %s: %s", currentTarget.Target, err))
-					return "clear-gen"
-				}
-
-				closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, maps)
-				move := fmt.Sprintf("move %d %d", closest_map.X, closest_map.Y)
-
-				subGenerator = func(last string, success bool) string {
-					if !success {
-						return "ping" // "clear-gen" // lets just stupidly try again
-					}
-
-					next_command := DepositCheck(map[string]int{})
-					if next_command != "" {
-						return next_command
-					}
-
-					if last != move && last != "rest" && last != "fight" {
-						return move
-					}
-
-					char := state.GlobalCharacter.Ref()
-					hp, max_hp := char.Hp, char.Max_hp
-					state.GlobalCharacter.Unlock()
-
-					if !steps.FightHpSafetyCheck(hp, max_hp) {
-						return "rest"
-					}
-
-					return "fight"
-				}
-			case "fishing":
-				char := state.GlobalCharacter.Ref()
-				x, y := char.X, char.Y
-				state.GlobalCharacter.Unlock()
-
-				maps, err := api.GetAllMapsByContentType("resource", currentTarget.Target)
-				if err != nil {
-					log(fmt.Sprintf("failed to get maps for resource %s: %s", currentTarget.Target, err))
-					return "clear-gen"
-				}
-
-				if len(*maps) == 0 {
-					log(fmt.Sprintf("No maps for resource %s", currentTarget.Target))
-					return "clear-gen"
-				}
-
-				log(fmt.Sprintf("Picking closest map between %d targets", len(*maps)))
-
-				closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, maps)
-				move := fmt.Sprintf("move %d %d", closest_map.X, closest_map.Y)
-
-				subGenerator = func(last string, success bool) string {
-					if !success {
-						return "ping" // "clear-gen" // lets just stupidly try again
-					}
-
-					next_command := DepositCheck(map[string]int{})
-					if next_command != "" {
-						return next_command
-					}
-
-					if last != move && last != "gather" {
-						return move
-					}
-
-					return "gather"
-				}
-			case "weaponcrafting", "gearcrafting", "jewelrycrafting", "cooking", "alchemy", "mining", "woodcutting":
-				subGenerator = Make(currentTarget.Target, false)
-			default:
-				log(fmt.Sprintf("Unhandled skill: %s", skill))
+				log("Could not find a suitable leveling target, abort")
 				return "clear-gen"
 			}
 
-			// Make last and success opaque so that the generator resets
-			return (subGenerator)("", true)
+			if currentTarget == nil {
+				log(fmt.Sprintf("Setting target to %s (level: %d)", newLevelTarget.Target, newLevelTarget.Level))
+				currentTarget = newLevelTarget
+			} else if currentTarget.Target == newLevelTarget.Target {
+				log("Current target efficient")
+				isEfficient = true
+			} else {
+				log(fmt.Sprintf("Not efficient, switching from %s to %s", currentTarget.Target, newLevelTarget.Target))
+				currentTarget = newLevelTarget
+			}
+
+			lastLevelCheck = currentLevel
+
+			// Need to determine what the subgenerator should be
+			if subGenerator == nil || !isEfficient {
+				log("Setting task")
+				switch skill {
+				case "fight":
+					char := state.GlobalCharacter.Ref()
+					x, y := char.X, char.Y
+					state.GlobalCharacter.Unlock()
+
+					maps, err := api.GetAllMapsByContentType("monster", currentTarget.Target)
+					if err != nil {
+						log(fmt.Sprintf("failed to get maps for monster %s: %s", currentTarget.Target, err))
+						return "clear-gen"
+					}
+
+					closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, maps)
+					move := fmt.Sprintf("move %d %d", closest_map.X, closest_map.Y)
+
+					subGenerator = func(last string, success bool) string {
+						if !success {
+							return "ping" // "clear-gen" // lets just stupidly try again
+						}
+
+						next_command := DepositCheck(map[string]int{})
+						if next_command != "" {
+							return next_command
+						}
+
+						if last != move && last != "rest" && last != "fight" {
+							return move
+						}
+
+						char := state.GlobalCharacter.Ref()
+						hp, max_hp := char.Hp, char.Max_hp
+						state.GlobalCharacter.Unlock()
+
+						if !steps.FightHpSafetyCheck(hp, max_hp) {
+							return "rest"
+						}
+
+						return "fight"
+					}
+				case "fishing":
+					char := state.GlobalCharacter.Ref()
+					x, y := char.X, char.Y
+					state.GlobalCharacter.Unlock()
+
+					maps, err := api.GetAllMapsByContentType("resource", currentTarget.Target)
+					if err != nil {
+						log(fmt.Sprintf("failed to get maps for resource %s: %s", currentTarget.Target, err))
+						return "clear-gen"
+					}
+
+					if len(*maps) == 0 {
+						log(fmt.Sprintf("No maps for resource %s", currentTarget.Target))
+						return "clear-gen"
+					}
+
+					log(fmt.Sprintf("Picking closest map between %d targets", len(*maps)))
+
+					closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, maps)
+					move := fmt.Sprintf("move %d %d", closest_map.X, closest_map.Y)
+
+					subGenerator = func(last string, success bool) string {
+						if !success {
+							return "ping" // "clear-gen" // lets just stupidly try again
+						}
+
+						next_command := DepositCheck(map[string]int{})
+						if next_command != "" {
+							return next_command
+						}
+
+						if last != move && last != "gather" {
+							return move
+						}
+
+						return "gather"
+					}
+				case "weaponcrafting", "gearcrafting", "jewelrycrafting", "cooking", "alchemy", "mining", "woodcutting":
+					subGenerator = Make(currentTarget.Target, false)
+				default:
+					log(fmt.Sprintf("Unhandled skill: %s", skill))
+					return "clear-gen"
+				}
+
+				// Make last and success opaque so that the generator resets
+				return (subGenerator)("", true)
+			}
 		}
 
 		return (subGenerator)(last, success)
