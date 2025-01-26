@@ -13,6 +13,27 @@ import (
 type BankDepositCodeCb func(item types.InventorySlot) bool
 type BankDepositQuantityCb func(item types.InventorySlot) int
 
+func GetAllBankItems() (*[]types.InventoryItem, error) {
+	page := 1
+	allBankItems := make([]types.InventoryItem, 0)
+	for {
+		bankItems, err := api.GetBankItems(page)
+		if err != nil {
+			return nil, err
+		}
+
+		allBankItems = append(allBankItems, *bankItems...)
+
+		if len(*bankItems) < api.GET_BANK_ITEMS_PAGE_SIZE {
+			break
+		}
+
+		page++
+	}
+
+	return &allBankItems, nil
+}
+
 func SlotMaxQuantity() BankDepositQuantityCb {
 	return func(item types.InventorySlot) int {
 		return item.Quantity
@@ -77,17 +98,17 @@ func ItemMaxQuantity() BankWithdrawQuantityCb {
 	}
 }
 
-func WithdrawBySelect(character string, codeSelct BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
+func WithdrawBySelect(character string, codeSelect BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
-	bank, err := api.GetBankItems()
+	bank, err := GetAllBankItems()
 	if err != nil {
 		return nil, err
 	}
 
 	var char *types.Character
 	for _, slot := range *bank {
-		if slot.Code == "" || !codeSelct(slot) {
+		if slot.Code == "" || !codeSelect(slot) {
 			continue
 		}
 

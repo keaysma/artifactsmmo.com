@@ -169,7 +169,7 @@ func CancelTask(character string) (*types.Character, error) {
 
 	tasks_coins_count := utils.CountInventory(&char_start.Inventory, "tasks_coin")
 	if tasks_coins_count < 1 {
-		bank_items, err := api.GetBankItems()
+		bank_items, err := GetAllBankItems()
 		if err != nil {
 			log(fmt.Sprintf("failed to get bank items: %s", err))
 			return nil, err

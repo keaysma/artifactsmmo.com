@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"artifactsmmo.com/m/types"
 )
 
@@ -11,12 +13,32 @@ type BankDetailsResponse struct {
 	Gold                int `json:"gold"`
 }
 
-func GetBankItems() (*[]types.InventoryItem, error) {
+func GetBankItemByCode(code string) (*[]types.InventoryItem, error) {
 	var out []types.InventoryItem
 	err := GetDataResponseFuture(
 		"my/bank/items",
 		&map[string]string{
-			"size": "100",
+			"code": code,
+			"size": "1",
+		},
+		&out,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
+}
+
+const GET_BANK_ITEMS_PAGE_SIZE = 100
+
+func GetBankItems(page int) (*[]types.InventoryItem, error) {
+	var out []types.InventoryItem
+	err := GetDataResponseFuture(
+		"my/bank/items",
+		&map[string]string{
+			"page": fmt.Sprintf("%d", page),
+			"size": fmt.Sprintf("%d", GET_BANK_ITEMS_PAGE_SIZE),
 		},
 		&out,
 	)
