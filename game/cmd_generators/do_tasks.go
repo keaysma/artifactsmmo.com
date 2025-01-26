@@ -2,11 +2,11 @@ package generators
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
 	"artifactsmmo.com/m/api"
-	"artifactsmmo.com/m/api/tasks"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
@@ -14,10 +14,8 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var quantityThreshold = 0.5
-var simulationCount = 3
-var turnCountThreshold = 10
-var turnCountTotalThreshold = 0.5
+var simulationCount = 5
+var totalFightCooldownThreshold = 7000 // 1800.0
 
 func Tasks(task_type string) Generator {
 	var retries = 0
@@ -49,11 +47,13 @@ func Tasks(task_type string) Generator {
 				return last
 			}
 
+			return "clear-gen"
+
 			// If this happens its usually not network at this point
 			// We have a task that we can't complete
 			// We're stuck, time to quit
 			// TODO: replace success bool with a more descriptive error
-			return "cancel-task"
+			// return "cancel-task"
 		}
 
 		retries = 0
@@ -97,22 +97,11 @@ func Tasks(task_type string) Generator {
 			initialized = true
 
 			if current_task_type == "monsters" {
-				log("Monsters task, checking quantity")
+				log(fmt.Sprintf("Monsters task %s, checking quantity", current_task))
 
 				// Monsters tasks: Gauge if,
 				// 1. Task amount is small enough
 				// 2. Can fight monster reasonably fast
-				taskDetails, err := tasks.GetTask(current_task)
-				if err != nil {
-					log(fmt.Sprintf("Failed to get task details, abort: %s", err))
-					return "clear-gen"
-				}
-
-				quantityMidpoint := int(float64(taskDetails.Min_quantity+taskDetails.Max_quantity) * quantityThreshold)
-				if task_total > quantityMidpoint {
-					log(fmt.Sprintf("Task Total of %d is above limit of %d, cancel task", task_total, quantityMidpoint))
-					return "cancel-task"
-				}
 
 				log("Amount is OK, check simulation result")
 				fightResult, err := game.RunSimulations(characterName, current_task, simulationCount)
@@ -122,32 +111,63 @@ func Tasks(task_type string) Generator {
 				}
 
 				wins := 0
-				turnCounts := []int{}
 				for _, result := range *fightResult {
-					if result.Result == "win" {
+					if result.FightDetails.Result == "win" {
 						wins++
 					}
-
-					turnCounts = append(turnCounts, result.Turns)
 				}
 
 				if wins < simulationCount {
 					log(fmt.Sprintf("Won %d/%d fights, insufficiently successful, abort", wins, simulationCount))
-					return "clear-gen"
+					return "cancel-task"
 				}
 
-				turnsBelowThreshold := 0
-				for _, turns := range turnCounts {
-					if turns < turnCountThreshold {
-						turnsBelowThreshold++
-					}
-					cooldown := game.GetCooldown(turns, characterHaste)
+				cooldownSum := 0
+				endHpSum := 0
+				for _, result := range *fightResult {
+					cooldown := game.GetCooldown(result.FightDetails.Turns, characterHaste)
+					endHpSum += result.Metadata.CharacterEndHp
 					log(fmt.Sprintf("cooldown: %d", cooldown))
+
+					cooldownSum += cooldown
+				}
+				cooldownAvg := float64(cooldownSum) / float64(simulationCount)
+				totalFightCooldown := int(cooldownAvg * float64(task_total))
+
+				endHpAvg := int(math.Round(float64(endHpSum) / float64(simulationCount)))
+				avgHpCost := max_hp - endHpAvg
+
+				totalRestCooldown := 0
+				if avgHpCost <= 0 {
+					log("No HP cost, no rest needed!")
+				} else {
+
+					// im tired theres an easier way to do this with simple algebra but meh
+					safetyHp := int(float64(max_hp) * steps.HP_SAFETY_PERCENT)
+					fightingHp := max_hp
+					fightsBeforeRest := 0
+					for {
+						if fightingHp < safetyHp {
+							break
+						}
+
+						fightsBeforeRest++
+						fightingHp -= avgHpCost
+					}
+
+					hpGainedDuringRestAvg := max_hp - fightingHp
+					restCooldownAvg := int(math.Max(3, float64(hpGainedDuringRestAvg)/5.0))
+					totalRests := float64(task_total) / float64(fightsBeforeRest)
+					totalRestCooldown = int(totalRests * float64(restCooldownAvg))
 				}
 
-				turnCountOverUnder := float64(float64(turnsBelowThreshold) / float64(simulationCount))
-				if turnCountOverUnder < turnCountTotalThreshold {
-					log(fmt.Sprintf("Too many fights took too long, abort task %f < %f", turnCountOverUnder, turnCountTotalThreshold))
+				totalCooldown := totalFightCooldown + totalRestCooldown
+
+				log(fmt.Sprintf("Total fight cooldown (without rest estimates): %d", totalFightCooldown))
+				log(fmt.Sprintf("Total fight cooldown (with rest estimates): %d", totalCooldown))
+
+				if totalCooldown > totalFightCooldownThreshold {
+					log(fmt.Sprintf("Task will take too long, abort task %d > %d", totalCooldown, totalFightCooldownThreshold))
 					return "cancel-task"
 				}
 
