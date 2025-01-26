@@ -33,8 +33,13 @@ Fight result: win. (Character HP: 263/725, Monster HP: 0/650)
 /*
 TODOs:
 - Implement utility item modifiers (food, potions)
-- Implement cooldown calculation
+- Implement cooldown calculation + haste: Turns * 2 - (Haste * 0.01) * (Turns * 2) = (2 * Turns) * (1 - (0.01 * Haste))
+- Monster block chance
 */
+
+func GetCooldown(turns int, haste int) int {
+	return int(math.Round(float64(2*turns) * (1 - (0.01 * float64(haste)))))
+}
 
 func simulateFight(character types.Character, monster types.Monster) *types.FightDetails {
 	result := types.FightDetails{
