@@ -298,7 +298,7 @@ func Level(skill string) Generator {
 					if skill == "fight" && (newLevelTarget != currentTarget || currentTarget == nil) {
 						log(fmt.Sprintf("Check if can beat %s", target.Target))
 						res, err := game.RunSimulations(characterName, target.Target, 1)
-						if err == nil && (*res)[0].Result == "win" {
+						if err == nil && (*res)[0].FightDetails.Result == "win" {
 							log(fmt.Sprintf("Can beat %s", target.Target))
 							newLevelTarget = &target
 							break

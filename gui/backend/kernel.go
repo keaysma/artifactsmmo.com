@@ -683,7 +683,7 @@ func ParseCommand(rawCommand string) bool {
 		if len(*res) > 1 {
 			wins, losses := 0, 0
 			for _, fight := range *res {
-				if fight.Result == "win" {
+				if fight.FightDetails.Result == "win" {
 					wins++
 				} else {
 					losses++
@@ -691,9 +691,11 @@ func ParseCommand(rawCommand string) bool {
 			}
 			log(fmt.Sprintf("simulated fight: %d wins, %d losses", wins, losses))
 		} else if len(*res) == 1 {
-			for _, log := range (*res)[0].Logs {
+			for _, log := range (*res)[0].FightDetails.Logs {
 				utils.Log(log)
 			}
+
+			log(fmt.Sprintf("Cooldown: %d", (*res)[0].Metadata.Cooldown))
 		} else {
 			log("no results")
 		}

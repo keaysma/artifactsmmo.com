@@ -33,15 +33,24 @@ Fight result: win. (Character HP: 263/725, Monster HP: 0/650)
 /*
 TODOs:
 - Implement utility item modifiers (food, potions)
-- Implement cooldown calculation + haste: Turns * 2 - (Haste * 0.01) * (Turns * 2) = (2 * Turns) * (1 - (0.01 * Haste))
 - Monster block chance
 */
+
+type FightSimulationMetadata struct {
+	CharacterEndHp int
+	Cooldown       int
+}
+
+type FightSimulationData struct {
+	FightDetails types.FightDetails
+	Metadata     FightSimulationMetadata
+}
 
 func GetCooldown(turns int, haste int) int {
 	return int(math.Round(float64(2*turns) * (1 - (0.01 * float64(haste)))))
 }
 
-func simulateFight(character types.Character, monster types.Monster) *types.FightDetails {
+func simulateFight(character types.Character, monster types.Monster) *FightSimulationData {
 	result := types.FightDetails{
 		Turns:                1,
 		Monster_blocked_hits: types.BlockedHits{},
@@ -213,10 +222,16 @@ func simulateFight(character types.Character, monster types.Monster) *types.Figh
 		result.Turns++
 	}
 
-	return &result
+	return &FightSimulationData{
+		FightDetails: result,
+		Metadata: FightSimulationMetadata{
+			Cooldown:       GetCooldown(result.Turns, character.Haste),
+			CharacterEndHp: character.Hp,
+		},
+	}
 }
 
-func RunSimulations(character string, monster string, iterations int) (*[]types.FightDetails, error) {
+func RunSimulations(character string, monster string, iterations int) (*[]FightSimulationData, error) {
 	character_data, err := api.GetCharacterByName(character)
 	if err != nil {
 		return nil, err
@@ -227,9 +242,10 @@ func RunSimulations(character string, monster string, iterations int) (*[]types.
 		return nil, err
 	}
 
-	results := []types.FightDetails{}
+	results := []FightSimulationData{}
 	for i := 0; i < iterations; i++ {
-		results = append(results, *simulateFight(*character_data, *monster_data))
+		result := *simulateFight(*character_data, *monster_data)
+		results = append(results, result)
 	}
 
 	return &results, nil
