@@ -22,6 +22,7 @@ func Tasks(task_type string) Generator {
 	log := utils.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
 
 	var initialized = false
+	var did_deposit = false
 
 	// Items Generator state
 	var items_sub_generator *Generator = nil
@@ -68,6 +69,7 @@ func Tasks(task_type string) Generator {
 			initialized = false
 			items_sub_generator = nil
 			monstersMaps = nil
+			did_deposit = false
 
 			// Allow breaking task loop
 			if task_type == "finish" {
@@ -83,9 +85,18 @@ func Tasks(task_type string) Generator {
 			// Put away any items we can
 			// make sure we have enough space
 			// for tasks_coins
-			next_command := DepositCheck(map[string]int{})
-			if next_command != "" {
-				return next_command
+			/*
+				next_command := DepositCheck(map[string]int{})
+				if next_command != "" {
+					return next_command
+				}
+			*/
+
+			// Put away everything,
+			// Absolutely everything
+			if !did_deposit {
+				did_deposit = true
+				return "deposit-everything"
 			}
 
 			return "complete-task"
