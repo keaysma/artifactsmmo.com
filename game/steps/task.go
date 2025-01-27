@@ -6,25 +6,22 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions/tasks"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func NewTask(character string, task_type string) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/new>: ", character))
+func NewTask(kernel *game.Kernel, task_type string) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<task/new>: ", kernel.CharacterName))
 
-	char_start, err := api.GetCharacterByName(character)
-	if err != nil {
-		log(fmt.Sprintf("failed to get character info: %s", err))
-		return nil, err
-	}
+	startChar := kernel.CharacterState.Ref()
+	startTask, x, y := startChar.Task, startChar.X, startChar.Y
+	kernel.CharacterState.Unlock()
 
-	state.GlobalCharacter.Set(char_start)
-
-	if char_start.Task != "" {
-		log(fmt.Sprintf("already has a task: %s", char_start.Task))
-		return char_start, nil
+	if startTask != "" {
+		log(fmt.Sprintf("already has a task: %s", startTask))
+		return nil, fmt.Errorf("already has a task: %s", startTask)
 	}
 
 	log("getting new task")
@@ -34,58 +31,58 @@ func NewTask(character string, task_type string) (*types.Character, error) {
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
-	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
+	closest_map := PickClosestMap(coords.Coord{X: x, Y: y}, maps)
+	_, err = Move(kernel, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
 	}
 
-	res, err := tasks.NewTask(character)
+	res, err := tasks.NewTask(kernel.CharacterName)
 	if err != nil {
 		log(fmt.Sprintf("failed to get new task: %s", err))
 		return nil, err
 	}
 
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Task)))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
-func TradeTaskItem(character string, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/trade>: ", character))
+func TradeTaskItem(kernel *game.Kernel, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
+	log := utils.LogPre(fmt.Sprintf("[%s]<task/trade>: ", kernel.CharacterName))
 
-	char_start, err := api.GetCharacterByName(character)
-	if err != nil {
-		log("failed to get character info")
-		return nil, err
-	}
+	startChar := kernel.CharacterState.Ref()
+	startTask, startTaskType := startChar.Task, startChar.Task_type
+	kernel.CharacterState.Unlock()
 
-	state.GlobalCharacter.Set(char_start)
-
-	if char_start.Task == "" {
+	if startTask == "" {
 		log("does not have a task to complete!")
-		return char_start, nil
+		return nil, fmt.Errorf("does not have a task to complete!")
 	}
 
-	if char_start.Task_type != "items" {
-		log(fmt.Sprintf("is not doing an items task, doing %s!", char_start.Task_type))
-		return char_start, nil
+	if startTaskType != "items" {
+		log(fmt.Sprintf("is not doing an items task, doing %s!", startTaskType))
+		return nil, fmt.Errorf("is not doing an items task, doing %s!", startTaskType)
 	}
 
-	inventory_slot := utils.FindInventorySlot(char_start, char_start.Task)
+	char := kernel.CharacterState.Ref()
+	startTaskTotal, startTaskProgress := char.Task_total, char.Task_progress
+	inventory_slot := utils.FindInventorySlot(char, startTask)
+	kernel.CharacterState.Unlock()
+
 	current_count, quantity := 0, 0
 	if inventory_slot != nil {
 		current_count = inventory_slot.Quantity
 		quantity = quantitySelect(*inventory_slot)
 	} else {
-		log(fmt.Sprintf("has no %s", char_start.Task))
-		return char_start, nil
+		log(fmt.Sprintf("has no %s", startTask))
+		return nil, fmt.Errorf("has no %s", startTask)
 	}
 
-	trade_quantity := min(quantity, current_count, char_start.Task_total-char_start.Task_progress)
+	trade_quantity := min(quantity, current_count, startTaskTotal-startTaskProgress)
 
-	maps, err := api.GetAllMapsByContentType("tasks_master", char_start.Task_type)
+	maps, err := api.GetAllMapsByContentType("tasks_master", startTaskType)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
@@ -110,7 +107,7 @@ func TradeTaskItem(character string, quantitySelect BankDepositQuantityCb) (*typ
 	return &res.Character, nil
 }
 
-func CompleteTask(character string) (*types.Character, error) {
+func CompleteTask(kernel *game.Kernel) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<task/complete>: ", character))
 
 	char_start, err := api.GetCharacterByName(character)
@@ -151,7 +148,7 @@ func CompleteTask(character string) (*types.Character, error) {
 	return &res.Character, nil
 }
 
-func CancelTask(character string) (*types.Character, error) {
+func CancelTask(kernel *game.Kernel) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<task/cancel>: ", character))
 
 	char_start, err := api.GetCharacterByName(character)
@@ -223,7 +220,7 @@ func CancelTask(character string) (*types.Character, error) {
 	return &res.Character, nil
 }
 
-func ExchangeTaskCoins(character string) (*types.Character, error) {
+func ExchangeTaskCoins(kernel *game.Kernel) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<task/exchange>: ", character))
 
 	char_start, err := api.GetCharacterByName(character)

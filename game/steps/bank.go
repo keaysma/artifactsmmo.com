@@ -6,6 +6,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 )
@@ -40,7 +41,7 @@ func SlotMaxQuantity() BankDepositQuantityCb {
 	}
 }
 
-func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
+func DepositBySelect(kernel *game.Kernel, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
 	char, err := api.GetCharacterByName(character)
@@ -83,7 +84,7 @@ func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySele
 	return char, nil
 }
 
-func DepositEverything(character string) (*types.Character, error) {
+func DepositEverything(kernel *game.Kernel) (*types.Character, error) {
 	return DepositBySelect(character, func(slot types.InventorySlot) bool {
 		return true
 	}, SlotMaxQuantity())
@@ -98,7 +99,7 @@ func ItemMaxQuantity() BankWithdrawQuantityCb {
 	}
 }
 
-func WithdrawBySelect(character string, codeSelect BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
+func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
 	bank, err := GetAllBankItems()
@@ -140,7 +141,7 @@ func WithdrawBySelect(character string, codeSelect BankWithdrawCodeCb, quantityS
 	return nil, fmt.Errorf("no items to withdraw")
 }
 
-func DepositGold(character string, quantity int) (*types.Character, error) {
+func DepositGold(kernel *game.Kernel, quantity int) (*types.Character, error) {
 	_, err := Move(character, coords.Bank)
 	if err != nil {
 		return nil, err
@@ -157,7 +158,7 @@ func DepositGold(character string, quantity int) (*types.Character, error) {
 	return &res.Character, nil
 }
 
-func WithdrawGold(character string, quantity int) (*types.Character, error) {
+func WithdrawGold(kernel *game.Kernel, quantity int) (*types.Character, error) {
 	_, err := Move(character, coords.Bank)
 	if err != nil {
 		return nil, err

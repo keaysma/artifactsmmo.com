@@ -5,12 +5,13 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func FightUnsafe(character string, print_fight_logs bool) (*types.Character, error) {
+func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) (*types.Character, error) {
 	utils.DebugLog(fmt.Sprintf("[%s]<fight>: Fighting (unsafe call)!", character))
 
 	mres, err := actions.Fight(character)
@@ -56,7 +57,7 @@ func FightHpSafetyCheck(hp int, max_hp int) bool {
 	return hp >= hpSafety
 }
 
-func Fight(character string) (*types.Character, error) {
+func Fight(kernel *game.Kernel) (*types.Character, error) {
 	utils.Log(fmt.Sprintf("[%s]<fight>: Fighting", character))
 
 	char_start, err := api.GetCharacterByName(character)
@@ -87,7 +88,7 @@ func Fight(character string) (*types.Character, error) {
 	return char_end, nil
 }
 
-func FightDebug(character string) (*types.Character, error) {
+func FightDebug(kernel *game.Kernel) (*types.Character, error) {
 	char_end, err := FightUnsafe(character, true)
 	if err != nil {
 		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))

@@ -6,13 +6,14 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
 // Just craft
-func Craft(character string, code string, quantity int) (*types.Character, error) {
+func Craft(kernel *game.Kernel, code string, quantity int) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<craft>: ", character))
 
 	mres, err := actions.Craft(character, code, quantity)
@@ -30,7 +31,7 @@ func Craft(character string, code string, quantity int) (*types.Character, error
 }
 
 // Automatically handles inventory check, getting to location, and Crafting
-func AutoCraft(character string, code string, quantity int) (*types.Character, error) {
+func AutoCraft(kernel *game.Kernel, code string, quantity int) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<autocraft>: ", character))
 
 	res, err := api.GetItemDetails(code)

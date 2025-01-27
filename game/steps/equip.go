@@ -5,10 +5,11 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/utils"
 )
 
-func EquipItem(character string, code string, slot string, quantity int) error {
+func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) error {
 	log := utils.LogPre(fmt.Sprintf("[%s]<equip>: ", character))
 	char, err := api.GetCharacterByName(character)
 	if err != nil {
@@ -58,7 +59,7 @@ func EquipItem(character string, code string, slot string, quantity int) error {
 	return nil
 }
 
-func UnequipItem(character string, slot string, quantity int) error {
+func UnequipItem(kernel *game.Kernel, slot string, quantity int) error {
 	log := utils.LogPre(fmt.Sprintf("[%s]<unequip>: ", character))
 	log(fmt.Sprintf("enequipping %d from %s", quantity, slot))
 

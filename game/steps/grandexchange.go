@@ -7,6 +7,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
@@ -75,7 +76,7 @@ func ListMySellOrders(code string) error {
 	return nil
 }
 
-func CancelOrder(character string, idMaybe string) (*types.Character, error) {
+func CancelOrder(kernel *game.Kernel, idMaybe string) (*types.Character, error) {
 	log := utils.LogPre("<ge/cancel-order>")
 
 	// convert idMaybe to int
@@ -110,7 +111,7 @@ func CancelOrder(character string, idMaybe string) (*types.Character, error) {
 	return &res.Character, nil
 }
 
-func Sell(character string, code string, quantity int, minPrice int) (*types.Character, error) {
+func Sell(kernel *game.Kernel, code string, quantity int, minPrice int) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<ge/sell>", character))
 
 	_, err := Move(character, coords.GrandExchange)
@@ -172,7 +173,7 @@ func Sell(character string, code string, quantity int, minPrice int) (*types.Cha
 	return &res.Character, nil
 }
 
-func Buy(character string, code string, quantity int, maxPrice int) (*types.Character, error) {
+func Buy(kernel *game.Kernel, code string, quantity int, maxPrice int) (*types.Character, error) {
 	log := utils.LogPre(fmt.Sprintf("[%s]<ge/buy>", character))
 
 	_, err := Move(character, coords.GrandExchange)
@@ -223,7 +224,7 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 	return &res.Character, nil
 }
 
-func HitOrder(character string, idMaybe string, quantity int) (*types.Character, error) {
+func HitOrder(kernel *game.Kernel, idMaybe string, quantity int) (*types.Character, error) {
 	log := utils.LogPre("<ge/hit-order>")
 
 	// convert idMaybe to int

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -13,11 +13,11 @@ import (
 var INVENTORY_CLEAR_THRESHOLD = 1.0 // 0.9
 var BANK_CLEAR_THRESHOLD = 1.0
 
-func DepositCheck(needsCodeQuantity map[string]int) string {
+func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string {
 	log := utils.LogPre("<deposit-check>: ")
 	heldCodeQuantity := map[string]int{}
 
-	char := state.GlobalCharacter.Ref()
+	char := kernel.CharacterState.Ref()
 	currentFilledSlots := 0
 	totalSlots := len(char.Inventory)
 	currentInventoryCount := 0
@@ -29,7 +29,7 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 			currentFilledSlots++
 		}
 	}
-	state.GlobalCharacter.Unlock()
+	kernel.CharacterState.Unlock()
 
 	if float64(currentInventoryCount) < (float64(maxInventoryCount)*INVENTORY_CLEAR_THRESHOLD) && currentFilledSlots < totalSlots {
 		// Inventory is not full
@@ -108,7 +108,7 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 	return "clear-gen"
 }
 
-func WithdrawCheck(needsCodeQuantity map[string]int, targetItemCode string) string {
+func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, targetItemCode string) string {
 	// targetItemCode is the item we're trying to make
 	// do not consider it when calculating how much space we need
 	// to make that item
@@ -128,14 +128,14 @@ func WithdrawCheck(needsCodeQuantity map[string]int, targetItemCode string) stri
 	// Incase there are 0 requirements for the item
 	spaceRequiredPerCraft = max(1, spaceRequiredPerCraft)
 
-	char := state.GlobalCharacter.Ref()
+	char := kernel.CharacterState.Ref()
 	currentInventoryCount := 0
 	maxInventoryCount := char.Inventory_max_items
 	for _, slot := range char.Inventory {
 		heldCodeQuantity[slot.Code] = slot.Quantity
 		currentInventoryCount += slot.Quantity
 	}
-	state.GlobalCharacter.Unlock()
+	kernel.CharacterState.Unlock()
 
 	freeSpace := maxInventoryCount - currentInventoryCount
 	log(fmt.Sprintf("free space: %d", freeSpace))
@@ -272,7 +272,7 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 	return fmt.Sprintf("auto-craft %d %s", 1, component.Code) // component.Quantity
 }
 
-func Make(code string, needsFinishedItem bool) Generator {
+func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generator {
 	// needsFinishedItem:
 	// ... sometimes we want to permit putting the finished product in the bank (we're skilling, need more space to make more items)
 	// ... other times we need to hold on to that finished item (we're doing tasks, need to turn these finished items in to the task master)
@@ -321,19 +321,19 @@ func Make(code string, needsFinishedItem bool) Generator {
 
 		retries = 0
 
-		next_command = DepositCheck(countByResource)
+		next_command = DepositCheck(kernel, countByResource)
 		if next_command != "" {
 			return next_command
 		}
 
-		next_command = WithdrawCheck(countByResource, code)
+		next_command = WithdrawCheck(kernel, countByResource, code)
 		if next_command != "" {
 			return next_command
 		}
 
-		char := state.GlobalCharacter.Ref()
+		char := kernel.CharacterState.Ref()
 		next_command = NextMakeAction(data, char, resource_tile_map, last, true)
-		state.GlobalCharacter.Unlock()
+		kernel.CharacterState.Unlock()
 
 		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {
 		// 	next_command = get_next_command(data, value, resource_tile_map, last, true)

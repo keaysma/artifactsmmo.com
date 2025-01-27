@@ -3,7 +3,6 @@ package state
 import (
 	"time"
 
-	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
@@ -13,6 +12,6 @@ type CooldownData struct {
 	End              *time.Time
 }
 
-var GlobalCooldown = utils.SyncData[CooldownData]{}
-var GlobalCharacter = utils.SyncData[types.Character]{}
+// var GlobalCooldown = utils.SyncData[CooldownData]{}
+// var GlobalCharacter = utils.SyncData[types.Character]{}
 var OrderIdsReference = utils.SyncData[[]string]{}

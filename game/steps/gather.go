@@ -5,12 +5,13 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func Gather(character string) (*types.Character, error) {
+func Gather(kernel *game.Kernel) (*types.Character, error) {
 	// Inventory check?
 
 	utils.Log(fmt.Sprintf("[%s]<gather>: Gathering ", character))

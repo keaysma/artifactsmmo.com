@@ -3,8 +3,8 @@ package generators
 import (
 	"fmt"
 
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -74,7 +74,7 @@ func get_next_command_flip(component *steps.ItemComponentTree, character *types.
 
 // Similar to Make() this will figure out the crafting components for an item recursively
 // Instead of fighting and gathering for the needed resources, this will buy them
-func Flip(code string) Generator {
+func Flip(kernel *game.Kernel, code string) game.Generator {
 	data, err := steps.GetItemComponentsTree(code)
 	if err != nil {
 		utils.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
@@ -88,9 +88,9 @@ func Flip(code string) Generator {
 			return next_command
 		}
 
-		char := state.GlobalCharacter.Ref()
+		char := kernel.CharacterState.Ref()
 		next_command = get_next_command_flip(data, char, last, true)
-		state.GlobalCharacter.Unlock()
+		kernel.CharacterState.Unlock()
 
 		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {
 		// 	next_command = get_next_command(data, value, resource_tile_map, last, true)

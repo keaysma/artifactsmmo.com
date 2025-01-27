@@ -9,7 +9,6 @@ import (
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -180,9 +179,9 @@ func GenLevelTargetsFromResourceBySkill(skill string) (*[]LevelTarget, error) {
 	return &targets, nil
 }
 
-func Level(skill string) Generator {
+func Level(kernel *game.Kernel, skill string) game.Generator {
 	var retries = 0
-	var subGenerator Generator = nil
+	var subGenerator game.Generator = nil
 	var mapLevelTarget *[]LevelTarget = nil
 	var targetBlacklist = []string{}
 	var lastLevelCheck = 0
@@ -276,10 +275,10 @@ func Level(skill string) Generator {
 
 		// Ensure that that the character is working efficiently
 		// If not, clear the generator
-		char := state.GlobalCharacter.Ref()
+		char := kernel.CharacterState.Ref()
 		characterName := char.Name
 		currentLevel := GetLevelBySkill(char, skill)
-		state.GlobalCharacter.Unlock()
+		kernel.CharacterState.Unlock()
 
 		if currentLevel != lastLevelCheck {
 			log("Checking efficiency")
@@ -339,9 +338,9 @@ func Level(skill string) Generator {
 				log("Setting task")
 				switch skill {
 				case "fight":
-					char := state.GlobalCharacter.Ref()
+					char := kernel.CharacterState.Ref()
 					x, y := char.X, char.Y
-					state.GlobalCharacter.Unlock()
+					kernel.CharacterState.Unlock()
 
 					maps, err := api.GetAllMapsByContentType("monster", currentTarget.Target)
 					if err != nil {
@@ -357,7 +356,7 @@ func Level(skill string) Generator {
 							return "ping" // "clear-gen" // lets just stupidly try again
 						}
 
-						next_command := DepositCheck(map[string]int{})
+						next_command := DepositCheck(kernel, map[string]int{})
 						if next_command != "" {
 							return next_command
 						}
@@ -366,9 +365,9 @@ func Level(skill string) Generator {
 							return move
 						}
 
-						char := state.GlobalCharacter.Ref()
+						char := kernel.CharacterState.Ref()
 						hp, max_hp := char.Hp, char.Max_hp
-						state.GlobalCharacter.Unlock()
+						kernel.CharacterState.Unlock()
 
 						if !steps.FightHpSafetyCheck(hp, max_hp) {
 							return "rest"
@@ -377,9 +376,9 @@ func Level(skill string) Generator {
 						return "fight"
 					}
 				case "fishing":
-					char := state.GlobalCharacter.Ref()
+					char := kernel.CharacterState.Ref()
 					x, y := char.X, char.Y
-					state.GlobalCharacter.Unlock()
+					kernel.CharacterState.Unlock()
 
 					maps, err := api.GetAllMapsByContentType("resource", currentTarget.Target)
 					if err != nil {
@@ -402,7 +401,7 @@ func Level(skill string) Generator {
 							return "ping" // "clear-gen" // lets just stupidly try again
 						}
 
-						next_command := DepositCheck(map[string]int{})
+						next_command := DepositCheck(kernel, map[string]int{})
 						if next_command != "" {
 							return next_command
 						}
@@ -414,7 +413,7 @@ func Level(skill string) Generator {
 						return "gather"
 					}
 				case "weaponcrafting", "gearcrafting", "jewelrycrafting", "cooking", "alchemy", "mining", "woodcutting":
-					subGenerator = Make(currentTarget.Target, false)
+					subGenerator = Make(kernel, currentTarget.Target, false)
 				default:
 					log(fmt.Sprintf("Unhandled skill: %s", skill))
 					return "clear-gen"

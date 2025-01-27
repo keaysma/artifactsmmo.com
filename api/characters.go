@@ -26,7 +26,7 @@ func GetCharacterByName(name string) (*types.Character, error) {
 func GetAllCharacters() (*[]types.Character, error) {
 	var out []types.Character
 	err := GetDataResponseFuture(
-		"characters",
+		"my/characters",
 		nil,
 		&out,
 	)

@@ -1,4 +1,4 @@
-package api
+package game
 
 import (
 	"fmt"
@@ -9,7 +9,23 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-func WaitForDown(cooldown types.Cooldown) {
+type Kernel struct {
+	Generator_Paused     bool
+	Current_Generator    Generator
+	Last_command         string
+	Last_command_success bool
+	CharacterName        string
+	CurrentGenerator     utils.SyncData[string]
+	Commands             utils.SyncData[[]string]
+	PriorityCommands     chan string
+	// PriorityCommands     utils.SyncData[[]string]
+
+	// States
+	CharacterState utils.SyncData[types.Character]
+	CooldownState  utils.SyncData[state.CooldownData]
+}
+
+func (kernel *Kernel) WaitForDown(cooldown types.Cooldown) {
 	if cooldown.Remaining_seconds <= 0 {
 		return
 	}
@@ -25,7 +41,7 @@ func WaitForDown(cooldown types.Cooldown) {
 		End:              &end,
 	}
 
-	state.GlobalCooldown.With(func(value *state.CooldownData) *state.CooldownData {
+	kernel.CooldownState.With(func(value *state.CooldownData) *state.CooldownData {
 		return &new_cooldown
 	})
 

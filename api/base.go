@@ -99,11 +99,11 @@ func GetDataResponseFuture[T interface{}](url string, params interface{}, respon
 	var uerr = json.Unmarshal(text, &data)
 
 	if uerr != nil {
-		return err
+		return fmt.Errorf("failed to unmarshall JSON: %s, %s", err, text)
 	}
 
 	if data.Data == nil {
-		return fmt.Errorf("%s", data)
+		return fmt.Errorf("missing data: %v, raw: %s", data, text)
 	}
 
 	err = mapstructure.Decode(data.Data, response)
