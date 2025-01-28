@@ -83,9 +83,21 @@ func Tasks(task_type string) Generator {
 			// Put away any items we can
 			// make sure we have enough space
 			// for tasks_coins
-			next_command := DepositCheck(map[string]int{})
-			if next_command != "" {
-				return next_command
+			// next_command := DepositCheck(map[string]int{})
+			// if next_command != "" {
+			// 	return next_command
+			// }
+
+			itemCount := 0
+			char := state.GlobalCharacter.Ref()
+			for _, slot := range char.Inventory {
+				itemCount += slot.Quantity
+			}
+			state.GlobalCharacter.Unlock()
+			log(fmt.Sprintf("Has %d items", itemCount))
+
+			if itemCount > 0 {
+				return "deposit-everything"
 			}
 
 			return "complete-task"
