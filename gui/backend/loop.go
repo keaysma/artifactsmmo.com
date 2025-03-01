@@ -15,8 +15,6 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var s = utils.GetSettings()
-
 func NewKernel(character types.Character) *game.Kernel {
 	cooldown := state.CooldownData{}
 
