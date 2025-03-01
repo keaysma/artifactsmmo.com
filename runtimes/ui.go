@@ -99,9 +99,8 @@ func UI() {
 		case event := <-uiEvents:
 			switch event.Type {
 			case ui.ResizeEvent:
-				payload := event.Payload.(ui.Resize)
-				resize(payload.Width, payload.Height)
-
+				resize(ui.TerminalDimensions())
+				draw()
 			case ui.KeyboardEvent:
 				switch event.ID {
 				// no-ops
@@ -111,10 +110,12 @@ func UI() {
 					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex - 1 + len(tabs.TabNames)) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
+					draw()
 				case "<Right>":
 					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex + 1) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
+					draw()
 				default:
 					wxs[tabs.ActiveTabIndex].HandleKeyboardInput(event)
 				}
