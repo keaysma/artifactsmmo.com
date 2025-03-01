@@ -36,6 +36,7 @@ type Mainframe struct {
 	GaugeSkillGearcrafting    *widgets.Gauge
 	GaugeSkillJewelrycrafting *widgets.Gauge
 	GaugeSkillCooking         *widgets.Gauge
+	GaugeSkillAlchemy         *widgets.Gauge
 
 	// Settings
 	TabHeight int
@@ -74,6 +75,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	gauge_skill_gearcrafting := widgets.NewGauge()
 	gauge_skill_jewelrycrafting := widgets.NewGauge()
 	gauge_skill_cooking := widgets.NewGauge()
+	gauge_skill_alchemy := widgets.NewGauge()
 
 	mainframeWigets := Mainframe{
 		kernel:                    kernel,
@@ -90,6 +92,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 		GaugeSkillGearcrafting:    gauge_skill_gearcrafting,
 		GaugeSkillJewelrycrafting: gauge_skill_jewelrycrafting,
 		GaugeSkillCooking:         gauge_skill_cooking,
+		GaugeSkillAlchemy:         gauge_skill_alchemy,
 
 		TabHeight: s.TabHeight,
 	}
@@ -98,7 +101,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 }
 
 func (m *Mainframe) Draw() {
-	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking)
+	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking, m.GaugeSkillAlchemy)
 
 	if m.OrderReferenceList.Text != "" {
 		ui.Render(m.OrderReferenceList)
@@ -106,14 +109,15 @@ func (m *Mainframe) Draw() {
 }
 
 func (m *Mainframe) ResizeWidgets(w int, h int) {
+	base_h := h - 21 - 9
+
 	m.Logs.SetRect(0, m.TabHeight, w/2, h-3)
 	m.CommandList.SetRect(w/2, m.TabHeight, w-(w/4)-1, h-6)
 	m.OrderReferenceList.SetRect(w/2, h-18, w-(w/4)-1, h-6)
-	m.CharacterDisplay.SetRect((3*w)/4, m.TabHeight, w, h-21-6)
+	m.CharacterDisplay.SetRect((3*w)/4, m.TabHeight, w, base_h)
 	m.CooldownGauge.SetRect(w/2, h-6, w, h-3)
 	m.CommandEntry.SetRect(0, h-3, w, h)
 
-	base_h := h - 21 - 6
 	m.GaugeSkillMining.SetRect((3*w)/4, base_h, w, base_h+3)
 	m.GaugeSkillWoodcutting.SetRect((3*w)/4, base_h+3, w, base_h+6)
 	m.GaugeSkillFishing.SetRect((3*w)/4, base_h+6, w, base_h+9)
@@ -121,6 +125,7 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 	m.GaugeSkillGearcrafting.SetRect((3*w)/4, base_h+12, w, base_h+15)
 	m.GaugeSkillJewelrycrafting.SetRect((3*w)/4, base_h+15, w, base_h+18)
 	m.GaugeSkillCooking.SetRect((3*w)/4, base_h+18, w, base_h+21)
+	m.GaugeSkillAlchemy.SetRect((3*w)/4, base_h+21, w, base_h+24)
 }
 
 func (m *Mainframe) Loop(heavy bool) {
@@ -166,47 +171,51 @@ func (m *Mainframe) Loop(heavy bool) {
 		gauge_value = (remaining.Seconds() / float64(max_dur))
 		m.CooldownGauge.Percent = int(gauge_value * 100)
 
-		character := m.kernel.CharacterState.Ref()
+		{
+			character := m.kernel.CharacterState.Ref()
 
-		// if character != nil {
-		m.CharacterDisplay.Rows = [][]string{
-			{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
-			{"HP", fmt.Sprintf("%d/%d", character.Hp, character.Max_hp)},
-			{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
-			{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
-			{"Gold", fmt.Sprintf("%d", character.Gold)},
+			m.CharacterDisplay.Rows = [][]string{
+				{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
+				{"HP", fmt.Sprintf("%d/%d", character.Hp, character.Max_hp)},
+				{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
+				{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
+				{"Gold", fmt.Sprintf("%d", character.Gold)},
+			}
+
+			m.GaugeSkillMining.Title = fmt.Sprintf("Mining: %d", character.Mining_level)
+			m.GaugeSkillMining.Percent = int((float64(character.Mining_xp) / float64(character.Mining_max_xp)) * 100)
+
+			m.GaugeSkillWoodcutting.Title = fmt.Sprintf("Woodcutting: %d", character.Woodcutting_level)
+			m.GaugeSkillWoodcutting.Percent = int((float64(character.Woodcutting_xp) / float64(character.Woodcutting_max_xp)) * 100)
+
+			m.GaugeSkillFishing.Title = fmt.Sprintf("Fishing: %d", character.Fishing_level)
+			m.GaugeSkillFishing.Percent = int((float64(character.Fishing_xp) / float64(character.Fishing_max_xp)) * 100)
+
+			m.GaugeSkillWeaponcrafting.Title = fmt.Sprintf("Weapon Crafting: %d", character.Weaponcrafting_level)
+			m.GaugeSkillWeaponcrafting.Percent = int((float64(character.Weaponcrafting_xp) / float64(character.Weaponcrafting_max_xp)) * 100)
+
+			m.GaugeSkillGearcrafting.Title = fmt.Sprintf("Gear Crafting: %d", character.Gearcrafting_level)
+			m.GaugeSkillGearcrafting.Percent = int((float64(character.Gearcrafting_xp) / float64(character.Gearcrafting_max_xp)) * 100)
+
+			m.GaugeSkillJewelrycrafting.Title = fmt.Sprintf("Jewelry Crafting: %d", character.Jewelrycrafting_level)
+			m.GaugeSkillJewelrycrafting.Percent = int((float64(character.Jewelrycrafting_xp) / float64(character.Jewelrycrafting_max_xp)) * 100)
+
+			m.GaugeSkillCooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
+			m.GaugeSkillCooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
+
+			m.GaugeSkillAlchemy.Title = fmt.Sprintf("Alchemy: %d", character.Alchemy_level)
+			m.GaugeSkillAlchemy.Percent = int((float64(character.Alchemy_xp) / float64(character.Alchemy_max_xp)) * 100)
+
+			m.kernel.CharacterState.Unlock()
+
+			m.OrderReferenceList.Text = ""
+			ordersList := state.OrderIdsReference.Ref()
+			for i, id := range *ordersList {
+				m.OrderReferenceList.Text += fmt.Sprintf("%d: %s\n", i, id)
+			}
+
+			state.OrderIdsReference.Unlock()
 		}
-
-		m.GaugeSkillMining.Title = fmt.Sprintf("Mining: %d", character.Mining_level)
-		m.GaugeSkillMining.Percent = int((float64(character.Mining_xp) / float64(character.Mining_max_xp)) * 100)
-
-		m.GaugeSkillWoodcutting.Title = fmt.Sprintf("Woodcutting: %d", character.Woodcutting_level)
-		m.GaugeSkillWoodcutting.Percent = int((float64(character.Woodcutting_xp) / float64(character.Woodcutting_max_xp)) * 100)
-
-		m.GaugeSkillFishing.Title = fmt.Sprintf("Fishing: %d", character.Fishing_level)
-		m.GaugeSkillFishing.Percent = int((float64(character.Fishing_xp) / float64(character.Fishing_max_xp)) * 100)
-
-		m.GaugeSkillWeaponcrafting.Title = fmt.Sprintf("Weapon Crafting: %d", character.Weaponcrafting_level)
-		m.GaugeSkillWeaponcrafting.Percent = int((float64(character.Weaponcrafting_xp) / float64(character.Weaponcrafting_max_xp)) * 100)
-
-		m.GaugeSkillGearcrafting.Title = fmt.Sprintf("Gear Crafting: %d", character.Gearcrafting_level)
-		m.GaugeSkillGearcrafting.Percent = int((float64(character.Gearcrafting_xp) / float64(character.Gearcrafting_max_xp)) * 100)
-
-		m.GaugeSkillJewelrycrafting.Title = fmt.Sprintf("Jewelry Crafting: %d", character.Jewelrycrafting_level)
-		m.GaugeSkillJewelrycrafting.Percent = int((float64(character.Jewelrycrafting_xp) / float64(character.Jewelrycrafting_max_xp)) * 100)
-
-		m.GaugeSkillCooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
-		m.GaugeSkillCooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
-		// }
-
-		m.kernel.CharacterState.Unlock()
-
-		m.OrderReferenceList.Text = ""
-		ordersList := state.OrderIdsReference.Ref()
-		for i, id := range *ordersList {
-			m.OrderReferenceList.Text += fmt.Sprintf("%d: %s\n", i, id)
-		}
-		state.OrderIdsReference.Unlock()
 	}
 }
 
