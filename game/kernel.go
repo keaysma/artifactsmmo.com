@@ -9,6 +9,8 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
+var s = utils.GetSettings()
+
 type Kernel struct {
 	Generator_Paused     bool
 	Current_Generator    Generator
@@ -18,7 +20,7 @@ type Kernel struct {
 	CurrentGeneratorName utils.SyncData[string]
 	Commands             utils.SyncData[[]string]
 	PriorityCommands     chan string
-	// PriorityCommands     utils.SyncData[[]string]
+	LogsChannel          chan string
 
 	// States
 	CharacterState utils.SyncData[types.Character]
@@ -32,7 +34,7 @@ func (kernel *Kernel) WaitForDown(cooldown types.Cooldown) {
 
 	end, err := time.Parse(time.RFC3339, cooldown.Expiration)
 	if err != nil {
-		utils.Log(fmt.Sprintf("Failed to parse cooldown expiration: %s", err))
+		kernel.Log(fmt.Sprintf("Failed to parse cooldown expiration: %s", err))
 		return
 	}
 
@@ -45,6 +47,31 @@ func (kernel *Kernel) WaitForDown(cooldown types.Cooldown) {
 		return &new_cooldown
 	})
 
-	utils.Log(fmt.Sprintf("Cooldown remaining: %d", cooldown.Remaining_seconds))
+	kernel.Log(fmt.Sprintf("Cooldown remaining: %d", cooldown.Remaining_seconds))
 	time.Sleep(time.Duration(cooldown.Remaining_seconds) * time.Second)
+}
+
+func (kernel *Kernel) Log(content string) {
+	t := time.Now()
+	kernel.LogsChannel <- fmt.Sprintf("[%s] %s", t.Format(time.DateTime), content)
+}
+
+func (kernel *Kernel) LogPre(pre string) func(string) {
+	return func(content string) {
+		kernel.Log(fmt.Sprintf("%s%s", pre, content))
+	}
+}
+
+func (kernel *Kernel) DebugLog(content string) {
+	if !s.Debug {
+		return
+	}
+	kernel.Log(content)
+}
+
+func (kernel *Kernel) DebugLogPre(pre string) func(string) {
+	if !s.Debug {
+		return func(s string) {}
+	}
+	return kernel.LogPre(pre)
 }

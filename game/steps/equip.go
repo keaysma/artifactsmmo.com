@@ -10,7 +10,7 @@ import (
 )
 
 func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<equip>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<equip>: ", kernel.CharacterName))
 	char, err := api.GetCharacterByName(kernel.CharacterName)
 	if err != nil {
 		log("failed to get character info")
@@ -54,14 +54,14 @@ func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) erro
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(mres.Item))
+	kernel.DebugLog(utils.PrettyPrint(mres.Item))
 	kernel.CharacterState.Set(&mres.Character)
 	kernel.WaitForDown(mres.Cooldown)
 	return nil
 }
 
 func UnequipItem(kernel *game.Kernel, slot string, quantity int) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<unequip>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<unequip>: ", kernel.CharacterName))
 	log(fmt.Sprintf("enequipping %d from %s", quantity, slot))
 
 	mres, err := actions.UnequipItem(kernel.CharacterName, slot, quantity)
@@ -70,7 +70,7 @@ func UnequipItem(kernel *game.Kernel, slot string, quantity int) error {
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(mres.Item))
+	kernel.DebugLog(utils.PrettyPrint(mres.Item))
 	kernel.CharacterState.Set(&mres.Character)
 	kernel.WaitForDown(mres.Cooldown)
 	return nil

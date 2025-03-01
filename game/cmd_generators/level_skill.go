@@ -70,8 +70,8 @@ func GenLevelTargetsFromMonsters(drop *string) (*[]LevelTarget, error) {
 	return &targets, nil
 }
 
-func GenLevelTargetsFromItems(itemType string, skill string) (*[]LevelTarget, error) {
-	log := utils.LogPre("(GenLevelTargetsFromItems): ")
+func GenLevelTargetsFromItems(kernel *game.Kernel, itemType string, skill string) (*[]LevelTarget, error) {
+	log := kernel.LogPre("(GenLevelTargetsFromItems): ")
 
 	targets := []LevelTarget{}
 
@@ -107,8 +107,8 @@ func GenLevelTargetsFromItems(itemType string, skill string) (*[]LevelTarget, er
 	return &targets, nil
 }
 
-func GenLevelTargetsFromItemsByCraftSkill(skill string) (*[]LevelTarget, error) {
-	log := utils.LogPre("(GenLevelTargetsFromItemsByCraftSkill): ")
+func GenLevelTargetsFromItemsByCraftSkill(kernel *game.Kernel, skill string) (*[]LevelTarget, error) {
+	log := kernel.LogPre("(GenLevelTargetsFromItemsByCraftSkill): ")
 	targets := []LevelTarget{}
 
 	log("fetching all craft targets")
@@ -139,8 +139,8 @@ func GenLevelTargetsFromItemsByCraftSkill(skill string) (*[]LevelTarget, error) 
 	return &targets, nil
 }
 
-func GenLevelTargetsFromResourceBySkill(skill string) (*[]LevelTarget, error) {
-	log := utils.LogPre("(GenLevelTargetsFromResourceBySkill): ")
+func GenLevelTargetsFromResourceBySkill(kernel *game.Kernel, skill string) (*[]LevelTarget, error) {
+	log := kernel.LogPre("(GenLevelTargetsFromResourceBySkill): ")
 	targets := []LevelTarget{}
 
 	log("fetching all resource targets")
@@ -186,7 +186,7 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 	var targetBlacklist = []string{}
 	var lastLevelCheck = 0
 	var currentTarget *LevelTarget = nil
-	log := utils.LogPre(fmt.Sprintf("[level]<%s>: ", skill))
+	log := kernel.LogPre(fmt.Sprintf("[level]<%s>: ", skill))
 
 	switch skill {
 	case "fight":
@@ -197,7 +197,7 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 
 		mapLevelTarget = targets
 	case "fishing":
-		targets, err := GenLevelTargetsFromItems("resource", skill)
+		targets, err := GenLevelTargetsFromItems(kernel, "resource", skill)
 		if err != nil {
 			return func(ctx string, success bool) string { return "clear-gen" }
 		}
@@ -206,13 +206,13 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 	case "alchemy", "mining", "woodcutting":
 		targets := []LevelTarget{}
 
-		targetsCraft, err := GenLevelTargetsFromItemsByCraftSkill(skill)
+		targetsCraft, err := GenLevelTargetsFromItemsByCraftSkill(kernel, skill)
 		if err != nil {
 			log(fmt.Sprintf("failed to get gather targets: %s", err))
 			return func(ctx string, success bool) string { return "clear-gen" }
 		}
 
-		targetsResource, err := GenLevelTargetsFromResourceBySkill(skill)
+		targetsResource, err := GenLevelTargetsFromResourceBySkill(kernel, skill)
 		if err != nil {
 			log(fmt.Sprintf("failed to get gather targets: %s", err))
 			return func(ctx string, success bool) string { return "clear-gen" }
@@ -223,7 +223,7 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 
 		mapLevelTarget = &targets
 	case "weaponcrafting", "gearcrafting", "jewelrycrafting", "cooking":
-		targets, err := GenLevelTargetsFromItemsByCraftSkill(skill)
+		targets, err := GenLevelTargetsFromItemsByCraftSkill(kernel, skill)
 		if err != nil {
 			log(fmt.Sprintf("failed to get gather targets: %s", err))
 			return func(ctx string, success bool) string { return "clear-gen" }

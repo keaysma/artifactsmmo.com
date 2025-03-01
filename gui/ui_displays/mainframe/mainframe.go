@@ -246,7 +246,7 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 		} else if commandValue == "help" {
 			// utils.Log pushes to log channel and that deadlocks
 			// logLines = append(logLines, "help message")
-			utils.Log("help message")
+			utils.UniversalLog("help message")
 		} else if commandValue == "clear" {
 			logLines = []string{}
 			state.OrderIdsReference.Set(&[]string{})

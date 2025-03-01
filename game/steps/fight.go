@@ -9,7 +9,7 @@ import (
 )
 
 func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) error {
-	log := utils.DebugLogPre(fmt.Sprintf("[%s]<fight>: ", kernel.CharacterName))
+	log := kernel.DebugLogPre(fmt.Sprintf("[%s]<fight>: ", kernel.CharacterName))
 	log("Fighting (unsafe call)!")
 
 	mres, err := actions.Fight(kernel.CharacterName)
@@ -27,11 +27,11 @@ func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) error {
 	}
 	if print_fight_logs {
 		for _, log := range mres.Fight.Logs {
-			utils.Log(log)
+			kernel.Log(log)
 		}
-		utils.Log(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+		kernel.Log(fmt.Sprintln(utils.PrettyPrint(custom_details)))
 	} else {
-		utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
+		kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
 	}
 	log(fmt.Sprintf("Result: %s", mres.Fight.Result))
 
@@ -57,7 +57,7 @@ func FightHpSafetyCheck(hp int, max_hp int) bool {
 }
 
 func Fight(kernel *game.Kernel) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<fight>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<fight>: ", kernel.CharacterName))
 	log("Fighting")
 
 	character := kernel.CharacterState.Ref()

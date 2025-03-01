@@ -17,11 +17,15 @@ import (
 )
 
 var commandValue = ""
-var logLines = []string{}
+
+// var logLines = []string{}
 var commandHistory = []string{}
 var commandHistory_ptr = 0
 
 type Mainframe struct {
+	// TODO: Do this... differently?
+	loglines []string
+
 	kernel                    *game.Kernel
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
@@ -131,14 +135,16 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 func (m *Mainframe) Loop(heavy bool) {
 	select {
 	case line := <-utils.LogsChannel:
-		logLines = append(logLines, line)
+		m.loglines = append(m.loglines, line)
+	case line := <-m.kernel.LogsChannel:
+		m.loglines = append(m.loglines, line)
 	default:
 	}
 	h := m.Logs.Inner.Dy()
-	if len(logLines) > h {
-		logLines = logLines[max(0, len(logLines)-h):]
+	if len(m.loglines) > h {
+		m.loglines = m.loglines[max(0, len(m.loglines)-h):]
 	}
-	m.Logs.Text = strings.Join(logLines, "\n")
+	m.Logs.Text = strings.Join(m.loglines, "\n")
 
 	m.CommandList.Text = strings.Join(m.kernel.Commands.ShallowCopy(), "\n")
 
@@ -249,9 +255,9 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 		} else if commandValue == "help" {
 			// utils.Log pushes to log channel and that deadlocks
 			// logLines = append(logLines, "help message")
-			utils.Log("help message")
+			m.kernel.Log("help message")
 		} else if commandValue == "clear" {
-			logLines = []string{}
+			m.loglines = []string{}
 			state.OrderIdsReference.Set(&[]string{})
 		} else if commandValue == "stop" {
 			m.kernel.Commands.Set(&[]string{})

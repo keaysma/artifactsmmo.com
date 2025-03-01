@@ -13,9 +13,9 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-func ListSellOrders(code string) error {
-	logHead := utils.LogPre("<ge/list-sell-orders> (o): ")
-	log := utils.LogPre("")
+func ListSellOrders(kernel *game.Kernel, code string) error {
+	logHead := kernel.LogPre("<ge/list-sell-orders> (o): ")
+	log := kernel.LogPre("")
 
 	orders, err := api.GetSellOrders(api.GetSellOrdersParams{
 		Code: code,
@@ -46,9 +46,9 @@ func ListSellOrders(code string) error {
 	return nil
 }
 
-func ListMySellOrders(code string) error {
-	logHead := utils.LogPre("<ge/list-my-sell-orders> (o): ")
-	log := utils.LogPre("")
+func ListMySellOrders(kernel *game.Kernel, code string) error {
+	logHead := kernel.LogPre("<ge/list-my-sell-orders> (o): ")
+	log := kernel.LogPre("")
 
 	orders, err := api.GetMySellOrders(
 		api.GetMySellOrdersParams{
@@ -77,7 +77,7 @@ func ListMySellOrders(code string) error {
 }
 
 func CancelOrder(kernel *game.Kernel, idMaybe string) error {
-	log := utils.LogPre("<ge/cancel-order>")
+	log := kernel.LogPre("<ge/cancel-order>")
 
 	// convert idMaybe to int
 	id := idMaybe
@@ -105,14 +105,14 @@ func CancelOrder(kernel *game.Kernel, idMaybe string) error {
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return nil
 }
 
 func Sell(kernel *game.Kernel, code string, quantity int, minPrice int) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<ge/sell>", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<ge/sell>", kernel.CharacterName))
 
 	_, err := Move(kernel, coords.GrandExchange)
 	if err != nil {
@@ -167,14 +167,14 @@ func Sell(kernel *game.Kernel, code string, quantity int, minPrice int) error {
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return nil
 }
 
 func Buy(kernel *game.Kernel, code string, quantity int, maxPrice int) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<ge/buy>", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<ge/buy>", kernel.CharacterName))
 
 	_, err := Move(kernel, coords.GrandExchange)
 	if err != nil {
@@ -218,14 +218,14 @@ func Buy(kernel *game.Kernel, code string, quantity int, maxPrice int) error {
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return nil
 }
 
 func HitOrder(kernel *game.Kernel, idMaybe string, quantity int) error {
-	log := utils.LogPre("<ge/hit-order>")
+	log := kernel.LogPre("<ge/hit-order>")
 
 	// convert idMaybe to int
 	id := idMaybe
@@ -264,7 +264,7 @@ func HitOrder(kernel *game.Kernel, idMaybe string, quantity int) error {
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return nil

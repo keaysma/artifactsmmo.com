@@ -14,7 +14,7 @@ var INVENTORY_CLEAR_THRESHOLD = 1.0 // 0.9
 var BANK_CLEAR_THRESHOLD = 1.0
 
 func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string {
-	log := utils.LogPre("<deposit-check>: ")
+	log := kernel.LogPre("<deposit-check>: ")
 	heldCodeQuantity := map[string]int{}
 
 	char := kernel.CharacterState.Ref()
@@ -113,7 +113,7 @@ func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, target
 	// do not consider it when calculating how much space we need
 	// to make that item
 
-	log := utils.LogPre("<withdraw-check>: ")
+	log := kernel.LogPre("<withdraw-check>: ")
 	heldCodeQuantity := map[string]int{}
 
 	spaceRequiredPerCraft := 0
@@ -190,9 +190,7 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
-	log := utils.DebugLogPre("<next-make-action>: ")
-
+func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, log func(string), skill_map *map[string]api.MapTile, last string, top bool) string {
 	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
 		return ""
 	}
@@ -200,7 +198,7 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
 		tile, ok := (*skill_map)[component.Code]
 		if !ok {
-			utils.Log(fmt.Sprintf("no map for resource %s", component.Code))
+			log(fmt.Sprintf("no map for resource %s", component.Code))
 			return "cancel-task"
 		}
 
@@ -240,7 +238,7 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 			*/
 		} else if character.X != tile.X || character.Y != tile.Y {
 			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
-			utils.DebugLog(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
+			log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
 			return move
 		}
 
@@ -263,7 +261,7 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command := NextMakeAction(&subcomponent, character, skill_map, last, false)
+		next_command := NextMakeAction(&subcomponent, character, log, skill_map, last, false)
 		if next_command != "" {
 			return next_command
 		}
@@ -279,7 +277,7 @@ func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generat
 
 	data, err := steps.GetItemComponentsTree(code)
 	if err != nil {
-		utils.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
+		kernel.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
 		return Clear_gen
 	}
 
@@ -289,9 +287,9 @@ func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generat
 	var mapCodeAction = steps.ActionMap{}
 	steps.BuildItemActionMapFromComponentTree(data, &mapCodeAction)
 
-	resource_tile_map, err := steps.FindMapsForActions(mapCodeAction)
+	resource_tile_map, err := steps.FindMapsForActions(kernel, mapCodeAction)
 	if err != nil || resource_tile_map == nil || len(*resource_tile_map) == 0 {
-		utils.Log(fmt.Sprintf("failed to get map info: %s", err))
+		kernel.Log(fmt.Sprintf("failed to get map info: %s", err))
 		return Clear_gen
 	}
 
@@ -331,8 +329,9 @@ func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generat
 			return next_command
 		}
 
+		log := kernel.DebugLogPre("<next-make-action>: ")
 		char := kernel.CharacterState.Ref()
-		next_command = NextMakeAction(data, char, resource_tile_map, last, true)
+		next_command = NextMakeAction(data, char, log, resource_tile_map, last, true)
 		kernel.CharacterState.Unlock()
 
 		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {

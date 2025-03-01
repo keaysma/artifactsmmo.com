@@ -13,7 +13,7 @@ import (
 
 // Just craft
 func Craft(kernel *game.Kernel, code string, quantity int) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<craft>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<craft>: ", kernel.CharacterName))
 
 	mres, err := actions.Craft(kernel.CharacterName, code, quantity)
 	if err != nil {
@@ -21,7 +21,7 @@ func Craft(kernel *game.Kernel, code string, quantity int) (*types.Character, er
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Details)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Details)))
 	kernel.CharacterState.With(func(value *types.Character) *types.Character {
 		return &mres.Character
 	})
@@ -31,7 +31,7 @@ func Craft(kernel *game.Kernel, code string, quantity int) (*types.Character, er
 
 // Automatically handles inventory check, getting to location, and Crafting
 func AutoCraft(kernel *game.Kernel, code string, quantity int) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<autocraft>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<autocraft>: ", kernel.CharacterName))
 
 	res, err := api.GetItemDetails(code)
 	if err != nil {

@@ -39,7 +39,8 @@ func NewKernel(character types.Character) *game.Kernel {
 		Commands: utils.SyncData[[]string]{
 			Value: make([]string, 0),
 		},
-		PriorityCommands: make(chan string),
+		PriorityCommands: make(chan string, 10),
+		LogsChannel:      make(chan string, 100),
 
 		// States
 		CharacterState: utils.SyncData[types.Character]{
@@ -56,12 +57,12 @@ func NewKernel(character types.Character) *game.Kernel {
 func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	parts := strings.Split(rawCommand, " ")
 	if len(parts) <= 0 {
-		utils.Log("unparsable command")
+		kernel.Log("unparsable command")
 		return true
 	}
 
 	command := parts[0]
-	log := utils.LogPre(fmt.Sprintf("%s: ", command))
+	log := kernel.LogPre(fmt.Sprintf("%s: ", command))
 	switch command {
 	case "ping":
 		log("pong")
@@ -295,7 +296,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		code := parts[1]
-		err := steps.ListSellOrders(code)
+		err := steps.ListSellOrders(kernel, code)
 		if err != nil {
 			log(fmt.Sprintf("failed to list orders for %s: %s", code, err))
 			return false
@@ -314,7 +315,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			code = parts[1]
 			logCode = code
 		}
-		err := steps.ListMySellOrders(code)
+		err := steps.ListMySellOrders(kernel, code)
 		if err != nil {
 			log(fmt.Sprintf("failed to list orders for %s: %s", logCode, err))
 			return false
@@ -710,7 +711,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			log(fmt.Sprintf("simulated fight: %d wins, %d losses", wins, losses))
 		} else if len(*res) == 1 {
 			for _, log := range (*res)[0].FightDetails.Logs {
-				utils.Log(log)
+				kernel.Log(log)
 			}
 
 			log(fmt.Sprintf("Cooldown: %d", (*res)[0].Metadata.Cooldown))
@@ -720,7 +721,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		return true
 	default:
-		utils.Log(fmt.Sprintf("unknown command: %s", command))
+		kernel.Log(fmt.Sprintf("unknown command: %s", command))
 		return false
 	}
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func Rest(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<rest>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<rest>: ", kernel.CharacterName))
 	log("Resting")
 	res, err := actions.Rest(kernel.CharacterName)
 	if err != nil {
@@ -18,7 +18,7 @@ func Rest(kernel *game.Kernel) (*types.Character, error) {
 		return nil, err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res))
+	kernel.DebugLog(utils.PrettyPrint(res))
 	log(fmt.Sprintf("Restored %d hp", res.Hp_restored))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)

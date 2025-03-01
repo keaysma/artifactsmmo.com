@@ -17,7 +17,7 @@ type GetSellOrderHistoryParams struct {
 }
 
 func GetSellOrderHistory(code string, in GetSellOrderHistoryParams) (*SellOrderHistoryResponse, error) {
-	utils.Log(fmt.Sprintf("Getting sell history for %s", code))
+	utils.UniversalDebugLog(fmt.Sprintf("Getting sell history for %s", code))
 
 	var out SellOrderHistoryResponse
 	err := GetDataResponseFuture(
@@ -39,7 +39,7 @@ type GetSellOrdersParams struct {
 }
 
 func GetSellOrders(in GetSellOrdersParams) (*SellOrdersResponse, error) {
-	utils.Log(fmt.Sprintf("Getting active sell orders for %s", in.Code))
+	utils.UniversalDebugLog(fmt.Sprintf("Getting active sell orders for %s", in.Code))
 
 	var out = SellOrdersResponse{}
 	err := GetDataResponseFuture(
@@ -56,7 +56,7 @@ func GetSellOrders(in GetSellOrdersParams) (*SellOrdersResponse, error) {
 }
 
 func GetSellOrder(id string) (*types.SellOrderEntry, error) {
-	utils.Log(fmt.Sprintf("Getting sell order %s", id))
+	utils.UniversalDebugLog(fmt.Sprintf("Getting sell order %s", id))
 
 	var out types.SellOrderEntry
 	err := GetDataResponseFuture(

@@ -18,7 +18,7 @@ var totalFightCooldownThreshold = 7000 // 1800.0
 
 func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 	var retries = 0
-	log := utils.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
+	log := kernel.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
 
 	var initialized = false
 

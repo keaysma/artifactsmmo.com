@@ -6,10 +6,9 @@ import (
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/types"
-	"artifactsmmo.com/m/utils"
 )
 
-var debug = utils.DebugLogPre("get_next_command_flip: ")
+// var debug = utils.DebugLogPre("get_next_command_flip: ")
 
 // As of the v3 API this block of code is no longer viable
 
@@ -77,7 +76,7 @@ func get_next_command_flip(component *steps.ItemComponentTree, character *types.
 func Flip(kernel *game.Kernel, code string) game.Generator {
 	data, err := steps.GetItemComponentsTree(code)
 	if err != nil {
-		utils.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
+		kernel.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
 		return Clear_gen
 	}
 

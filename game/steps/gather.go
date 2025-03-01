@@ -9,7 +9,7 @@ import (
 )
 
 func Gather(kernel *game.Kernel) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<gather>:", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<gather>:", kernel.CharacterName))
 	// Inventory check?
 
 	log("Gathering")
@@ -19,7 +19,7 @@ func Gather(kernel *game.Kernel) error {
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Details))
+	kernel.DebugLog(utils.PrettyPrint(res.Details))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return nil

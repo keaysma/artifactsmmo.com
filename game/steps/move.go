@@ -17,29 +17,29 @@ func Move(kernel *game.Kernel, coord coords.Coord) (*types.Character, error) {
 		place = fmt.Sprintf("%s (%d, %d)", coord.Name, coord.X, coord.Y)
 	}
 
-	utils.Log(fmt.Sprintf("[%s]<move>: Moving to %s", kernel.CharacterName, place))
+	kernel.Log(fmt.Sprintf("[%s]<move>: Moving to %s", kernel.CharacterName, place))
 
 	character := kernel.CharacterName
 	char_start, err := api.GetCharacterByName(character)
 	if err != nil {
-		utils.Log(fmt.Sprintf("[%s]<move>: Failed to get character info", character))
+		kernel.Log(fmt.Sprintf("[%s]<move>: Failed to get character info", character))
 		return nil, err
 	}
 
 	kernel.CharacterState.Set(char_start)
 
 	if char_start.X == coord.X && char_start.Y == coord.Y {
-		utils.Log(fmt.Sprintf("[%s]<move>: Already at %s", character, place))
+		kernel.Log(fmt.Sprintf("[%s]<move>: Already at %s", character, place))
 		return char_start, nil
 	}
 
 	mres, err := actions.Move(character, coord.X, coord.Y)
 	if err != nil {
-		utils.Log(fmt.Sprintf("[%s]<move>: Failed to move to %s", character, place))
+		kernel.Log(fmt.Sprintf("[%s]<move>: Failed to move to %s", character, place))
 		return char_start, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Destination)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Destination)))
 	kernel.CharacterState.Set(&mres.Character)
 
 	kernel.WaitForDown(mres.Cooldown)

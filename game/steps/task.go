@@ -12,7 +12,7 @@ import (
 )
 
 func NewTask(kernel *game.Kernel, task_type string) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/new>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<task/new>: ", kernel.CharacterName))
 
 	startChar := kernel.CharacterState.Ref()
 	startTask, x, y := startChar.Task, startChar.X, startChar.Y
@@ -42,14 +42,14 @@ func NewTask(kernel *game.Kernel, task_type string) (*types.Character, error) {
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Task)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Task)))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func TradeTaskItem(kernel *game.Kernel, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/trade>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<task/trade>: ", kernel.CharacterName))
 
 	startChar := kernel.CharacterState.Ref()
 	startTask, startTaskType := startChar.Task, startChar.Task_type
@@ -101,14 +101,14 @@ func TradeTaskItem(kernel *game.Kernel, quantitySelect BankDepositQuantityCb) (*
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Trade)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Trade)))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func CompleteTask(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/complete>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<task/complete>: ", kernel.CharacterName))
 
 	char := kernel.CharacterState.Ref()
 	startTask, startTaskType := char.Task, char.Task_type
@@ -139,14 +139,14 @@ func CompleteTask(kernel *game.Kernel) (*types.Character, error) {
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func CancelTask(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/cancel>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<task/cancel>: ", kernel.CharacterName))
 
 	char := kernel.CharacterState.Ref()
 	startTask, startTaskType := char.Task, char.Task_type
@@ -208,14 +208,14 @@ func CancelTask(kernel *game.Kernel) (*types.Character, error) {
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func ExchangeTaskCoins(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/exchange>: ", kernel.CharacterName))
+	log := kernel.LogPre(fmt.Sprintf("[%s]<task/exchange>: ", kernel.CharacterName))
 
 	char := kernel.CharacterState.Ref()
 	startX, startY := char.X, char.Y
@@ -246,7 +246,7 @@ func ExchangeTaskCoins(kernel *game.Kernel) (*types.Character, error) {
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
 	kernel.CharacterState.Set(&res.Character)
 	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
