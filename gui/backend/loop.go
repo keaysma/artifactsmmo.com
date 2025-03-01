@@ -730,6 +730,13 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 }
 
 func Gameloop(kernel *game.Kernel) {
+	// zzz - respect already existing cooldown
+	cd := kernel.CooldownState.ShallowCopy()
+	remaining := time.Until(*cd.End)
+	if remaining.Seconds() > 0 {
+		time.Sleep(remaining)
+	}
+
 	for {
 		commands := kernel.Commands.Ref()
 		num_commands := len(*commands)

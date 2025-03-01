@@ -72,6 +72,7 @@ func UI() {
 		wxs = append(wxs, GUIWidget{
 			Draw:                mainframeWidgets.Draw,
 			ResizeWidgets:       mainframeWidgets.ResizeWidgets,
+			BackgroundLoop:      mainframeWidgets.BackgroundLoop,
 			Loop:                mainframeWidgets.Loop,
 			HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
 		})
