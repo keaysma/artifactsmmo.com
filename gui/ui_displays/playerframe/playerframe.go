@@ -132,11 +132,28 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 	m.GaugeSkillAlchemy.SetRect((3*w)/4, base_h+21, w, base_h+24)
 }
 
-func (m *Mainframe) Loop(heavy bool) {
+// For rendering-related tasks that should still happen
+// when the current mainframe is not visible
+func (m *Mainframe) BackgroundLoop() {
+	m.kernel.Logs.With(func(value *[]string) *[]string {
+		rVal := *value
+		newLogCount := len(rVal)
+		if newLogCount > 0 {
+			// all at once
+			// newlines := rVal[0:newLogCount:newLogCount]
+			// m.loglines = append(m.loglines, newlines...)
+			// rVal = []string{}
+
+			// one by one all smooth like
+			newline := rVal[0]
+			m.loglines = append(m.loglines, newline)
+			rVal = rVal[1:newLogCount:newLogCount]
+		}
+
+		return &rVal
+	})
 	select {
 	case line := <-utils.LogsChannel:
-		m.loglines = append(m.loglines, line)
-	case line := <-m.kernel.LogsChannel:
 		m.loglines = append(m.loglines, line)
 	default:
 	}
@@ -145,7 +162,9 @@ func (m *Mainframe) Loop(heavy bool) {
 		m.loglines = m.loglines[max(0, len(m.loglines)-h):]
 	}
 	m.Logs.Text = strings.Join(m.loglines, "\n")
+}
 
+func (m *Mainframe) Loop(heavy bool) {
 	m.CommandList.Text = strings.Join(m.kernel.Commands.ShallowCopy(), "\n")
 
 	generator_name := m.kernel.CurrentGeneratorName.ShallowCopy()
@@ -258,6 +277,7 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 			m.kernel.Log("help message")
 		} else if commandValue == "clear" {
 			m.loglines = []string{}
+			m.kernel.Logs.Set(&[]string{})
 			state.OrderIdsReference.Set(&[]string{})
 		} else if commandValue == "stop" {
 			m.kernel.Commands.Set(&[]string{})

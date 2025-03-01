@@ -2,6 +2,7 @@ package runtimes
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"artifactsmmo.com/m/api"
@@ -19,6 +20,7 @@ var kernels = map[string]*game.Kernel{}
 type GUIWidget struct {
 	Draw                func()
 	ResizeWidgets       func(w int, h int)
+	BackgroundLoop      func()
 	Loop                func(heavy bool)
 	HandleKeyboardInput func(event ui.Event)
 }
@@ -50,9 +52,16 @@ func UI() {
 	// }
 
 	characterNames := []string{}
-	for _, character := range *characters {
+	for i, character := range *characters {
 		characterNames = append(characterNames, character.Name)
 		kernels[character.Name] = backend.NewKernel(character)
+
+		start_commands := []string{}
+		if len(s.Start_commands) > i {
+			raw_start_commands := s.Start_commands[i]
+			start_commands = strings.Split(raw_start_commands, ";")
+		}
+		kernels[character.Name].Commands.Set(&start_commands)
 	}
 
 	tabs := widgets.NewTabPane(characterNames...)
@@ -87,6 +96,7 @@ func UI() {
 		tabHeight := 3
 		tabs.SetRect(0, 0, w, tabHeight)
 		wxs[tabs.ActiveTabIndex].ResizeWidgets(w, h)
+		draw()
 	}
 
 	w, h := ui.TerminalDimensions()
@@ -100,7 +110,6 @@ func UI() {
 			switch event.Type {
 			case ui.ResizeEvent:
 				resize(ui.TerminalDimensions())
-				draw()
 			case ui.KeyboardEvent:
 				switch event.ID {
 				// no-ops
@@ -110,12 +119,10 @@ func UI() {
 					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex - 1 + len(tabs.TabNames)) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
-					draw()
 				case "<Right>":
 					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex + 1) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
-					draw()
 				default:
 					wxs[tabs.ActiveTabIndex].HandleKeyboardInput(event)
 				}
@@ -125,6 +132,10 @@ func UI() {
 
 		heavy = (heavy + 1) % 6
 		draw()
+
+		for _, wx := range wxs {
+			wx.BackgroundLoop()
+		}
 
 		time.Sleep(50_000_000)
 
