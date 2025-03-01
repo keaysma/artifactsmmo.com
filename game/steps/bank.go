@@ -7,7 +7,6 @@ import (
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 )
 
@@ -44,7 +43,7 @@ func SlotMaxQuantity() BankDepositQuantityCb {
 func DepositBySelect(kernel *game.Kernel, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
-	char, err := api.GetCharacterByName(character)
+	char, err := api.GetCharacterByName(kernel.CharacterName)
 	if err != nil {
 		return nil, err
 	}
@@ -61,33 +60,34 @@ func DepositBySelect(kernel *game.Kernel, codeSelct BankDepositCodeCb, quantityS
 
 		// We have something to do, so go to the bank one time
 		if !moved_to_bank {
-			_, err := Move(character, coords.Bank)
+			_, err := Move(kernel, coords.Bank)
 			if err != nil {
 				return nil, err
 			}
 			moved_to_bank = true
 		}
 
-		res, err := actions.BankDeposit(character, slot.Code, quantity)
+		res, err := actions.BankDeposit(kernel.CharacterName, slot.Code, quantity)
 		if err != nil {
 			return nil, err
 		}
 
 		char = &res.Character
-		api.WaitForDown(res.Cooldown)
+		kernel.CharacterState.Set(char)
+		kernel.WaitForDown(res.Cooldown)
 	}
-
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char
-	})
 
 	return char, nil
 }
 
 func DepositEverything(kernel *game.Kernel) (*types.Character, error) {
-	return DepositBySelect(character, func(slot types.InventorySlot) bool {
-		return true
-	}, SlotMaxQuantity())
+	return DepositBySelect(
+		kernel,
+		func(slot types.InventorySlot) bool {
+			return true
+		},
+		SlotMaxQuantity(),
+	)
 }
 
 type BankWithdrawCodeCb func(item types.InventoryItem) bool
@@ -120,21 +120,21 @@ func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quanti
 
 		// We have something to do, so go to the bank one time
 		if !moved_to_bank {
-			_, err := Move(character, coords.Bank)
+			_, err := Move(kernel, coords.Bank)
 			if err != nil {
 				return nil, err
 			}
 			moved_to_bank = true
 		}
 
-		res, err := actions.BankWithdraw(character, slot.Code, quantity)
+		res, err := actions.BankWithdraw(kernel.CharacterName, slot.Code, quantity)
 		if err != nil {
 			return nil, err
 		}
 
 		char = &res.Character
-		api.WaitForDown(res.Cooldown)
-		state.GlobalCharacter.Set(char)
+		kernel.CharacterState.Set(char)
+		kernel.WaitForDown(res.Cooldown)
 		return char, nil
 	}
 
@@ -142,35 +142,35 @@ func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quanti
 }
 
 func DepositGold(kernel *game.Kernel, quantity int) (*types.Character, error) {
-	_, err := Move(character, coords.Bank)
+	_, err := Move(kernel, coords.Bank)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := actions.BankDepositGold(character, quantity)
+	res, err := actions.BankDepositGold(kernel.CharacterName, quantity)
 	if err != nil {
 		return nil, err
 	}
 
-	api.WaitForDown(res.Cooldown)
-	state.GlobalCharacter.Set(&res.Character)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 
 	return &res.Character, nil
 }
 
 func WithdrawGold(kernel *game.Kernel, quantity int) (*types.Character, error) {
-	_, err := Move(character, coords.Bank)
+	_, err := Move(kernel, coords.Bank)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := actions.BankWithdrawGold(character, quantity)
+	res, err := actions.BankWithdrawGold(kernel.CharacterName, quantity)
 	if err != nil {
 		return nil, err
 	}
 
-	api.WaitForDown(res.Cooldown)
-	state.GlobalCharacter.Set(&res.Character)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 
 	return &res.Character, nil
 }

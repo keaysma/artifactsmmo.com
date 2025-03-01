@@ -30,12 +30,14 @@ func GatherAtUntil(kernel *game.Kernel, coord coords.Coord, until UntilCb) error
 		return move_err
 	}
 
-	var char, err = api.GetCharacterByName(kernel.CharacterName)
-	for err == nil && !until(char) {
-		char, err = Gather(kernel)
+	var err error = nil
+	char := kernel.CharacterState.ShallowCopy()
+	for err == nil && !until(&char) {
+		err = Gather(kernel)
 		if err != nil {
 			return err
 		}
+		char = kernel.CharacterState.ShallowCopy()
 	}
 
 	return nil
@@ -48,7 +50,7 @@ func FightAt(kernel *game.Kernel, coord coords.Coord, count int, hpSafety int) e
 	}
 
 	for i := 0; i < count; i++ {
-		_, err := Fight(kernel)
+		err := Fight(kernel)
 		if err != nil {
 			return err
 		}

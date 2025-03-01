@@ -15,7 +15,7 @@ type Kernel struct {
 	Last_command         string
 	Last_command_success bool
 	CharacterName        string
-	CurrentGenerator     utils.SyncData[string]
+	CurrentGeneratorName utils.SyncData[string]
 	Commands             utils.SyncData[[]string]
 	PriorityCommands     chan string
 	// PriorityCommands     utils.SyncData[[]string]

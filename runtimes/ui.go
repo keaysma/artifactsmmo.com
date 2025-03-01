@@ -7,7 +7,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/gui/backend"
-	"artifactsmmo.com/m/gui/ui_displays/mainframe"
+	"artifactsmmo.com/m/gui/ui_displays/playerframe"
 	"artifactsmmo.com/m/utils"
 	ui "github.com/keaysma/termui/v3"
 	"github.com/keaysma/termui/v3/widgets"
@@ -58,33 +58,29 @@ func UI() {
 	tabs := widgets.NewTabPane(characterNames...)
 	tabs.Border = true
 
-	mainframeWidgets := mainframe.Init(s)
-	wxs = append(wxs, GUIWidget{
-		Draw:                mainframeWidgets.Draw,
-		ResizeWidgets:       mainframeWidgets.ResizeWidgets,
-		Loop:                mainframeWidgets.Loop,
-		HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
-	})
-
-	// chartsWidgets := charts.Init(s, conn)
-	// wxs = append(wxs, GUIWidget{
-	// 	Draw:                chartsWidgets.Draw,
-	// 	ResizeWidgets:       chartsWidgets.ResizeWidgets,
-	// 	Loop:                chartsWidgets.Loop,
-	// 	HandleKeyboardInput: chartsWidgets.HandleKeyboardInput,
-	// })
+	for _, characterName := range characterNames {
+		mainframeWidgets := playerframe.Init(s, kernels[characterName])
+		wxs = append(wxs, GUIWidget{
+			Draw:                mainframeWidgets.Draw,
+			ResizeWidgets:       mainframeWidgets.ResizeWidgets,
+			Loop:                mainframeWidgets.Loop,
+			HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
+		})
+	}
 
 	// go backend.Gameloop()
 	// go backend.PriorityLoop(backend.PriorityCommands)
 	for _, characterName := range characterNames {
-		kernel, _ := kernels[characterName]
+		kernel := kernels[characterName]
 		go backend.Gameloop(kernel)
 		go backend.PriorityLoop(kernel)
 	}
 
+	heavy := 0
 	draw := func() {
-		wxs[tabs.ActiveTabIndex].Draw()
 		ui.Render(tabs)
+		wxs[tabs.ActiveTabIndex].Draw()
+		wxs[tabs.ActiveTabIndex].Loop(heavy == 0)
 	}
 
 	resize := func(w int, h int) {
@@ -96,12 +92,6 @@ func UI() {
 	w, h := ui.TerminalDimensions()
 	resize(w, h)
 	draw()
-
-	heavy := 0
-	loop := func() {
-		wxs[tabs.ActiveTabIndex].Loop(heavy == 0)
-		heavy = (heavy + 1) % 6
-	}
 
 	uiEvents := ui.PollEvents()
 	for {
@@ -118,9 +108,11 @@ func UI() {
 				case "<Escape>":
 				case "<C-c>", "<C-v>":
 				case "<Left>":
+					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex - 1 + len(tabs.TabNames)) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
 				case "<Right>":
+					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex + 1) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
 				default:
@@ -130,7 +122,7 @@ func UI() {
 		default:
 		}
 
-		loop()
+		heavy = (heavy + 1) % 6
 		draw()
 
 		time.Sleep(50_000_000)

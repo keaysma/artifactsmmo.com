@@ -9,9 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
-	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 	ui "github.com/keaysma/termui/v3"
 	"github.com/keaysma/termui/v3/widgets"
@@ -23,6 +22,7 @@ var commandHistory = []string{}
 var commandHistory_ptr = 0
 
 type Mainframe struct {
+	kernel                    *game.Kernel
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
 	OrderReferenceList        *widgets.Paragraph
@@ -41,7 +41,7 @@ type Mainframe struct {
 	TabHeight int
 }
 
-func Init(s *utils.Settings) *Mainframe {
+func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	logs := widgets.NewParagraph()
 	logs.Title = "Logs"
 	logs.Text = ""
@@ -55,7 +55,7 @@ func Init(s *utils.Settings) *Mainframe {
 	orderReferenceList.Text = ""
 
 	characterDisplay := widgets.NewTable()
-	characterDisplay.Title = s.Character
+	characterDisplay.Title = kernel.CharacterName
 	characterDisplay.Rows = [][]string{
 		{"k", "v"},
 	}
@@ -76,6 +76,7 @@ func Init(s *utils.Settings) *Mainframe {
 	gauge_skill_cooking := widgets.NewGauge()
 
 	mainframeWigets := Mainframe{
+		kernel:                    kernel,
 		Logs:                      logs,
 		CommandList:               commandList,
 		OrderReferenceList:        orderReferenceList,
@@ -134,12 +135,9 @@ func (m *Mainframe) Loop(heavy bool) {
 	}
 	m.Logs.Text = strings.Join(logLines, "\n")
 
-	generator_name := ""
-	shared := backend.SharedState.Ref()
-	m.CommandList.Text = strings.Join(shared.Commands, "\n")
-	generator_name = shared.Current_Generator_Name
-	backend.SharedState.Unlock()
+	m.CommandList.Text = strings.Join(m.kernel.Commands.ShallowCopy(), "\n")
 
+	generator_name := m.kernel.CurrentGeneratorName.ShallowCopy()
 	if generator_name != "" {
 		m.CommandList.Title = fmt.Sprintf("Commands (generator: %s)", generator_name)
 	} else {
@@ -153,12 +151,13 @@ func (m *Mainframe) Loop(heavy bool) {
 		var max_dur = 1
 		var now = time.Now()
 
-		cd := state.GlobalCooldown.Ref()
-		if cd.End != nil {
-			remaining = cd.End.Sub(now)
-			max_dur = cd.Duration_seconds
-		}
-		state.GlobalCooldown.Unlock()
+		m.kernel.CooldownState.With(func(value *state.CooldownData) *state.CooldownData {
+			if value.End != nil {
+				remaining = value.End.Sub(now)
+				max_dur = value.Duration_seconds
+			}
+			return value
+		})
 
 		if remaining.Seconds() < 0 {
 			remaining = time.Duration(0)
@@ -167,45 +166,40 @@ func (m *Mainframe) Loop(heavy bool) {
 		gauge_value = (remaining.Seconds() / float64(max_dur))
 		m.CooldownGauge.Percent = int(gauge_value * 100)
 
-		var character *types.Character = &types.Character{}
-		char_state := state.GlobalCharacter.Ref()
-		if char_state != nil {
-			*character = *char_state
-		} else {
-			character = nil
+		character := m.kernel.CharacterState.Ref()
+
+		// if character != nil {
+		m.CharacterDisplay.Rows = [][]string{
+			{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
+			{"HP", fmt.Sprintf("%d/%d", character.Hp, character.Max_hp)},
+			{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
+			{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
+			{"Gold", fmt.Sprintf("%d", character.Gold)},
 		}
-		state.GlobalCharacter.Unlock()
 
-		if character != nil {
-			m.CharacterDisplay.Rows = [][]string{
-				{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
-				{"HP", fmt.Sprintf("%d/%d", character.Hp, character.Max_hp)},
-				{"Level", fmt.Sprintf("%d %d/%d", character.Level, character.Xp, character.Max_xp)},
-				{"Task", fmt.Sprintf("%s %d/%d", character.Task, character.Task_progress, character.Task_total)},
-				{"Gold", fmt.Sprintf("%d", character.Gold)},
-			}
+		m.GaugeSkillMining.Title = fmt.Sprintf("Mining: %d", character.Mining_level)
+		m.GaugeSkillMining.Percent = int((float64(character.Mining_xp) / float64(character.Mining_max_xp)) * 100)
 
-			m.GaugeSkillMining.Title = fmt.Sprintf("Mining: %d", character.Mining_level)
-			m.GaugeSkillMining.Percent = int((float64(character.Mining_xp) / float64(character.Mining_max_xp)) * 100)
+		m.GaugeSkillWoodcutting.Title = fmt.Sprintf("Woodcutting: %d", character.Woodcutting_level)
+		m.GaugeSkillWoodcutting.Percent = int((float64(character.Woodcutting_xp) / float64(character.Woodcutting_max_xp)) * 100)
 
-			m.GaugeSkillWoodcutting.Title = fmt.Sprintf("Woodcutting: %d", character.Woodcutting_level)
-			m.GaugeSkillWoodcutting.Percent = int((float64(character.Woodcutting_xp) / float64(character.Woodcutting_max_xp)) * 100)
+		m.GaugeSkillFishing.Title = fmt.Sprintf("Fishing: %d", character.Fishing_level)
+		m.GaugeSkillFishing.Percent = int((float64(character.Fishing_xp) / float64(character.Fishing_max_xp)) * 100)
 
-			m.GaugeSkillFishing.Title = fmt.Sprintf("Fishing: %d", character.Fishing_level)
-			m.GaugeSkillFishing.Percent = int((float64(character.Fishing_xp) / float64(character.Fishing_max_xp)) * 100)
+		m.GaugeSkillWeaponcrafting.Title = fmt.Sprintf("Weapon Crafting: %d", character.Weaponcrafting_level)
+		m.GaugeSkillWeaponcrafting.Percent = int((float64(character.Weaponcrafting_xp) / float64(character.Weaponcrafting_max_xp)) * 100)
 
-			m.GaugeSkillWeaponcrafting.Title = fmt.Sprintf("Weapon Crafting: %d", character.Weaponcrafting_level)
-			m.GaugeSkillWeaponcrafting.Percent = int((float64(character.Weaponcrafting_xp) / float64(character.Weaponcrafting_max_xp)) * 100)
+		m.GaugeSkillGearcrafting.Title = fmt.Sprintf("Gear Crafting: %d", character.Gearcrafting_level)
+		m.GaugeSkillGearcrafting.Percent = int((float64(character.Gearcrafting_xp) / float64(character.Gearcrafting_max_xp)) * 100)
 
-			m.GaugeSkillGearcrafting.Title = fmt.Sprintf("Gear Crafting: %d", character.Gearcrafting_level)
-			m.GaugeSkillGearcrafting.Percent = int((float64(character.Gearcrafting_xp) / float64(character.Gearcrafting_max_xp)) * 100)
+		m.GaugeSkillJewelrycrafting.Title = fmt.Sprintf("Jewelry Crafting: %d", character.Jewelrycrafting_level)
+		m.GaugeSkillJewelrycrafting.Percent = int((float64(character.Jewelrycrafting_xp) / float64(character.Jewelrycrafting_max_xp)) * 100)
 
-			m.GaugeSkillJewelrycrafting.Title = fmt.Sprintf("Jewelry Crafting: %d", character.Jewelrycrafting_level)
-			m.GaugeSkillJewelrycrafting.Percent = int((float64(character.Jewelrycrafting_xp) / float64(character.Jewelrycrafting_max_xp)) * 100)
+		m.GaugeSkillCooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
+		m.GaugeSkillCooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
+		// }
 
-			m.GaugeSkillCooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
-			m.GaugeSkillCooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
-		}
+		m.kernel.CharacterState.Unlock()
 
 		m.OrderReferenceList.Text = ""
 		ordersList := state.OrderIdsReference.Ref()
@@ -251,19 +245,16 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 			logLines = []string{}
 			state.OrderIdsReference.Set(&[]string{})
 		} else if commandValue == "stop" {
-			backend.SharedState.With(func(value *backend.SharedStateType) *backend.SharedStateType {
-				value.Commands = []string{}
-				return value
-			})
-			// } else if strings.Split(commandValue, " ")[0] == "o" || strings.Split(commandValue, " ")[0] == "myo" || strings.Split(commandValue, " ")[0] == "simulate-fight" {
+			m.kernel.Commands.Set(&[]string{})
 		} else if utils.Contains(PRIORITY_COMMANDS, strings.Split(commandValue, " ")[0]) {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
-			backend.PriorityCommands <- commandValue
+			m.kernel.PriorityCommands <- commandValue
 		} else if commandValue != "" {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
-			shared := backend.SharedState.Ref()
-			shared.Commands = append(shared.Commands, commandValue)
-			backend.SharedState.Unlock()
+			m.kernel.Commands.With(func(value *[]string) *[]string {
+				newValue := append(*value, commandValue)
+				return &newValue
+			})
 		}
 		commandValue = ""
 		commandHistory_ptr = 0

@@ -3,26 +3,24 @@ package steps
 import (
 	"fmt"
 
-	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	"artifactsmmo.com/m/game"
-	"artifactsmmo.com/m/state"
-	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func Gather(kernel *game.Kernel) (*types.Character, error) {
+func Gather(kernel *game.Kernel) error {
+	log := utils.LogPre(fmt.Sprintf("[%s]<gather>:", kernel.CharacterName))
 	// Inventory check?
 
-	utils.Log(fmt.Sprintf("[%s]<gather>: Gathering ", character))
-	res, err := actions.Gather(character)
+	log("Gathering")
+	res, err := actions.Gather(kernel.CharacterName)
 	if err != nil {
-		utils.Log(fmt.Sprintf("[%s]<gather>: Failed to gather", character))
-		return nil, err
+		log("Failed to gather")
+		return err
 	}
 
 	utils.DebugLog(utils.PrettyPrint(res.Details))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
-	return &res.Character, nil
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
+	return nil
 }

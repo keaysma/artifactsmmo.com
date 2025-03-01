@@ -3,21 +3,19 @@ package steps
 import (
 	"fmt"
 
-	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	"artifactsmmo.com/m/game"
-	"artifactsmmo.com/m/state"
-	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) (*types.Character, error) {
-	utils.DebugLog(fmt.Sprintf("[%s]<fight>: Fighting (unsafe call)!", character))
+func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) error {
+	log := utils.DebugLogPre(fmt.Sprintf("[%s]<fight>: ", kernel.CharacterName))
+	log("Fighting (unsafe call)!")
 
-	mres, err := actions.Fight(character)
+	mres, err := actions.Fight(kernel.CharacterName)
 	if err != nil {
-		utils.DebugLog(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
-		return nil, err
+		log("Failed to fight")
+		return err
 	}
 
 	custom_details := map[string]interface{}{
@@ -35,15 +33,16 @@ func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) (*types.Character, 
 	} else {
 		utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(custom_details)))
 	}
-	utils.Log(fmt.Sprintf("[%s]<fight>: Result: %s", character, mres.Fight.Result))
+	log(fmt.Sprintf("Result: %s", mres.Fight.Result))
 
-	api.WaitForDown(mres.Cooldown)
+	kernel.WaitForDown(mres.Cooldown)
+	kernel.CharacterState.Set(&mres.Character)
 
 	if mres.Fight.Result != "win" {
-		return nil, fmt.Errorf("[%s]<fight>: result is %s", character, mres.Fight.Result)
+		return fmt.Errorf("[%s]<fight>: result is %s", kernel.CharacterName, mres.Fight.Result)
 	}
 
-	return &mres.Character, nil
+	return nil
 }
 
 var HP_SAFETY_PERCENT = 0.51
@@ -57,47 +56,22 @@ func FightHpSafetyCheck(hp int, max_hp int) bool {
 	return hp >= hpSafety
 }
 
-func Fight(kernel *game.Kernel) (*types.Character, error) {
-	utils.Log(fmt.Sprintf("[%s]<fight>: Fighting", character))
+func Fight(kernel *game.Kernel) error {
+	log := utils.LogPre(fmt.Sprintf("[%s]<fight>: ", kernel.CharacterName))
+	log("Fighting")
 
-	char_start, err := api.GetCharacterByName(character)
-	if err != nil || char_start == nil {
-		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to get character info", character))
-		return nil, err
+	character := kernel.CharacterState.Ref()
+	hp, max_hp := character.Hp, character.Max_hp
+	kernel.CharacterState.Unlock()
+
+	if !FightHpSafetyCheck(hp, max_hp) {
+		log(fmt.Sprintf("Will not fight, HP below safety (%d < %d)", hp, FightSafeHpAmount(max_hp)))
+		return nil
 	}
 
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char_start
-	})
-
-	if !FightHpSafetyCheck(char_start.Hp, char_start.Max_hp) {
-		utils.Log(fmt.Sprintf("[%s]<fight>: Will not fight, HP below safety (%d < %d)", character, char_start.Hp, FightSafeHpAmount(char_start.Max_hp)))
-		return char_start, nil
-	}
-
-	char_end, err := FightUnsafe(character, false)
-	if err != nil {
-		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
-		return nil, err
-	}
-
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char_end
-	})
-
-	return char_end, nil
+	return FightUnsafe(kernel, false)
 }
 
-func FightDebug(kernel *game.Kernel) (*types.Character, error) {
-	char_end, err := FightUnsafe(character, true)
-	if err != nil {
-		utils.Log(fmt.Sprintf("[%s]<fight>: Failed to fight", character))
-		return nil, err
-	}
-
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char_end
-	})
-
-	return char_end, nil
+func FightDebug(kernel *game.Kernel) error {
+	return FightUnsafe(kernel, true)
 }

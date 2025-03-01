@@ -7,7 +7,6 @@ import (
 	"artifactsmmo.com/m/api/actions/tasks"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -67,14 +66,15 @@ func TradeTaskItem(kernel *game.Kernel, quantitySelect BankDepositQuantityCb) (*
 	}
 
 	char := kernel.CharacterState.Ref()
-	startTaskTotal, startTaskProgress := char.Task_total, char.Task_progress
-	inventory_slot := utils.FindInventorySlot(char, startTask)
+	startTask, startTaskTotal, startTaskProgress := char.Task, char.Task_total, char.Task_progress
+	startX, startY := char.X, char.Y
+	inventorySlot := utils.FindInventorySlot(char, startTask)
 	kernel.CharacterState.Unlock()
 
 	current_count, quantity := 0, 0
-	if inventory_slot != nil {
-		current_count = inventory_slot.Quantity
-		quantity = quantitySelect(*inventory_slot)
+	if inventorySlot != nil {
+		current_count = inventorySlot.Quantity
+		quantity = quantitySelect(*inventorySlot)
 	} else {
 		log(fmt.Sprintf("has no %s", startTask))
 		return nil, fmt.Errorf("has no %s", startTask)
@@ -88,84 +88,78 @@ func TradeTaskItem(kernel *game.Kernel, quantitySelect BankDepositQuantityCb) (*
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
-	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
+	closestTile := PickClosestMap(coords.Coord{X: startX, Y: startY}, maps)
+	_, err = Move(kernel, closestTile.IntoCoord())
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
 	}
 
-	log(fmt.Sprintf("trades %d %s", trade_quantity, char_start.Task))
-	res, err := tasks.TradeTaskItem(character, char_start.Task, trade_quantity)
+	log(fmt.Sprintf("trades %d %s", trade_quantity, startTask))
+	res, err := tasks.TradeTaskItem(kernel.CharacterName, startTask, trade_quantity)
 	if err != nil {
 		log(fmt.Sprintf("failed to trade task item: %s", err))
 		return nil, err
 	}
 
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Trade)))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func CompleteTask(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/complete>: ", character))
+	log := utils.LogPre(fmt.Sprintf("[%s]<task/complete>: ", kernel.CharacterName))
 
-	char_start, err := api.GetCharacterByName(character)
-	if err != nil {
-		log("failed to get character info")
-		return nil, err
-	}
+	char := kernel.CharacterState.Ref()
+	startTask, startTaskType := char.Task, char.Task_type
+	startX, startY := char.X, char.Y
+	kernel.CharacterState.Unlock()
 
-	state.GlobalCharacter.Set(char_start)
-
-	if char_start.Task == "" {
+	if startTask == "" {
 		log("does not have a task to complete!")
-		return char_start, nil
+		return nil, fmt.Errorf("does not have a task to complete!")
 	}
 
 	log("completing task")
-	maps, err := api.GetAllMapsByContentType("tasks_master", char_start.Task_type)
+	maps, err := api.GetAllMapsByContentType("tasks_master", startTaskType)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
-	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
+	closestTile := PickClosestMap(coords.Coord{X: startX, Y: startY}, maps)
+	_, err = Move(kernel, closestTile.IntoCoord())
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
 	}
 
-	res, err := tasks.CompleteTask(character)
+	res, err := tasks.CompleteTask(kernel.CharacterName)
 	if err != nil {
 		log(fmt.Sprintf("failed to complete task: %s", err))
 		return nil, err
 	}
 
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func CancelTask(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/cancel>: ", character))
+	log := utils.LogPre(fmt.Sprintf("[%s]<task/cancel>: ", kernel.CharacterName))
 
-	char_start, err := api.GetCharacterByName(character)
-	if err != nil {
-		log("failed to get character info")
-		return nil, err
-	}
+	char := kernel.CharacterState.Ref()
+	startTask, startTaskType := char.Task, char.Task_type
+	startX, startY := char.X, char.Y
+	countTasksCoins := utils.CountInventory(&char.Inventory, "tasks_coin")
+	kernel.CharacterState.Unlock()
 
-	state.GlobalCharacter.Set(char_start)
-
-	if char_start.Task == "" {
+	if startTask == "" {
 		log("does not have a task to cancel!")
-		return char_start, nil
+		return nil, fmt.Errorf("does not have a task to cancel!")
 	}
 
-	tasks_coins_count := utils.CountInventory(&char_start.Inventory, "tasks_coin")
-	if tasks_coins_count < 1 {
+	if countTasksCoins < 1 {
 		bank_items, err := GetAllBankItems()
 		if err != nil {
 			log(fmt.Sprintf("failed to get bank items: %s", err))
@@ -174,13 +168,13 @@ func CancelTask(kernel *game.Kernel) (*types.Character, error) {
 
 		bank_tasks_coins_count := utils.CountBank(bank_items, "tasks_coin")
 		if bank_tasks_coins_count < 1 {
-			log(fmt.Sprintf("does not have enough tasks coins: %d", tasks_coins_count))
+			log(fmt.Sprintf("does not have enough tasks coins: %d", countTasksCoins))
 			return nil, fmt.Errorf("not enough tasks coins to cancel task")
 		}
 
 		log("withdrawing tasks coins from bank")
 		_, err = WithdrawBySelect(
-			character,
+			kernel,
 			func(item types.InventoryItem) bool {
 				return item.Code == "tasks_coin"
 			},
@@ -196,45 +190,41 @@ func CancelTask(kernel *game.Kernel) (*types.Character, error) {
 	}
 
 	log("canceling task")
-	maps, err := api.GetAllMapsByContentType("tasks_master", char_start.Task_type)
+	maps, err := api.GetAllMapsByContentType("tasks_master", startTaskType)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
-	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
+	closestTile := PickClosestMap(coords.Coord{X: startX, Y: startY}, maps)
+	_, err = Move(kernel, closestTile.IntoCoord())
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
 	}
 
-	res, err := tasks.CancelTask(character)
+	res, err := tasks.CancelTask(kernel.CharacterName)
 	if err != nil {
 		log(fmt.Sprintf("failed to cancel task: %s", err))
 		return nil, err
 	}
 
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }
 
 func ExchangeTaskCoins(kernel *game.Kernel) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<task/exchange>: ", character))
+	log := utils.LogPre(fmt.Sprintf("[%s]<task/exchange>: ", kernel.CharacterName))
 
-	char_start, err := api.GetCharacterByName(character)
-	if err != nil {
-		log("failed to get character info")
-		return nil, err
-	}
+	char := kernel.CharacterState.Ref()
+	startX, startY := char.X, char.Y
+	countTasksCoins := utils.CountInventory(&char.Inventory, "tasks_coin")
+	kernel.CharacterState.Unlock()
 
-	state.GlobalCharacter.Set(char_start)
-
-	taskCoinCount := utils.CountInventory(&char_start.Inventory, "tasks_coin")
-	if taskCoinCount < 6 {
-		log(fmt.Sprintf("does not have enough tasks coins: %d", taskCoinCount))
-		return char_start, nil
+	if countTasksCoins < 6 {
+		log(fmt.Sprintf("does not have enough tasks coins: %d", countTasksCoins))
+		return nil, fmt.Errorf("does not have enough tasks coins: %d", countTasksCoins)
 	}
 
 	log("exchanging task coins")
@@ -244,20 +234,20 @@ func ExchangeTaskCoins(kernel *game.Kernel) (*types.Character, error) {
 		return nil, err
 	}
 
-	closest_map := PickClosestMap(coords.Coord{X: char_start.X, Y: char_start.Y}, maps)
-	_, err = Move(character, coords.Coord{X: closest_map.X, Y: closest_map.Y, Name: ""})
+	closestTile := PickClosestMap(coords.Coord{X: startX, Y: startY}, maps)
+	_, err = Move(kernel, closestTile.IntoCoord())
 	if err != nil {
 		log(fmt.Sprintf("failed to move to task master: %s", err))
 	}
 
-	res, err := tasks.ExchangeTaskCoins(character)
+	res, err := tasks.ExchangeTaskCoins(kernel.CharacterName)
 	if err != nil {
 		log(fmt.Sprintf("failed to exchange task coins: %s", err))
 		return nil, err
 	}
 
 	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(res.Reward)))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 	return &res.Character, nil
 }

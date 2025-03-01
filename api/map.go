@@ -1,5 +1,7 @@
 package api
 
+import coords "artifactsmmo.com/m/consts/places"
+
 type MapTileContent struct {
 	Type string
 	Code string
@@ -11,6 +13,14 @@ type MapTile struct {
 	X       int
 	Y       int
 	Content MapTileContent
+}
+
+func (mapTile MapTile) IntoCoord() coords.Coord {
+	return coords.Coord{
+		X:    mapTile.X,
+		Y:    mapTile.Y,
+		Name: "",
+	}
 }
 
 func GetAllMapsByContentType(content_type string, content_code string) (*[]MapTile, error) {

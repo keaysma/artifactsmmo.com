@@ -33,7 +33,7 @@ func NewKernel(character types.Character) *game.Kernel {
 		Current_Generator:    nil,
 		Last_command:         "",
 		Last_command_success: false,
-		CurrentGenerator: utils.SyncData[string]{
+		CurrentGeneratorName: utils.SyncData[string]{
 			Value: "",
 		},
 		Commands: utils.SyncData[[]string]{
@@ -121,7 +121,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			return false
 		}
 
-		_, err = steps.Use(kernel, code, int(quantity))
+		err = steps.Use(kernel, code, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to use %d %s: %s", quantity, code, err))
 			return false
@@ -129,7 +129,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		return true
 	case "gather":
-		_, err := steps.Gather(kernel)
+		err := steps.Gather(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to gather: %s", err))
 			return false
@@ -137,7 +137,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		return true
 	case "fight":
-		_, err := steps.Fight(kernel)
+		err := steps.Fight(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -145,7 +145,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		return true
 	case "fight-debug":
-		_, err := steps.FightDebug(kernel)
+		err := steps.FightDebug(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -238,7 +238,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			}
 		}
 
-		_, err = steps.Buy(kernel, code, int(quantity), int(max_price))
+		err = steps.Buy(kernel, code, int(quantity), int(max_price))
 		if err != nil {
 			log(fmt.Sprintf("failed to buy %d %s for price < %d: %s", quantity, code, max_price, err))
 			return false
@@ -278,7 +278,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			}
 		}
 
-		_, err = steps.Sell(kernel, code, sellQuantity, int(min_price))
+		err = steps.Sell(kernel, code, sellQuantity, int(min_price))
 		if err != nil {
 			log(fmt.Sprintf("failed to sell %s %s for price > %d: %s", raw_quantity, code, min_price, err))
 			return false
@@ -330,7 +330,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		id := parts[1]
-		_, err := steps.CancelOrder(kernel, id)
+		err := steps.CancelOrder(kernel, id)
 		if err != nil {
 			log(fmt.Sprintf("failed to cancel order %s: %s", id, err))
 			return false
@@ -357,7 +357,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			quantity = parsedQuantity
 		}
 
-		_, err := steps.HitOrder(kernel, id, int(quantity))
+		err := steps.HitOrder(kernel, id, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to hit order %s: %s", id, err))
 			return false
@@ -666,7 +666,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		if new_name != "" {
 			log(fmt.Sprintf("generator set to %s", new_name))
-			kernel.CurrentGenerator.Set(&new_name)
+			kernel.CurrentGeneratorName.Set(&new_name)
 		}
 
 		return success
@@ -681,7 +681,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	case "clear-gen":
 		kernel.Current_Generator = nil
 		empty := ""
-		kernel.CurrentGenerator.Set(&empty)
+		kernel.CurrentGeneratorName.Set(&empty)
 		log("generator cleared")
 		return true
 	case "simulate-fight":
