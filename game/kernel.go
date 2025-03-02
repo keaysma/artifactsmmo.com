@@ -20,7 +20,7 @@ type Kernel struct {
 	CurrentGeneratorName utils.SyncData[string]
 	Commands             utils.SyncData[[]string]
 	PriorityCommands     chan string
-	Logs                 utils.SyncData[[]string]
+	LogsChannel          chan string
 	// States
 	CharacterState utils.SyncData[types.Character]
 	CooldownState  utils.SyncData[state.CooldownData]
@@ -53,15 +53,7 @@ func (kernel *Kernel) WaitForDown(cooldown types.Cooldown) {
 func (kernel *Kernel) Log(content string) {
 	t := time.Now()
 	logline := fmt.Sprintf("[%s] %s", t.Format(time.DateTime), content)
-	// kernel.LogsChannel <- logline
-	kernel.Logs.With(func(value *[]string) *[]string {
-		rVal := *value
-		rVal = append(rVal, logline)
-		if len(rVal) > 150 {
-			rVal = rVal[len(rVal)-150:]
-		}
-		return &rVal
-	})
+	kernel.LogsChannel <- logline
 }
 
 func (kernel *Kernel) LogPre(pre string) func(string) {

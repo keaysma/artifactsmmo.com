@@ -38,10 +38,7 @@ func NewKernel(character types.Character) *game.Kernel {
 			Value: make([]string, 0),
 		},
 		PriorityCommands: make(chan string, 10),
-		// LogsChannel:      make(chan string, 100),
-		Logs: utils.SyncData[[]string]{
-			Value: []string{},
-		},
+		LogsChannel:      make(chan string, 100),
 
 		// States
 		CharacterState: utils.SyncData[types.Character]{
