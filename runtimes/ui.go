@@ -94,15 +94,18 @@ func UI() {
 	}
 
 	resize := func(w int, h int) {
-		tabHeight := 3
-		tabs.SetRect(0, 0, w, tabHeight)
+		tabs.SetRect(0, 0, w, 3)
 		wxs[tabs.ActiveTabIndex].ResizeWidgets(w, h)
 		draw()
 	}
 
 	w, h := ui.TerminalDimensions()
-	resize(w, h)
-	draw()
+	// resize(w, h) - resize ALL frames once
+	tabs.SetRect(0, 0, w, 3)
+	for _, wx := range wxs {
+		wx.ResizeWidgets(w, h)
+		wx.Draw()
+	}
 
 	uiEvents := ui.PollEvents()
 	for {
