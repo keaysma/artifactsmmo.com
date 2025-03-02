@@ -94,14 +94,14 @@ func UI() {
 	}
 
 	resize := func(w int, h int) {
-		tabs.SetRect(0, 0, w, 3)
+		tabs.SetRect(0, 0, w, s.TabHeight)
 		wxs[tabs.ActiveTabIndex].ResizeWidgets(w, h)
 		draw()
 	}
 
 	w, h := ui.TerminalDimensions()
 	// resize(w, h) - resize ALL frames once
-	tabs.SetRect(0, 0, w, 3)
+	tabs.SetRect(0, 0, w, s.TabHeight)
 	for _, wx := range wxs {
 		wx.ResizeWidgets(w, h)
 		wx.Draw()
@@ -112,6 +112,17 @@ func UI() {
 		select {
 		case event := <-uiEvents:
 			switch event.Type {
+			case ui.MouseEvent:
+				switch event.ID {
+				case "MouseWheelUp":
+					// decrease offset
+				case "MouseWheelDown":
+					// increase offset
+				default:
+					// case "MouseLeft":
+					// case "MouseRelease":
+					// case "MouseRight":
+				}
 			case ui.ResizeEvent:
 				resize(ui.TerminalDimensions())
 			case ui.KeyboardEvent:

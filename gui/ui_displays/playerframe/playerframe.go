@@ -16,6 +16,9 @@ import (
 	"github.com/keaysma/termui/v3/widgets"
 )
 
+var s = utils.GetSettings()
+var TAB_HEIGHT = s.TabHeight
+
 var commandValue = ""
 
 // var logLines = []string{}
@@ -30,6 +33,7 @@ type Mainframe struct {
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
 	OrderReferenceList        *widgets.Paragraph
+	InventoryDisplay          *widgets.Table
 	CharacterDisplay          *widgets.Table
 	CooldownGauge             *widgets.Gauge
 	CommandEntry              *widgets.Paragraph
@@ -41,9 +45,6 @@ type Mainframe struct {
 	GaugeSkillJewelrycrafting *widgets.Gauge
 	GaugeSkillCooking         *widgets.Gauge
 	GaugeSkillAlchemy         *widgets.Gauge
-
-	// Settings
-	TabHeight int
 }
 
 func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
@@ -58,6 +59,16 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	orderReferenceList := widgets.NewParagraph()
 	orderReferenceList.Title = "Order Reference"
 	orderReferenceList.Text = ""
+
+	inventoryDisplay := widgets.NewTable()
+	inventoryDisplay.Title = "ur shit"
+	inventoryDisplay.Rows = [][]string{
+		{"", "", "", ""},
+		{"", "", "", ""},
+		{"", "", "", ""},
+		{"", "", "", ""},
+		{"", "", "", ""},
+	}
 
 	characterDisplay := widgets.NewTable()
 	characterDisplay.Title = kernel.CharacterName
@@ -86,6 +97,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 		Logs:                      logs,
 		CommandList:               commandList,
 		OrderReferenceList:        orderReferenceList,
+		InventoryDisplay:          inventoryDisplay,
 		CharacterDisplay:          characterDisplay,
 		CooldownGauge:             cooldownGauge,
 		CommandEntry:              command_entry,
@@ -97,8 +109,6 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 		GaugeSkillJewelrycrafting: gauge_skill_jewelrycrafting,
 		GaugeSkillCooking:         gauge_skill_cooking,
 		GaugeSkillAlchemy:         gauge_skill_alchemy,
-
-		TabHeight: s.TabHeight,
 	}
 
 	return &mainframeWigets
@@ -109,27 +119,36 @@ func (m *Mainframe) Draw() {
 
 	if m.OrderReferenceList.Text != "" {
 		ui.Render(m.OrderReferenceList)
+	} else {
+		ui.Render(m.InventoryDisplay)
 	}
 }
 
 func (m *Mainframe) ResizeWidgets(w int, h int) {
-	base_h := h - 21 - 9
+	mid_w := w - 72      // w/2
+	last_w := mid_w + 42 // w-(w/4) aka last_w
 
-	m.Logs.SetRect(0, m.TabHeight, w/2, h-3)
-	m.CommandList.SetRect(w/2, m.TabHeight, w-(w/4)-1, h-6)
-	m.OrderReferenceList.SetRect(w/2, h-18, w-(w/4)-1, h-6)
-	m.CharacterDisplay.SetRect((3*w)/4, m.TabHeight, w, base_h)
-	m.CooldownGauge.SetRect(w/2, h-6, w, h-3)
+	mid_h := h - 21 - 9
+
+	m.Logs.SetRect(0, TAB_HEIGHT, mid_w, h-3)
+
+	m.CommandList.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+	m.OrderReferenceList.SetRect(mid_w, h-18, last_w-1, h-6)
+	m.InventoryDisplay.SetRect(mid_w, mid_h, last_w-1, h-6)
+
+	m.CharacterDisplay.SetRect(last_w, TAB_HEIGHT, w, mid_h)
+	m.CooldownGauge.SetRect(mid_w, h-6, w, h-3)
+
+	m.GaugeSkillMining.SetRect(last_w, mid_h, w, mid_h+3)
+	m.GaugeSkillWoodcutting.SetRect(last_w, mid_h+3, w, mid_h+6)
+	m.GaugeSkillFishing.SetRect(last_w, mid_h+6, w, mid_h+9)
+	m.GaugeSkillWeaponcrafting.SetRect(last_w, mid_h+9, w, mid_h+12)
+	m.GaugeSkillGearcrafting.SetRect(last_w, mid_h+12, w, mid_h+15)
+	m.GaugeSkillJewelrycrafting.SetRect(last_w, mid_h+15, w, mid_h+18)
+	m.GaugeSkillCooking.SetRect(last_w, mid_h+18, w, mid_h+21)
+	m.GaugeSkillAlchemy.SetRect(last_w, mid_h+21, w, mid_h+24)
+
 	m.CommandEntry.SetRect(0, h-3, w, h)
-
-	m.GaugeSkillMining.SetRect((3*w)/4, base_h, w, base_h+3)
-	m.GaugeSkillWoodcutting.SetRect((3*w)/4, base_h+3, w, base_h+6)
-	m.GaugeSkillFishing.SetRect((3*w)/4, base_h+6, w, base_h+9)
-	m.GaugeSkillWeaponcrafting.SetRect((3*w)/4, base_h+9, w, base_h+12)
-	m.GaugeSkillGearcrafting.SetRect((3*w)/4, base_h+12, w, base_h+15)
-	m.GaugeSkillJewelrycrafting.SetRect((3*w)/4, base_h+15, w, base_h+18)
-	m.GaugeSkillCooking.SetRect((3*w)/4, base_h+18, w, base_h+21)
-	m.GaugeSkillAlchemy.SetRect((3*w)/4, base_h+21, w, base_h+24)
 }
 
 // For rendering-related tasks that should still happen
@@ -154,7 +173,7 @@ func (m *Mainframe) Loop(heavy bool) {
 
 	generator_name := m.kernel.CurrentGeneratorName.ShallowCopy()
 	if generator_name != "" {
-		m.CommandList.Title = fmt.Sprintf("Commands (generator: %s)", generator_name)
+		m.CommandList.Title = fmt.Sprintf("Commands (gen: %s)", generator_name)
 	} else {
 		m.CommandList.Title = "Commands"
 	}
@@ -216,9 +235,24 @@ func (m *Mainframe) Loop(heavy bool) {
 			m.GaugeSkillAlchemy.Title = fmt.Sprintf("Alchemy: %d", character.Alchemy_level)
 			m.GaugeSkillAlchemy.Percent = int((float64(character.Alchemy_xp) / float64(character.Alchemy_max_xp)) * 100)
 
-			m.kernel.CharacterState.Unlock()
+			newTable := [][]string{}
+			currentRow := []string{}
+			for i, item := range character.Inventory {
+				entry := fmt.Sprintf("%s, %d", item.Code, item.Quantity)
+				currentRow = append(currentRow, entry)
 
-			m.OrderReferenceList.Text = ""
+				if i == 1 {
+					newTable = append(newTable, currentRow[0:len(currentRow):len(currentRow)])
+					currentRow = []string{}
+				}
+			}
+			m.InventoryDisplay.Rows = newTable
+
+			m.kernel.CharacterState.Unlock()
+		}
+
+		m.OrderReferenceList.Text = ""
+		{
 			ordersList := state.OrderIdsReference.Ref()
 			for i, id := range *ordersList {
 				m.OrderReferenceList.Text += fmt.Sprintf("%d: %s\n", i, id)
