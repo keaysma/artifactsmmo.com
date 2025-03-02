@@ -33,7 +33,7 @@ type Mainframe struct {
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
 	OrderReferenceList        *widgets.Paragraph
-	InventoryDisplay          *widgets.Table
+	InventoryDisplay          *widgets.List
 	CharacterDisplay          *widgets.Table
 	CooldownGauge             *widgets.Gauge
 	CommandEntry              *widgets.Paragraph
@@ -60,14 +60,10 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	orderReferenceList.Title = "Order Reference"
 	orderReferenceList.Text = ""
 
-	inventoryDisplay := widgets.NewTable()
-	inventoryDisplay.Title = "ur shit"
-	inventoryDisplay.Rows = [][]string{
-		{"", "", "", ""},
-		{"", "", "", ""},
-		{"", "", "", ""},
-		{"", "", "", ""},
-		{"", "", "", ""},
+	inventoryDisplay := widgets.NewList()
+	inventoryDisplay.Title = "Inventory"
+	inventoryDisplay.Rows = []string{
+		"",
 	}
 
 	characterDisplay := widgets.NewTable()
@@ -235,18 +231,12 @@ func (m *Mainframe) Loop(heavy bool) {
 			m.GaugeSkillAlchemy.Title = fmt.Sprintf("Alchemy: %d", character.Alchemy_level)
 			m.GaugeSkillAlchemy.Percent = int((float64(character.Alchemy_xp) / float64(character.Alchemy_max_xp)) * 100)
 
-			newTable := [][]string{}
-			currentRow := []string{}
-			for i, item := range character.Inventory {
-				entry := fmt.Sprintf("%s, %d", item.Code, item.Quantity)
-				currentRow = append(currentRow, entry)
-
-				if i == 1 {
-					newTable = append(newTable, currentRow[0:len(currentRow):len(currentRow)])
-					currentRow = []string{}
-				}
+			newList := []string{}
+			for _, item := range character.Inventory {
+				entry := fmt.Sprintf("(%d) %s", item.Quantity, item.Code)
+				newList = append(newList, entry)
 			}
-			m.InventoryDisplay.Rows = newTable
+			m.InventoryDisplay.Rows = newList
 
 			m.kernel.CharacterState.Unlock()
 		}
