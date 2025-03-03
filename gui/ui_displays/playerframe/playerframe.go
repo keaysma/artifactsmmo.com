@@ -33,6 +33,7 @@ type Mainframe struct {
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
 	OrderReferenceList        *widgets.Paragraph
+	EquipmentDisplay          *widgets.Table
 	InventoryDisplay          *widgets.List
 	CharacterDisplay          *widgets.Table
 	CooldownGauge             *widgets.Gauge
@@ -59,6 +60,13 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	orderReferenceList := widgets.NewParagraph()
 	orderReferenceList.Title = "Order Reference"
 	orderReferenceList.Text = ""
+
+	equipmentDisplay := widgets.NewTable()
+	equipmentDisplay.Title = "Equipment"
+	equipmentDisplay.Rows = [][]string{
+		{"", ""},
+		{"", ""},
+	}
 
 	inventoryDisplay := widgets.NewList()
 	inventoryDisplay.Title = "Inventory"
@@ -93,6 +101,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 		Logs:                      logs,
 		CommandList:               commandList,
 		OrderReferenceList:        orderReferenceList,
+		EquipmentDisplay:          equipmentDisplay,
 		InventoryDisplay:          inventoryDisplay,
 		CharacterDisplay:          characterDisplay,
 		CooldownGauge:             cooldownGauge,
@@ -111,7 +120,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 }
 
 func (m *Mainframe) Draw() {
-	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking, m.GaugeSkillAlchemy)
+	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking, m.GaugeSkillAlchemy, m.EquipmentDisplay)
 
 	if m.OrderReferenceList.Text != "" {
 		ui.Render(m.OrderReferenceList)
@@ -124,25 +133,31 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 	mid_w := w - 72      // w/2
 	last_w := mid_w + 42 // w-(w/4) aka last_w
 
-	mid_h := h - 21 - 9
+	first_h := 14
+	mid_h := h - 21 - 16
 
 	m.Logs.SetRect(0, TAB_HEIGHT, mid_w, h-3)
 
-	m.CommandList.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+	// swap commands and equipment (it does look weird though...)
+	// m.CommandList.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+	m.CommandList.SetRect(last_w, first_h+24, w, h-6)
 	m.OrderReferenceList.SetRect(mid_w, h-18, last_w-1, h-6)
 	m.InventoryDisplay.SetRect(mid_w, mid_h, last_w-1, h-6)
 
-	m.CharacterDisplay.SetRect(last_w, TAB_HEIGHT, w, mid_h)
+	m.CharacterDisplay.SetRect(last_w, TAB_HEIGHT, w, first_h)
 	m.CooldownGauge.SetRect(mid_w, h-6, w, h-3)
 
-	m.GaugeSkillMining.SetRect(last_w, mid_h, w, mid_h+3)
-	m.GaugeSkillWoodcutting.SetRect(last_w, mid_h+3, w, mid_h+6)
-	m.GaugeSkillFishing.SetRect(last_w, mid_h+6, w, mid_h+9)
-	m.GaugeSkillWeaponcrafting.SetRect(last_w, mid_h+9, w, mid_h+12)
-	m.GaugeSkillGearcrafting.SetRect(last_w, mid_h+12, w, mid_h+15)
-	m.GaugeSkillJewelrycrafting.SetRect(last_w, mid_h+15, w, mid_h+18)
-	m.GaugeSkillCooking.SetRect(last_w, mid_h+18, w, mid_h+21)
-	m.GaugeSkillAlchemy.SetRect(last_w, mid_h+21, w, mid_h+24)
+	m.GaugeSkillMining.SetRect(last_w, first_h, w, first_h+3)
+	m.GaugeSkillWoodcutting.SetRect(last_w, first_h+3, w, first_h+6)
+	m.GaugeSkillFishing.SetRect(last_w, first_h+6, w, first_h+9)
+	m.GaugeSkillWeaponcrafting.SetRect(last_w, first_h+9, w, first_h+12)
+	m.GaugeSkillGearcrafting.SetRect(last_w, first_h+12, w, first_h+15)
+	m.GaugeSkillJewelrycrafting.SetRect(last_w, first_h+15, w, first_h+18)
+	m.GaugeSkillCooking.SetRect(last_w, first_h+18, w, first_h+21)
+	m.GaugeSkillAlchemy.SetRect(last_w, first_h+21, w, first_h+24)
+
+	// m.EquipmentDisplay.SetRect(last_w, first_h+24, w, h-6)
+	m.EquipmentDisplay.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
 
 	m.CommandEntry.SetRect(0, h-3, w, h)
 }
@@ -237,6 +252,21 @@ func (m *Mainframe) Loop(heavy bool) {
 				newList = append(newList, entry)
 			}
 			m.InventoryDisplay.Rows = newList
+
+			newEquipmentTable := [][]string{
+				{"weapon", character.Weapon_slot},
+				{"shield", character.Shield_slot},
+				{"helmet", character.Helmet_slot},
+				{"body_armor", character.Body_armor_slot},
+				{"legs_armor", character.Leg_armor_slot},
+				{"amulet", character.Amulet_slot},
+				{"ring1", character.Ring1_slot},
+				{"ring2", character.Ring2_slot},
+				{"utility1", character.Utility1_slot},
+				{"utility2", character.Utility2_slot},
+				{"artifact1", character.Artifact1_slot},
+			}
+			m.EquipmentDisplay.Rows = newEquipmentTable
 
 			m.kernel.CharacterState.Unlock()
 		}
