@@ -47,6 +47,10 @@ func NewKernel(character types.Character) *game.Kernel {
 		CooldownState: utils.SyncData[state.CooldownData]{
 			Value: cooldown,
 		},
+
+		// UI Shared
+		BankItemListShown:  false,
+		BankItemListFilter: nil,
 	}
 
 	return &internalState
@@ -282,6 +286,38 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			log(fmt.Sprintf("failed to sell %s %s for price > %d: %s", raw_quantity, code, min_price, err))
 			return false
 		}
+
+		return true
+	case "list-bank":
+		if len(parts) > 2 {
+			log("usage: list-bank[ <code-partial:string>]")
+			return false
+		}
+
+		if len(parts) == 2 {
+			code_match := parts[1]
+			kernel.BankItemListFilter = &code_match
+		} else {
+			kernel.BankItemListFilter = nil
+		}
+
+		_, err := steps.GetAllBankItems()
+		if err != nil {
+			log(fmt.Sprintf("failed to list bank items: %s", err))
+			return false
+		}
+
+		kernel.BankItemListShown = true
+
+		return true
+	case "hide-bank":
+		if len(parts) > 1 {
+			log("usage: hide-bank")
+			return false
+		}
+
+		kernel.BankItemListFilter = nil
+		kernel.BankItemListShown = false
 
 		return true
 	case "o":

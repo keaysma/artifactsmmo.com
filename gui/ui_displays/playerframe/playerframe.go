@@ -46,6 +46,7 @@ type Mainframe struct {
 	GaugeSkillJewelrycrafting *widgets.Gauge
 	GaugeSkillCooking         *widgets.Gauge
 	GaugeSkillAlchemy         *widgets.Gauge
+	BankItemList              *widgets.List
 }
 
 func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
@@ -96,6 +97,8 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	gauge_skill_cooking := widgets.NewGauge()
 	gauge_skill_alchemy := widgets.NewGauge()
 
+	bankItemsList := widgets.NewList()
+
 	mainframeWigets := Mainframe{
 		kernel:                    kernel,
 		Logs:                      logs,
@@ -114,6 +117,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 		GaugeSkillJewelrycrafting: gauge_skill_jewelrycrafting,
 		GaugeSkillCooking:         gauge_skill_cooking,
 		GaugeSkillAlchemy:         gauge_skill_alchemy,
+		BankItemList:              bankItemsList,
 	}
 
 	return &mainframeWigets
@@ -126,6 +130,10 @@ func (m *Mainframe) Draw() {
 		ui.Render(m.OrderReferenceList)
 	} else {
 		ui.Render(m.InventoryDisplay)
+	}
+
+	if m.kernel.BankItemListShown {
+		ui.Render(m.BankItemList)
 	}
 }
 
@@ -158,6 +166,8 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 
 	// m.EquipmentDisplay.SetRect(last_w, first_h+24, w, h-6)
 	m.EquipmentDisplay.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+
+	m.BankItemList.SetRect(mid_w-36, TAB_HEIGHT+1, mid_w-1, h-4)
 
 	m.CommandEntry.SetRect(0, h-3, w, h)
 }
@@ -280,10 +290,26 @@ func (m *Mainframe) Loop(heavy bool) {
 
 			state.OrderIdsReference.Unlock()
 		}
+
+		if m.kernel.BankItemListShown {
+			newBankItems := []string{}
+			{
+				bankItems := state.GlobalState.BankState.Ref()
+
+				for _, item := range *bankItems {
+					if m.kernel.BankItemListFilter == nil || strings.Contains(item.Code, *m.kernel.BankItemListFilter) {
+						newBankItems = append(newBankItems, fmt.Sprintf("(%6d) %s", item.Quantity, item.Code))
+					}
+				}
+
+				state.GlobalState.BankState.Unlock()
+			}
+			m.BankItemList.Rows = newBankItems
+		}
 	}
 }
 
-var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight"}
+var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight", "list-bank", "hide-bank"}
 
 func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 	switch event.ID {

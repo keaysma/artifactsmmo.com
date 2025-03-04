@@ -3,11 +3,11 @@ My implementation of an artifacts-mmo API client, written in Golang
 
 # TODO
 - [x] Display inventory items in UI
-- [ ] Display for equipped items
-- [ ] Cache bank state to share between kernels
-    - [ ] a `get-bank` command to manually update the bank state
-    - [ ] a display of bank items, can be toggled into view using something like `ctrl+b` (`<C-b>`) or maybe just `<`, similar to how orders work (then orders could be viewed with `>`)
-    - [ ] a `bank-has` command to filter entire bank list for searching
+- [x] Display for equipped items
+- [x] Cache bank state to share between kernels
+    - [x] a `get-bank` command to manually update the bank state - ended up with `list-bank`
+    - [x] a display of bank items, can be toggled into view using something like `ctrl+b` (`<C-b>`) or maybe just `<`, similar to how orders work (then orders could be viewed with `>`) - `list-bank` does the displaying - I did this PER CHARACTER, which was a mistake, but it's actually highly useful as it allows you to compare/contrast lists
+    - [x] a `bank-has` command to filter entire bank list for searching - `list-bank [part-of-a-code]` and also `hide-bank`
 - [ ] Something like generators that looks out for events and acts on them while they're active
 - [ ] Cache static responses
 - [ ] Revised fight simulator

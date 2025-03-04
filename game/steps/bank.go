@@ -7,6 +7,7 @@ import (
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 )
 
@@ -30,6 +31,9 @@ func GetAllBankItems() (*[]types.InventoryItem, error) {
 
 		page++
 	}
+
+	cloned := allBankItems[:len(allBankItems):len(allBankItems)]
+	state.GlobalState.BankState.Set(&cloned)
 
 	return &allBankItems, nil
 }

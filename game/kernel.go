@@ -24,6 +24,9 @@ type Kernel struct {
 	// States
 	CharacterState utils.SyncData[types.Character]
 	CooldownState  utils.SyncData[state.CooldownData]
+	// UI Shared
+	BankItemListShown  bool
+	BankItemListFilter *string
 }
 
 func (kernel *Kernel) WaitForDown(cooldown types.Cooldown) {
