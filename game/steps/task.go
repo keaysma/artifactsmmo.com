@@ -160,7 +160,7 @@ func CancelTask(kernel *game.Kernel) (*types.Character, error) {
 	}
 
 	if countTasksCoins < 1 {
-		bank_items, err := GetAllBankItems()
+		bank_items, err := GetAllBankItems(false)
 		if err != nil {
 			log(fmt.Sprintf("failed to get bank items: %s", err))
 			return nil, err

@@ -14,7 +14,16 @@ import (
 type BankDepositCodeCb func(item types.InventorySlot) bool
 type BankDepositQuantityCb func(item types.InventorySlot) int
 
-func GetAllBankItems() (*[]types.InventoryItem, error) {
+func GetAllBankItems(bypassCache bool) (*[]types.InventoryItem, error) {
+	curState := state.GlobalState.BankState.Ref()
+	if !bypassCache && len(*curState) > 0 {
+		// We have this cached! used that!
+		cloned := (*curState)[:len(*curState):len(*curState)]
+		state.GlobalState.BankState.Unlock()
+		return &cloned, nil
+	}
+	state.GlobalState.BankState.Unlock()
+
 	page := 1
 	allBankItems := make([]types.InventoryItem, 0)
 	for {
@@ -76,6 +85,9 @@ func DepositBySelect(kernel *game.Kernel, codeSelct BankDepositCodeCb, quantityS
 			return nil, err
 		}
 
+		bank := res.Bank[:len(res.Bank):len(res.Bank)]
+		state.GlobalState.BankState.Set(&bank)
+
 		char = &res.Character
 		kernel.CharacterState.Set(char)
 		kernel.WaitForDown(res.Cooldown)
@@ -106,7 +118,7 @@ func ItemMaxQuantity() BankWithdrawQuantityCb {
 func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
-	bank, err := GetAllBankItems()
+	bank, err := GetAllBankItems(true)
 	if err != nil {
 		return nil, err
 	}

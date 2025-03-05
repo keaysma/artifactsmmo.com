@@ -301,7 +301,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			kernel.BankItemListFilter = nil
 		}
 
-		_, err := steps.GetAllBankItems()
+		_, err := steps.GetAllBankItems(true)
 		if err != nil {
 			log(fmt.Sprintf("failed to list bank items: %s", err))
 			return false

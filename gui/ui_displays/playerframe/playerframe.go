@@ -257,11 +257,17 @@ func (m *Mainframe) Loop(heavy bool) {
 			m.GaugeSkillAlchemy.Percent = int((float64(character.Alchemy_xp) / float64(character.Alchemy_max_xp)) * 100)
 
 			newList := []string{}
+			itemCount, slotCount := 0, 0
 			for _, item := range character.Inventory {
 				entry := fmt.Sprintf("(%d) %s", item.Quantity, item.Code)
 				newList = append(newList, entry)
+				if item.Quantity > 0 {
+					itemCount += item.Quantity
+					slotCount++
+				}
 			}
 			m.InventoryDisplay.Rows = newList
+			m.InventoryDisplay.Title = fmt.Sprintf("Inv (%d/%d) (%d/%d)", slotCount, len(character.Inventory), itemCount, character.Inventory_max_items)
 
 			newEquipmentTable := [][]string{
 				{"weapon", character.Weapon_slot},

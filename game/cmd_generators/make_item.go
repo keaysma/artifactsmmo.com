@@ -39,7 +39,7 @@ func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string 
 
 	// Special case: Our inventory is full of auxiliary items
 	// Time to put some stuff in the bank
-	bankItems, err := steps.GetAllBankItems()
+	bankItems, err := steps.GetAllBankItems(false)
 	if err != nil {
 		log(fmt.Sprintf("Check failed, fetching bank items was unsuccessful: %s", err))
 		return "sleep 5"
@@ -146,7 +146,7 @@ func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, target
 	maxCanMake := max(1, float64(freeSpace)/float64(spaceRequiredPerCraft))
 	log(fmt.Sprintf("max can make: %f", maxCanMake))
 
-	bankItems, err := steps.GetAllBankItems()
+	bankItems, err := steps.GetAllBankItems(false)
 	if err != nil {
 		log(fmt.Sprintf("Check failed, fetching bank items was unsuccessful: %s", err))
 		return "sleep 5"
