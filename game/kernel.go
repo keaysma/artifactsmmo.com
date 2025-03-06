@@ -12,8 +12,8 @@ import (
 var s = utils.GetSettings()
 
 type Kernel struct {
-	Generator_Paused     bool
-	Current_Generator    Generator
+	GeneratorPaused      []bool
+	Generators           []*Generator
 	Last_command         string
 	Last_command_success bool
 	CharacterName        string

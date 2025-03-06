@@ -205,41 +205,41 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 		if tile.Content.Type == "event" {
 			// want to skip events for now
 			// they tend to take too much time
-			return "cancel-task"
+			// return "cancel-task"
 
-			/*
-				utils.Log(fmt.Sprintf("find event tile for resource %s", component.Code))
-				events, err := api.GetAllActiveEvents(1, 100)
-				if err != nil {
-					utils.Log(fmt.Sprintf("failed to get event info: %s", err))
-					return "sleep 10"
-				}
+			// /*
+			log(fmt.Sprintf("find event tile for resource %s", component.Code))
+			events, err := api.GetAllActiveEvents(1, 100)
+			if err != nil {
+				log(fmt.Sprintf("failed to get event info: %s", err))
+				return "sleep 10"
+			}
 
-				if len(*events) == 0 {
-					utils.Log(fmt.Sprintf("no event info found for %s", component.Code))
-					return "sleep 10"
-				}
+			if len(*events) == 0 {
+				log(fmt.Sprintf("no event info found for %s", component.Code))
+				return "noop" // return "sleep 10"
+			}
 
-				didFindActiveEvent := false
-				for _, event := range *events {
-					if event.Map.Content.Code == tile.Content.Code {
-						didFindActiveEvent = true
-						utils.Log(fmt.Sprintf("event: %s", event.Code))
-						if character.X != event.Map.X || character.Y != event.Map.Y {
-							return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
-						}
+			didFindActiveEvent := false
+			for _, event := range *events {
+				if event.Map.Content.Code == tile.Content.Code {
+					didFindActiveEvent = true
+					log(fmt.Sprintf("event: %s", event.Code))
+					if character.X != event.Map.X || character.Y != event.Map.Y {
+						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
 					}
 				}
+			}
 
-				if !didFindActiveEvent {
-					utils.Log(fmt.Sprintf("no active events for %s, tile %s - sleep", component.Code, tile.Content.Code))
-					return "sleep 10"
-				}
-			*/
+			if !didFindActiveEvent {
+				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
+				return "sleep 10"
+			}
+			// */
 		} else if character.X != tile.X || character.Y != tile.Y {
 			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
 			log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
-			return move
+			return "noop" // return move
 		}
 
 		switch component.Action {

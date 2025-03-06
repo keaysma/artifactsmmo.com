@@ -10,6 +10,9 @@ My implementation of an artifacts-mmo API client, written in Golang
     - [x] a `bank-has` command to filter entire bank list for searching - `list-bank [part-of-a-code]` and also `hide-bank`
     - [x] Use the cached bank state to make bank decisions, only busting cache when a bank operation is done
 - [ ] Something like generators that looks out for events and acts on them while they're active
+- [ ] Command history per kernel
+- [ ] Improve error handling for generators
+- [ ] Scrolling on logs
 - [ ] Cache static responses
 - [ ] Revised fight simulator
     - [ ] Includes items
@@ -28,3 +31,19 @@ My implementation of an artifacts-mmo API client, written in Golang
 - need some way to display and then also manipulate when/thens
     - maybe all of this state shouldn't actually be gui-controlled, instead using a state-file read at startup
 - may need some way to prioritize commands? what if two events are on-going together?
+
+## Event watcher alternative
+- stackable generators
+- generator for event that can check for event state and take an action, or pass to the next generator
+```
+gen level gearcrafting # sets generator 0
+gen 0 level fight # overwrites generator 0
+gen 1 make demon_horn # sets generator 1
+gen level alchemy # sets generator 2
+
+clear-gen # clears all
+pause-gen # pauses all
+
+clear-gen 0 # clears 0
+pause-gen 1 # pauses 1
+```

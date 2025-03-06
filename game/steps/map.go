@@ -68,8 +68,44 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 				}
 
 				if len(*tiles) == 0 {
-					kernel.Log(fmt.Sprintf("no maps for monster %s", monster_code))
-					return nil, err
+					// kernel.Log(fmt.Sprintf("no maps for monster %s", monster_code))
+					// return nil, err
+
+					kernel.Log(fmt.Sprintf("no maps for monster %s, is this an event monster?", monster_code))
+
+					events, err := api.GetAllEvents(1, 100)
+					if err != nil {
+						kernel.Log(fmt.Sprintf("failed to get event info: %s", err))
+						return nil, err
+					}
+
+					if len(*events) == 0 {
+						kernel.Log(fmt.Sprintf("no event info found for %s", monster_code))
+						return nil, fmt.Errorf("no event info found for %s", monster_code)
+					}
+
+					didFindEventInfo := false
+					for _, event := range *events {
+						if event.Content.Code == monster_code {
+							kernel.Log(fmt.Sprintf("event: %s", event.Code))
+							(*mapCodeTile)[code] = api.MapTile{
+								Content: api.MapTileContent{
+									Type: "event",
+									Code: monster_code,
+								},
+							}
+
+							didFindEventInfo = true
+							break
+						}
+					}
+
+					if didFindEventInfo {
+						continue
+					}
+
+					kernel.Log(fmt.Sprintf("no relevant event info found for resource %s", monster_code))
+					return nil, fmt.Errorf("no relevant event info found for resource %s", monster_code)
 				}
 
 				// TODO: pick the best map
