@@ -215,7 +215,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 			// now we effectively need to sub-task the entire make or flip gen make
 			if items_sub_generator == nil {
 				log(fmt.Sprintf("building item generator for %s", current_task))
-				generator := Make(kernel, current_task, true)
+				generator := Make(kernel, current_task, -1, true)
 				items_sub_generator = &generator
 			}
 
