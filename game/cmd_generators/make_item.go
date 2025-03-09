@@ -190,16 +190,16 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, log func(string), skill_map *map[string]api.MapTile, last string, top bool) string {
+func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, log func(string), skill_map *map[string]api.MapTile, last string, top bool) (string, bool) {
 	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
-		return ""
+		return "", top
 	}
 
 	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
 		tile, ok := (*skill_map)[component.Code]
 		if !ok {
 			log(fmt.Sprintf("no map for resource %s", component.Code))
-			return "cancel-task"
+			return "cancel-task", top
 		}
 
 		if tile.Content.Type == "event" {
@@ -207,12 +207,12 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 			events, err := api.GetAllActiveEvents(1, 100)
 			if err != nil {
 				log(fmt.Sprintf("failed to get event info: %s", err))
-				return "sleep 10"
+				return "sleep 10", top
 			}
 
 			if len(*events) == 0 {
 				log(fmt.Sprintf("no event info found for %s", component.Code))
-				return "noop" // return "sleep 10"
+				return "noop", top // return "sleep 10"
 			}
 
 			didFindActiveEvent := false
@@ -221,50 +221,50 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 					didFindActiveEvent = true
 					log(fmt.Sprintf("event: %s", event.Code))
 					if character.X != event.Map.X || character.Y != event.Map.Y {
-						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
+						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y), top
 					}
 				}
 			}
 
 			if !didFindActiveEvent {
 				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
-				return "noop" // "sleep 10"
+				return "noop", top // "sleep 10", top
 			}
 		} else if character.X != tile.X || character.Y != tile.Y {
 			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
 			log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
-			return move
+			return move, top
 		}
 
 		switch component.Action {
 		case "gather":
-			return "gather"
+			return "gather", top
 		case "fight":
 			if steps.FightHpSafetyCheck(character.Hp, character.Max_hp) {
-				return "fight"
+				return "fight", top
 			} else {
-				return "rest"
+				return "rest", top
 			}
 		case "withdraw":
 			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
-			return withdraw
+			return withdraw, top
 		default:
 			log(fmt.Sprintf("HOW DID WE GET HERE??? action is %s", component.Action))
-			return "clear-gen"
+			return "clear-gen", top
 		}
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command := NextMakeAction(&subcomponent, character, log, skill_map, last, false)
+		next_command, is_top := NextMakeAction(&subcomponent, character, log, skill_map, last, false)
 		if next_command != "" {
-			return next_command
+			return next_command, is_top
 		}
 	}
 
-	return fmt.Sprintf("auto-craft %d %s", 1, component.Code) // component.Quantity
+	return fmt.Sprintf("auto-craft %d %s", 1, component.Code), top // component.Quantity
 }
 
-func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generator {
+func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) game.Generator {
 	// needsFinishedItem:
 	// ... sometimes we want to permit putting the finished product in the bank (we're skilling, need more space to make more items)
 	// ... other times we need to hold on to that finished item (we're doing tasks, need to turn these finished items in to the task master)
@@ -288,9 +288,15 @@ func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generat
 	}
 
 	var retries = 0
+	var finished_count = 0
 
 	return func(last string, success bool) string {
 		next_command := "clear-gen"
+
+		kernel.Log(fmt.Sprintf("goal: %d, finished: %d", count, finished_count))
+		if count > 0 && finished_count >= count {
+			return next_command
+		}
 
 		if !success {
 			// temporary - retry last command
@@ -323,15 +329,19 @@ func Make(kernel *game.Kernel, code string, needsFinishedItem bool) game.Generat
 			return next_command
 		}
 
+		is_top := false
 		log := kernel.DebugLogPre("<next-make-action>: ")
-		char := kernel.CharacterState.Ref()
-		next_command = NextMakeAction(data, char, log, resource_tile_map, last, true)
-		kernel.CharacterState.Unlock()
+		{
+			char := kernel.CharacterState.Ref()
+			next_command, is_top = NextMakeAction(data, char, log, resource_tile_map, last, true)
+			kernel.CharacterState.Unlock()
+		}
 
-		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		// 	next_command = get_next_command(data, value, resource_tile_map, last, true)
-		// 	return value
-		// })
+		log(fmt.Sprintf("next command: %s, (is_top: %v)", next_command, is_top))
+
+		if is_top {
+			finished_count++
+		}
 
 		return next_command
 	}

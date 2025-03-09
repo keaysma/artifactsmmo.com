@@ -630,13 +630,13 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		return true
 	case "gen":
-		if len(parts) < 2 || len(parts) > 4 {
-			log("usage: gen [<number> ]<name:string>[ <args:string>]")
+		if len(parts) < 2 {
+			log("usage: gen [<number> ]<name:string>[ <arg0:string>[ <arg1:string>]]")
 			return false
 		}
 
 		generator_name := ""
-		generator_arg := ""
+		generator_args := []string{""}
 		var generator_number int64 = 0 // TODO
 
 		generator_name_or_number := parts[1]
@@ -649,12 +649,12 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		if number_parse_err != nil {
-			if len(parts) == 3 {
-				generator_arg = parts[2]
+			if len(parts) >= 3 {
+				generator_args = parts[2:]
 			}
 		} else {
-			if len(parts) == 4 {
-				generator_arg = parts[3]
+			if len(parts) >= 4 {
+				generator_args = parts[3:]
 			}
 		}
 
@@ -664,46 +664,61 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		switch generator_name {
 		case "level":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			newGenerator = generators.Level(kernel, generator_arg)
-			new_name = fmt.Sprintf("level <%s>", generator_arg)
+			newGenerator = generators.Level(kernel, generator_args[0])
+			new_name = fmt.Sprintf("level <%s>", generator_args[0])
 		case "forever":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
+			i := 0
 			newGenerator = func(ctx string, success bool) string {
 				if !success {
-					return fmt.Sprintf("clear-gen %d", generator_number)
+					return "clear-gen"
 				}
 
-				return generator_arg
+				i++
+				if i >= len(generator_args) {
+					i = 0
+				}
+
+				return strings.Replace(generator_args[i], "~", " ", -1)
 			}
-			new_name = fmt.Sprintf("forever <%s>", generator_arg)
+			new_name = fmt.Sprintf("forever <%s>", generator_args[0])
 		case "make":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			newGenerator = generators.Make(kernel, generator_arg, false)
-			new_name = fmt.Sprintf("make <%s>", generator_arg)
+
+			var count int = -1
+			if len(generator_args) > 1 {
+				maybe_count, err := strconv.ParseInt(generator_args[1], 10, 64)
+				if err == nil && maybe_count != 0 {
+					count = int(maybe_count)
+				}
+			}
+
+			newGenerator = generators.Make(kernel, generator_args[0], count, false)
+			new_name = fmt.Sprintf("make <%s>", generator_args[0])
 		case "flip":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			newGenerator = generators.Flip(kernel, generator_arg)
-			new_name = fmt.Sprintf("flip <%s>", generator_arg)
+			newGenerator = generators.Flip(kernel, generator_args[0])
+			new_name = fmt.Sprintf("flip <%s>", generator_args[0])
 		case "tasks":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			newGenerator = generators.Tasks(kernel, generator_arg)
-			new_name = fmt.Sprintf("tasks <%s>", generator_arg)
+			newGenerator = generators.Tasks(kernel, generator_args[0])
+			new_name = fmt.Sprintf("tasks <%s>", generator_args[0])
 		case "fight-blue-slimes":
 			newGenerator = generators.Fight_blue_slimes
 			new_name = "fight-blue-slimes"
@@ -855,7 +870,7 @@ func Gameloop(kernel *game.Kernel) {
 				// reverse order
 				idx := numGenerators - 1 - i
 				paused := kernel.GeneratorPaused[idx]
-				if paused == true {
+				if paused {
 					continue
 				}
 
@@ -866,7 +881,12 @@ func Gameloop(kernel *game.Kernel) {
 
 				var c = (*gen)(kernel.Last_command, kernel.Last_command_success)
 				if c == "noop" {
+					kernel.Log(fmt.Sprintf("received noop from generator %d", idx))
 					continue
+				}
+
+				if c == "clear-gen" {
+					c = fmt.Sprintf("clear-gen %d", idx)
 				}
 
 				kernel.Commands.With(func(value *[]string) *[]string {

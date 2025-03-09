@@ -413,7 +413,7 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 						return "gather"
 					}
 				case "weaponcrafting", "gearcrafting", "jewelrycrafting", "cooking", "alchemy", "mining", "woodcutting":
-					subGenerator = Make(kernel, currentTarget.Target, false)
+					subGenerator = Make(kernel, currentTarget.Target, -1, false)
 				default:
 					log(fmt.Sprintf("Unhandled skill: %s", skill))
 					return "clear-gen"
