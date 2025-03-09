@@ -10,7 +10,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var INVENTORY_CLEAR_THRESHOLD = 1.0 // 0.9
+var INVENTORY_CLEAR_THRESHOLD = 0.9
 var BANK_CLEAR_THRESHOLD = 1.0
 
 func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string {
@@ -203,11 +203,6 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 		}
 
 		if tile.Content.Type == "event" {
-			// want to skip events for now
-			// they tend to take too much time
-			// return "cancel-task"
-
-			// /*
 			log(fmt.Sprintf("find event tile for resource %s", component.Code))
 			events, err := api.GetAllActiveEvents(1, 100)
 			if err != nil {
@@ -233,13 +228,12 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 
 			if !didFindActiveEvent {
 				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
-				return "sleep 10"
+				return "noop" // "sleep 10"
 			}
-			// */
 		} else if character.X != tile.X || character.Y != tile.Y {
 			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
 			log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
-			return "noop" // return move
+			return move
 		}
 
 		switch component.Action {

@@ -150,6 +150,11 @@ func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quanti
 
 		char = &res.Character
 		kernel.CharacterState.Set(char)
+
+		allBankItems := res.Bank
+		cloned := allBankItems[:len(allBankItems):len(allBankItems)]
+		state.GlobalState.BankState.Set(&cloned)
+
 		kernel.WaitForDown(res.Cooldown)
 		return char, nil
 	}
