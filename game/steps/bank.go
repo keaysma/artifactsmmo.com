@@ -6,6 +6,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 )
@@ -13,7 +14,16 @@ import (
 type BankDepositCodeCb func(item types.InventorySlot) bool
 type BankDepositQuantityCb func(item types.InventorySlot) int
 
-func GetAllBankItems() (*[]types.InventoryItem, error) {
+func GetAllBankItems(bypassCache bool) (*[]types.InventoryItem, error) {
+	curState := state.GlobalState.BankState.Ref()
+	if !bypassCache && len(*curState) > 0 {
+		// We have this cached! used that!
+		cloned := (*curState)[:len(*curState):len(*curState)]
+		state.GlobalState.BankState.Unlock()
+		return &cloned, nil
+	}
+	state.GlobalState.BankState.Unlock()
+
 	page := 1
 	allBankItems := make([]types.InventoryItem, 0)
 	for {
@@ -31,6 +41,9 @@ func GetAllBankItems() (*[]types.InventoryItem, error) {
 		page++
 	}
 
+	cloned := allBankItems[:len(allBankItems):len(allBankItems)]
+	state.GlobalState.BankState.Set(&cloned)
+
 	return &allBankItems, nil
 }
 
@@ -40,10 +53,10 @@ func SlotMaxQuantity() BankDepositQuantityCb {
 	}
 }
 
-func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
+func DepositBySelect(kernel *game.Kernel, codeSelct BankDepositCodeCb, quantitySelect BankDepositQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
-	char, err := api.GetCharacterByName(character)
+	char, err := api.GetCharacterByName(kernel.CharacterName)
 	if err != nil {
 		return nil, err
 	}
@@ -60,33 +73,37 @@ func DepositBySelect(character string, codeSelct BankDepositCodeCb, quantitySele
 
 		// We have something to do, so go to the bank one time
 		if !moved_to_bank {
-			_, err := Move(character, coords.Bank)
+			_, err := Move(kernel, coords.Bank)
 			if err != nil {
 				return nil, err
 			}
 			moved_to_bank = true
 		}
 
-		res, err := actions.BankDeposit(character, slot.Code, quantity)
+		res, err := actions.BankDeposit(kernel.CharacterName, slot.Code, quantity)
 		if err != nil {
 			return nil, err
 		}
 
-		char = &res.Character
-		api.WaitForDown(res.Cooldown)
-	}
+		bank := res.Bank[:len(res.Bank):len(res.Bank)]
+		state.GlobalState.BankState.Set(&bank)
 
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char
-	})
+		char = &res.Character
+		kernel.CharacterState.Set(char)
+		kernel.WaitForDown(res.Cooldown)
+	}
 
 	return char, nil
 }
 
-func DepositEverything(character string) (*types.Character, error) {
-	return DepositBySelect(character, func(slot types.InventorySlot) bool {
-		return true
-	}, SlotMaxQuantity())
+func DepositEverything(kernel *game.Kernel) (*types.Character, error) {
+	return DepositBySelect(
+		kernel,
+		func(slot types.InventorySlot) bool {
+			return true
+		},
+		SlotMaxQuantity(),
+	)
 }
 
 type BankWithdrawCodeCb func(item types.InventoryItem) bool
@@ -98,10 +115,10 @@ func ItemMaxQuantity() BankWithdrawQuantityCb {
 	}
 }
 
-func WithdrawBySelect(character string, codeSelect BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
+func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quantitySelect BankWithdrawQuantityCb) (*types.Character, error) {
 	var moved_to_bank = false
 
-	bank, err := GetAllBankItems()
+	bank, err := GetAllBankItems(true)
 	if err != nil {
 		return nil, err
 	}
@@ -119,57 +136,62 @@ func WithdrawBySelect(character string, codeSelect BankWithdrawCodeCb, quantityS
 
 		// We have something to do, so go to the bank one time
 		if !moved_to_bank {
-			_, err := Move(character, coords.Bank)
+			_, err := Move(kernel, coords.Bank)
 			if err != nil {
 				return nil, err
 			}
 			moved_to_bank = true
 		}
 
-		res, err := actions.BankWithdraw(character, slot.Code, quantity)
+		res, err := actions.BankWithdraw(kernel.CharacterName, slot.Code, quantity)
 		if err != nil {
 			return nil, err
 		}
 
 		char = &res.Character
-		api.WaitForDown(res.Cooldown)
-		state.GlobalCharacter.Set(char)
+		kernel.CharacterState.Set(char)
+
+		allBankItems := res.Bank
+		cloned := allBankItems[:len(allBankItems):len(allBankItems)]
+		state.GlobalState.BankState.Set(&cloned)
+
+		kernel.WaitForDown(res.Cooldown)
 		return char, nil
 	}
 
 	return nil, fmt.Errorf("no items to withdraw")
 }
 
-func DepositGold(character string, quantity int) (*types.Character, error) {
-	_, err := Move(character, coords.Bank)
+func DepositGold(kernel *game.Kernel, quantity int) (*types.Character, error) {
+	_, err := Move(kernel, coords.Bank)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := actions.BankDepositGold(character, quantity)
+	res, err := actions.BankDepositGold(kernel.CharacterName, quantity)
 	if err != nil {
 		return nil, err
 	}
 
-	api.WaitForDown(res.Cooldown)
-	state.GlobalCharacter.Set(&res.Character)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 
 	return &res.Character, nil
 }
 
-func WithdrawGold(character string, quantity int) (*types.Character, error) {
-	_, err := Move(character, coords.Bank)
+func WithdrawGold(kernel *game.Kernel, quantity int) (*types.Character, error) {
+	_, err := Move(kernel, coords.Bank)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := actions.BankWithdrawGold(character, quantity)
+	res, err := actions.BankWithdrawGold(kernel.CharacterName, quantity)
 	if err != nil {
 		return nil, err
 	}
 
-	api.WaitForDown(res.Cooldown)
-	state.GlobalCharacter.Set(&res.Character)
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
 
 	return &res.Character, nil
 }

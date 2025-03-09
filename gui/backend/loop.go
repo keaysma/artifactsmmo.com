@@ -15,31 +15,58 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var s = utils.GetSettings()
+const NUM_GENERATORS = 10
 
-type InternalState struct {
-	Generator_Paused     bool
-	Current_Generator    generators.Generator
-	Last_command         string
-	Last_command_success bool
+func NewKernel(character types.Character) *game.Kernel {
+	cooldown := state.CooldownData{}
+
+	// If this fails let's just ignore it, not critical
+	end, err := time.Parse(time.RFC3339, character.Cooldown_expiration)
+	if err == nil {
+		cooldown.Duration_seconds = character.Cooldown
+		cooldown.End = &end
+	}
+
+	internalState := game.Kernel{
+		CharacterName:        character.Name,
+		GeneratorPaused:      make([]bool, 10),
+		Generators:           make([]*game.Generator, NUM_GENERATORS),
+		Last_command:         "",
+		Last_command_success: false,
+		CurrentGeneratorName: utils.SyncData[string]{
+			Value: "",
+		},
+		Commands: utils.SyncData[[]string]{
+			Value: make([]string, 0),
+		},
+		PriorityCommands: make(chan string, 10),
+		LogsChannel:      make(chan string, 100),
+
+		// States
+		CharacterState: utils.SyncData[types.Character]{
+			Value: character,
+		},
+		CooldownState: utils.SyncData[state.CooldownData]{
+			Value: cooldown,
+		},
+
+		// UI Shared
+		BankItemListShown:  false,
+		BankItemListFilter: nil,
+	}
+
+	return &internalState
 }
 
-var internalState = InternalState{
-	Generator_Paused:     false,
-	Current_Generator:    nil,
-	Last_command:         "",
-	Last_command_success: false,
-}
-
-func ParseCommand(rawCommand string) bool {
+func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	parts := strings.Split(rawCommand, " ")
 	if len(parts) <= 0 {
-		utils.Log("unparsable command")
+		kernel.Log("unparsable command")
 		return true
 	}
 
 	command := parts[0]
-	log := utils.LogPre(fmt.Sprintf("%s: ", command))
+	log := kernel.LogPre(fmt.Sprintf("%s: ", command))
 	switch command {
 	case "ping":
 		log("pong")
@@ -79,7 +106,7 @@ func ParseCommand(rawCommand string) bool {
 			return false
 		}
 
-		_, err = steps.Move(s.Character, coords.Coord{X: int(x), Y: int(y), Name: ""})
+		_, err = steps.Move(kernel, coords.Coord{X: int(x), Y: int(y), Name: ""})
 		if err != nil {
 			log(fmt.Sprintf("failed to move to (%d, %d): %s", x, y, err))
 			return false
@@ -99,7 +126,7 @@ func ParseCommand(rawCommand string) bool {
 			return false
 		}
 
-		_, err = steps.Use(s.Character, code, int(quantity))
+		err = steps.Use(kernel, code, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to use %d %s: %s", quantity, code, err))
 			return false
@@ -107,7 +134,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "gather":
-		_, err := steps.Gather(s.Character)
+		err := steps.Gather(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to gather: %s", err))
 			return false
@@ -115,7 +142,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "fight":
-		_, err := steps.Fight(s.Character)
+		err := steps.Fight(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -123,7 +150,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "fight-debug":
-		_, err := steps.FightDebug(s.Character)
+		err := steps.FightDebug(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -131,7 +158,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "rest":
-		_, err := steps.Rest(s.Character)
+		_, err := steps.Rest(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to fight: %s", err))
 			return false
@@ -162,7 +189,7 @@ func ParseCommand(rawCommand string) bool {
 			}
 		}
 
-		err = steps.EquipItem(s.Character, code, slot, int(quantity))
+		err = steps.EquipItem(kernel, code, slot, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to equip %d %s to %s: %s", quantity, code, slot, err))
 			return false
@@ -187,7 +214,7 @@ func ParseCommand(rawCommand string) bool {
 			}
 		}
 
-		err = steps.UnequipItem(s.Character, slot, int(quantity))
+		err = steps.UnequipItem(kernel, slot, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to unequip %d from %s: %s", quantity, slot, err))
 			return false
@@ -216,7 +243,7 @@ func ParseCommand(rawCommand string) bool {
 			}
 		}
 
-		_, err = steps.Buy(s.Character, code, int(quantity), int(max_price))
+		err = steps.Buy(kernel, code, int(quantity), int(max_price))
 		if err != nil {
 			log(fmt.Sprintf("failed to buy %d %s for price < %d: %s", quantity, code, max_price, err))
 			return false
@@ -232,7 +259,7 @@ func ParseCommand(rawCommand string) bool {
 
 		var sellQuantity = 0
 		if raw_quantity == "all" {
-			state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+			kernel.CharacterState.With(func(value *types.Character) *types.Character {
 				sellQuantity = utils.CountInventory(&value.Inventory, code)
 				return value
 			})
@@ -256,11 +283,43 @@ func ParseCommand(rawCommand string) bool {
 			}
 		}
 
-		_, err = steps.Sell(s.Character, code, sellQuantity, int(min_price))
+		err = steps.Sell(kernel, code, sellQuantity, int(min_price))
 		if err != nil {
 			log(fmt.Sprintf("failed to sell %s %s for price > %d: %s", raw_quantity, code, min_price, err))
 			return false
 		}
+
+		return true
+	case "list-bank":
+		if len(parts) > 2 {
+			log("usage: list-bank[ <code-partial:string>]")
+			return false
+		}
+
+		if len(parts) == 2 {
+			code_match := parts[1]
+			kernel.BankItemListFilter = &code_match
+		} else {
+			kernel.BankItemListFilter = nil
+		}
+
+		_, err := steps.GetAllBankItems(true)
+		if err != nil {
+			log(fmt.Sprintf("failed to list bank items: %s", err))
+			return false
+		}
+
+		kernel.BankItemListShown = true
+
+		return true
+	case "hide-bank":
+		if len(parts) > 1 {
+			log("usage: hide-bank")
+			return false
+		}
+
+		kernel.BankItemListFilter = nil
+		kernel.BankItemListShown = false
 
 		return true
 	case "o":
@@ -273,7 +332,7 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		code := parts[1]
-		err := steps.ListSellOrders(code)
+		err := steps.ListSellOrders(kernel, code)
 		if err != nil {
 			log(fmt.Sprintf("failed to list orders for %s: %s", code, err))
 			return false
@@ -292,7 +351,7 @@ func ParseCommand(rawCommand string) bool {
 			code = parts[1]
 			logCode = code
 		}
-		err := steps.ListMySellOrders(code)
+		err := steps.ListMySellOrders(kernel, code)
 		if err != nil {
 			log(fmt.Sprintf("failed to list orders for %s: %s", logCode, err))
 			return false
@@ -308,7 +367,7 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		id := parts[1]
-		_, err := steps.CancelOrder(s.Character, id)
+		err := steps.CancelOrder(kernel, id)
 		if err != nil {
 			log(fmt.Sprintf("failed to cancel order %s: %s", id, err))
 			return false
@@ -335,7 +394,7 @@ func ParseCommand(rawCommand string) bool {
 			quantity = parsedQuantity
 		}
 
-		_, err := steps.HitOrder(s.Character, id, int(quantity))
+		err := steps.HitOrder(kernel, id, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to hit order %s: %s", id, err))
 			return false
@@ -351,7 +410,7 @@ func ParseCommand(rawCommand string) bool {
 		quantity, _ := strconv.ParseInt(raw_quantity, 10, 64)
 
 		_, err := steps.DepositBySelect(
-			s.Character,
+			kernel,
 			func(item types.InventorySlot) bool {
 				return item.Code == code
 			},
@@ -375,7 +434,7 @@ func ParseCommand(rawCommand string) bool {
 			return false
 		}
 
-		_, err := steps.DepositEverything(s.Character)
+		_, err := steps.DepositEverything(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to deposit everything: %s", err))
 			return false
@@ -391,7 +450,7 @@ func ParseCommand(rawCommand string) bool {
 		quantity, _ := strconv.ParseInt(raw_quantity, 10, 64)
 
 		_, err := steps.WithdrawBySelect(
-			s.Character,
+			kernel,
 			func(item types.InventoryItem) bool {
 				return item.Code == code
 			},
@@ -422,7 +481,7 @@ func ParseCommand(rawCommand string) bool {
 			return false
 		}
 
-		_, err = steps.DepositGold(s.Character, int(quantity))
+		_, err = steps.DepositGold(kernel, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to deposit %d gold: %s", quantity, err))
 			return false
@@ -442,7 +501,7 @@ func ParseCommand(rawCommand string) bool {
 			return false
 		}
 
-		_, err = steps.WithdrawGold(s.Character, int(quantity))
+		_, err = steps.WithdrawGold(kernel, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to withdraw %d gold: %s", quantity, err))
 			return false
@@ -472,7 +531,7 @@ func ParseCommand(rawCommand string) bool {
 			}
 		}
 
-		_, err = steps.Craft(s.Character, code, int(quantity))
+		_, err = steps.Craft(kernel, code, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to craft %d %s: %s", quantity, code, err))
 			return false
@@ -502,7 +561,7 @@ func ParseCommand(rawCommand string) bool {
 			}
 		}
 
-		_, err = steps.AutoCraft(s.Character, code, int(quantity))
+		_, err = steps.AutoCraft(kernel, code, int(quantity))
 		if err != nil {
 			log(fmt.Sprintf("failed to craft %s: %s", code, err))
 			return false
@@ -515,7 +574,7 @@ func ParseCommand(rawCommand string) bool {
 			return false
 		}
 		task_type := parts[1]
-		_, err := steps.NewTask(s.Character, task_type)
+		_, err := steps.NewTask(kernel, task_type)
 		if err != nil {
 			log(fmt.Sprintf("failed to get new task: %s", err))
 			return false
@@ -531,7 +590,7 @@ func ParseCommand(rawCommand string) bool {
 		quantity, _ := strconv.ParseInt(raw_quantity, 10, 64)
 
 		_, err := steps.TradeTaskItem(
-			s.Character,
+			kernel,
 			func(item types.InventorySlot) int {
 				if raw_quantity == "all" {
 					return item.Quantity
@@ -547,7 +606,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "complete-task":
-		_, err := steps.CompleteTask(s.Character)
+		_, err := steps.CompleteTask(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to complete task: %s", err))
 			return false
@@ -555,7 +614,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "cancel-task":
-		_, err := steps.CancelTask(s.Character)
+		_, err := steps.CancelTask(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to cancel task: %s", err))
 			return false
@@ -563,7 +622,7 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "exchange-tasks-coins":
-		_, err := steps.ExchangeTaskCoins(s.Character)
+		_, err := steps.ExchangeTaskCoins(kernel)
 		if err != nil {
 			log(fmt.Sprintf("failed to exchange task coins: %s", err))
 			return false
@@ -571,74 +630,103 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	case "gen":
-		if len(parts) < 2 || len(parts) > 3 {
-			log("usage: gen <name:string> <args:string>")
+		if len(parts) < 2 {
+			log("usage: gen [<number> ]<name:string>[ <arg0:string>[ <arg1:string>]]")
 			return false
 		}
 
-		generator_name := parts[1]
-		generator_arg := ""
+		generator_name := ""
+		generator_args := []string{""}
+		var generator_number int64 = 0 // TODO
 
-		if len(parts) == 3 {
-			generator_arg = parts[2]
+		generator_name_or_number := parts[1]
+		maybe_generator_number, number_parse_err := strconv.ParseInt(generator_name_or_number, 10, 64)
+		if number_parse_err != nil {
+			generator_name = generator_name_or_number
+		} else {
+			generator_number = maybe_generator_number
+			generator_name = parts[2]
+		}
+
+		if number_parse_err != nil {
+			if len(parts) >= 3 {
+				generator_args = parts[2:]
+			}
+		} else {
+			if len(parts) >= 4 {
+				generator_args = parts[3:]
+			}
 		}
 
 		success := true
 		new_name := ""
+		var newGenerator game.Generator
 
 		switch generator_name {
 		case "level":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			internalState.Current_Generator = generators.Level(generator_arg)
-			new_name = fmt.Sprintf("level <%s>", generator_arg)
+			newGenerator = generators.Level(kernel, generator_args[0])
+			new_name = fmt.Sprintf("level <%s>", generator_args[0])
 		case "forever":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			internalState.Current_Generator = func(ctx string, success bool) string {
+			i := 0
+			newGenerator = func(ctx string, success bool) string {
 				if !success {
 					return "clear-gen"
 				}
 
-				return generator_arg
+				i++
+				if i >= len(generator_args) {
+					i = 0
+				}
+
+				return strings.Replace(generator_args[i], "~", " ", -1)
 			}
-			new_name = fmt.Sprintf("forever <%s>", generator_arg)
+			new_name = fmt.Sprintf("forever <%s>", generator_args[0])
 		case "make":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			internalState.Current_Generator = generators.Make(generator_arg, false)
-			new_name = fmt.Sprintf("make <%s>", generator_arg)
+
+			var count int = -1
+			if len(generator_args) > 1 {
+				maybe_count, err := strconv.ParseInt(generator_args[1], 10, 64)
+				if err == nil && maybe_count != 0 {
+					count = int(maybe_count)
+				}
+			}
+
+			newGenerator = generators.Make(kernel, generator_args[0], count, false)
+			new_name = fmt.Sprintf("make <%s>", generator_args[0])
 		case "flip":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			internalState.Current_Generator = generators.Flip(generator_arg)
-			new_name = fmt.Sprintf("flip <%s>", generator_arg)
+			newGenerator = generators.Flip(kernel, generator_args[0])
+			new_name = fmt.Sprintf("flip <%s>", generator_args[0])
 		case "tasks":
-			if generator_arg == "" {
+			if generator_args[0] == "" {
 				log("missing generator argument")
 				return false
 			}
-			internalState.Current_Generator = generators.Tasks(generator_arg)
-			new_name = fmt.Sprintf("tasks <%s>", generator_arg)
-		case "craft-sticky-sword":
-			internalState.Current_Generator = generators.Craft_sticky_sword
-			new_name = "craft-sticky-sword"
+			newGenerator = generators.Tasks(kernel, generator_args[0])
+			new_name = fmt.Sprintf("tasks <%s>", generator_args[0])
 		case "fight-blue-slimes":
-			internalState.Current_Generator = generators.Fight_blue_slimes
+			newGenerator = generators.Fight_blue_slimes
 			new_name = "fight-blue-slimes"
 		case "ashwood":
-			internalState.Current_Generator = generators.Gather_ashwood
+			newGenerator = generators.Gather_ashwood
 			new_name = "gather-ash-wood"
 		case "dummy":
-			internalState.Current_Generator = generators.Dummy
+			newGenerator = generators.Dummy
 			new_name = "dummy"
 		default:
 			log(fmt.Sprintf("unknown generator: %s", generator_name))
@@ -646,25 +734,81 @@ func ParseCommand(rawCommand string) bool {
 		}
 
 		if new_name != "" {
-			log(fmt.Sprintf("generator set to %s", new_name))
-			SharedState.Ref().Current_Generator_Name = new_name
-			SharedState.Unlock()
+			log(fmt.Sprintf("generator %d set to %s", generator_number, new_name))
+			kernel.CurrentGeneratorName.Set(&new_name)
 		}
+
+		kernel.Generators[generator_number] = &newGenerator
 
 		return success
 	case "pause-gen":
-		internalState.Generator_Paused = true
-		log("paused")
+		if len(parts) > 2 {
+			log("usage: pause-gen[ <number>]")
+			return false
+		}
+
+		if len(parts) == 2 {
+			maybe_generator_number, err := strconv.ParseInt(parts[1], 10, 64)
+			if err != nil {
+				log(fmt.Sprintf("failed to read number: %s", err))
+				return false
+			}
+
+			kernel.GeneratorPaused[maybe_generator_number] = true
+			log(fmt.Sprintf("paused %d", maybe_generator_number))
+		} else {
+			for i := range kernel.GeneratorPaused {
+				kernel.GeneratorPaused[i] = true
+			}
+			log("paused all")
+		}
+
 		return true
 	case "resume-gen":
-		internalState.Generator_Paused = false
-		log("resuming")
+		if len(parts) > 2 {
+			log("usage: resume-gen[ <number>]")
+			return false
+		}
+
+		if len(parts) == 2 {
+			maybe_generator_number, err := strconv.ParseInt(parts[1], 10, 64)
+			if err != nil {
+				log(fmt.Sprintf("failed to read number: %s", err))
+				return false
+			}
+
+			kernel.GeneratorPaused[maybe_generator_number] = false
+			log(fmt.Sprintf("resumed %d", maybe_generator_number))
+		} else {
+			for i := range kernel.GeneratorPaused {
+				kernel.GeneratorPaused[i] = false
+			}
+			log("resumed all")
+		}
+
 		return true
 	case "clear-gen":
-		internalState.Current_Generator = nil
-		SharedState.Ref().Current_Generator_Name = ""
-		SharedState.Unlock()
-		log("generator cleared")
+		if len(parts) > 2 {
+			log("usage: clear-gen[ <number>]")
+			return false
+		}
+
+		if len(parts) == 2 {
+			maybe_generator_number, err := strconv.ParseInt(parts[1], 10, 64)
+			if err != nil {
+				log(fmt.Sprintf("failed to read number: %s", err))
+				return false
+			}
+
+			kernel.Generators[maybe_generator_number] = nil
+			log(fmt.Sprintf("cleared generator %d", maybe_generator_number))
+		} else {
+			kernel.Generators = make([]*game.Generator, NUM_GENERATORS)
+			empty := ""
+			kernel.CurrentGeneratorName.Set(&empty)
+			log("cleared all generators")
+		}
+
 		return true
 	case "simulate-fight":
 		if len(parts) != 2 {
@@ -674,7 +818,7 @@ func ParseCommand(rawCommand string) bool {
 
 		monster_code := parts[1]
 
-		res, err := game.RunSimulations(s.Character, monster_code, 1)
+		res, err := game.RunSimulations(kernel.CharacterName, monster_code, 1)
 		if err != nil {
 			log(fmt.Sprintf("failed to simulate fight: %s", err))
 			return false
@@ -692,7 +836,7 @@ func ParseCommand(rawCommand string) bool {
 			log(fmt.Sprintf("simulated fight: %d wins, %d losses", wins, losses))
 		} else if len(*res) == 1 {
 			for _, log := range (*res)[0].FightDetails.Logs {
-				utils.Log(log)
+				kernel.Log(log)
 			}
 
 			log(fmt.Sprintf("Cooldown: %d", (*res)[0].Metadata.Cooldown))
@@ -702,33 +846,64 @@ func ParseCommand(rawCommand string) bool {
 
 		return true
 	default:
-		utils.Log(fmt.Sprintf("unknown command: %s", command))
+		kernel.Log(fmt.Sprintf("unknown command: %s", command))
 		return false
 	}
 }
 
-func Gameloop() {
+func Gameloop(kernel *game.Kernel) {
+	// zzz - respect already existing cooldown
+	cd := kernel.CooldownState.ShallowCopy()
+	remaining := time.Until(*cd.End)
+	if remaining.Seconds() > 0 {
+		time.Sleep(remaining)
+	}
+
 	for {
-		shared := SharedState.Ref()
-		num_commands := len(shared.Commands)
-		SharedState.Unlock()
+		commands := kernel.Commands.Ref()
+		num_commands := len(*commands)
+		kernel.Commands.Unlock()
 
 		if num_commands == 0 {
-			if internalState.Current_Generator != nil && !internalState.Generator_Paused {
-				var c = internalState.Current_Generator(internalState.Last_command, internalState.Last_command_success)
-				shared = SharedState.Ref()
-				shared.Commands = append(shared.Commands, c)
-				SharedState.Unlock()
+			numGenerators := len(kernel.Generators)
+			for i := range kernel.Generators {
+				// reverse order
+				idx := numGenerators - 1 - i
+				paused := kernel.GeneratorPaused[idx]
+				if paused {
+					continue
+				}
+
+				gen := kernel.Generators[idx]
+				if gen == nil {
+					continue
+				}
+
+				var c = (*gen)(kernel.Last_command, kernel.Last_command_success)
+				if c == "noop" {
+					kernel.Log(fmt.Sprintf("received noop from generator %d", idx))
+					continue
+				}
+
+				if c == "clear-gen" {
+					c = fmt.Sprintf("clear-gen %d", idx)
+				}
+
+				kernel.Commands.With(func(value *[]string) *[]string {
+					newValue := append(*value, c)
+					return &newValue
+				})
 			}
 		} else {
-			shared := SharedState.Ref()
-			cmd, commands := shared.Commands[0], shared.Commands[1:]
-			shared.Commands = commands
-			SharedState.Unlock()
+			commandsRef := kernel.Commands.Ref()
+			commands := *commandsRef
+			cmd, commands := commands[0], (commands)[1:]
+			kernel.Commands.Value = commands
+			kernel.Commands.Unlock()
 
-			is_success := ParseCommand(cmd)
-			internalState.Last_command = cmd
-			internalState.Last_command_success = is_success
+			is_success := ParseCommand(kernel, cmd)
+			kernel.Last_command = cmd
+			kernel.Last_command_success = is_success
 		}
 
 		// Nothing happened this loop,
@@ -737,15 +912,15 @@ func Gameloop() {
 	}
 }
 
-func PriorityLoop(commands chan string) {
+func PriorityLoop(kernel *game.Kernel) {
 	for {
 		// This loop is for high priority tasks
 		// that need to be done immediately
 		// stuff immune to cooldowns
 
 		select {
-		case cmd := <-commands:
-			ParseCommand(cmd)
+		case cmd := <-kernel.PriorityCommands:
+			ParseCommand(kernel, cmd)
 		default:
 			time.Sleep(100 * time.Millisecond) // 100ms (0.1s)
 		}

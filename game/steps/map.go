@@ -6,6 +6,7 @@ import (
 
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/utils"
 )
 
@@ -26,12 +27,12 @@ func PickClosestMap(coord coords.Coord, maps *[]api.MapTile) *api.MapTile {
 	return &closest
 }
 
-func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error) {
+func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[string]api.MapTile, error) {
 	mapCodeTile := &map[string]api.MapTile{}
 
 	for code, action := range mapCodeAction {
 		if action == "withdraw" {
-			utils.Log(fmt.Sprintf("get from bank: %s", code))
+			kernel.Log(fmt.Sprintf("get from bank: %s", code))
 
 			// :shrug: deal with it
 			(*mapCodeTile)[code] = api.MapTile{
@@ -44,31 +45,67 @@ func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error
 		}
 
 		if action == "fight" {
-			utils.Log(fmt.Sprintf("fight for: %s", code))
+			kernel.Log(fmt.Sprintf("fight for: %s", code))
 
 			monsters, err := api.GetAllMonsters(
 				api.GetAllMonstersParams{Drop: &code},
 			)
 			if err != nil {
-				utils.Log(fmt.Sprintf("failed to get monster info: %s", err))
+				kernel.Log(fmt.Sprintf("failed to get monster info: %s", err))
 				return nil, err
 			}
 
 			if len(*monsters) > 0 {
-				utils.DebugLog(utils.PrettyPrint(monsters))
+				kernel.DebugLog(utils.PrettyPrint(monsters))
 				// TODO: pick the best monster
 				monster_code := (*monsters)[0].Code
-				utils.Log(fmt.Sprintf("monster: %s", monster_code))
+				kernel.Log(fmt.Sprintf("monster: %s", monster_code))
 
 				tiles, err := api.GetAllMapsByContentType("monster", monster_code)
 				if err != nil {
-					utils.Log(fmt.Sprintf("failed to get map info for monster %s: %s", monster_code, err))
+					kernel.Log(fmt.Sprintf("failed to get map info for monster %s: %s", monster_code, err))
 					return nil, err
 				}
 
 				if len(*tiles) == 0 {
-					utils.Log(fmt.Sprintf("no maps for monster %s", monster_code))
-					return nil, err
+					// kernel.Log(fmt.Sprintf("no maps for monster %s", monster_code))
+					// return nil, err
+
+					kernel.Log(fmt.Sprintf("no maps for monster %s, is this an event monster?", monster_code))
+
+					events, err := api.GetAllEvents(1, 100)
+					if err != nil {
+						kernel.Log(fmt.Sprintf("failed to get event info: %s", err))
+						return nil, err
+					}
+
+					if len(*events) == 0 {
+						kernel.Log(fmt.Sprintf("no event info found for %s", monster_code))
+						return nil, fmt.Errorf("no event info found for %s", monster_code)
+					}
+
+					didFindEventInfo := false
+					for _, event := range *events {
+						if event.Content.Code == monster_code {
+							kernel.Log(fmt.Sprintf("event: %s", event.Code))
+							(*mapCodeTile)[code] = api.MapTile{
+								Content: api.MapTileContent{
+									Type: "event",
+									Code: monster_code,
+								},
+							}
+
+							didFindEventInfo = true
+							break
+						}
+					}
+
+					if didFindEventInfo {
+						continue
+					}
+
+					kernel.Log(fmt.Sprintf("no relevant event info found for resource %s", monster_code))
+					return nil, fmt.Errorf("no relevant event info found for resource %s", monster_code)
 				}
 
 				// TODO: pick the best map
@@ -77,53 +114,53 @@ func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error
 				continue
 			} else {
 				// Try to get gather info
-				utils.Log(fmt.Sprintf("no monster drop info for %s", code))
+				kernel.Log(fmt.Sprintf("no monster drop info for %s", code))
 			}
 		}
 
-		utils.Log(fmt.Sprintf("gather for: %s", code))
+		kernel.Log(fmt.Sprintf("gather for: %s", code))
 		resources, err := api.GetAllResources(
 			api.GetAllResourcesParams{Drop: code},
 		)
 		if err != nil {
-			utils.Log(fmt.Sprintf("failed to get resource info: %s", err))
+			kernel.Log(fmt.Sprintf("failed to get resource info: %s", err))
 			return nil, err
 		}
 
 		if len(*resources) == 0 {
-			utils.Log(fmt.Sprintf("no resource info for %s", code))
+			kernel.Log(fmt.Sprintf("no resource info for %s", code))
 			return nil, fmt.Errorf("no resource info for %s", code)
 		}
 
-		utils.DebugLog(utils.PrettyPrint(resources))
+		kernel.DebugLog(utils.PrettyPrint(resources))
 		// TODO: pick the best resource
 		resource_code := (*resources)[0].Code
-		utils.Log(fmt.Sprintf("resource: %s", resource_code))
+		kernel.Log(fmt.Sprintf("resource: %s", resource_code))
 
 		tiles, err := api.GetAllMapsByContentType("resource", resource_code)
 		if err != nil {
-			utils.Log(fmt.Sprintf("failed to get map info for resource %s: %s", resource_code, err))
+			kernel.Log(fmt.Sprintf("failed to get map info for resource %s: %s", resource_code, err))
 			return nil, err
 		}
 
 		if len(*tiles) == 0 {
-			utils.Log(fmt.Sprintf("no maps for resource %s, is this an event resource?", resource_code))
+			kernel.Log(fmt.Sprintf("no maps for resource %s, is this an event resource?", resource_code))
 
 			events, err := api.GetAllEvents(1, 100)
 			if err != nil {
-				utils.Log(fmt.Sprintf("failed to get event info: %s", err))
+				kernel.Log(fmt.Sprintf("failed to get event info: %s", err))
 				return nil, err
 			}
 
 			if len(*events) == 0 {
-				utils.Log(fmt.Sprintf("no event info found for %s", resource_code))
+				kernel.Log(fmt.Sprintf("no event info found for %s", resource_code))
 				return nil, fmt.Errorf("no event info found for %s", resource_code)
 			}
 
 			didFindEventInfo := false
 			for _, event := range *events {
 				if event.Content.Code == resource_code {
-					utils.Log(fmt.Sprintf("event: %s", event.Code))
+					kernel.Log(fmt.Sprintf("event: %s", event.Code))
 					(*mapCodeTile)[code] = api.MapTile{
 						Content: api.MapTileContent{
 							Type: "event",
@@ -140,7 +177,7 @@ func FindMapsForActions(mapCodeAction ActionMap) (*map[string]api.MapTile, error
 				continue
 			}
 
-			utils.Log(fmt.Sprintf("no relevant event info found for resource %s", resource_code))
+			kernel.Log(fmt.Sprintf("no relevant event info found for resource %s", resource_code))
 			return nil, fmt.Errorf("no relevant event info found for resource %s", resource_code)
 		}
 

@@ -39,7 +39,7 @@ func GetDataResponse(url string, params Params) (*DataResponse, error) {
 	}
 
 	text, err := io.ReadAll(res.Body)
-	utils.DebugLog(fmt.Sprintf("response: %s", text))
+	utils.UniversalDebugLog(fmt.Sprintf("response: %s", text))
 
 	if err != nil {
 		return nil, err
@@ -68,13 +68,13 @@ func GetDataResponseFuture[T interface{}](url string, params interface{}, respon
 	case *map[string]string:
 		parsedParams = typedParams
 	default:
-		utils.DebugLog("decoding interface")
+		utils.UniversalDebugLog("decoding interface")
 		marshalledParamsRef, err := utils.MarshallParams(&typedParams)
 		if err != nil {
 			return err
 		}
 
-		utils.DebugLog(fmt.Sprintf("marshalled params: %s", marshalledParamsRef))
+		utils.UniversalDebugLog(fmt.Sprintf("marshalled params: %s", marshalledParamsRef))
 		parsedParams = marshalledParamsRef
 	}
 
@@ -89,7 +89,7 @@ func GetDataResponseFuture[T interface{}](url string, params interface{}, respon
 	}
 
 	text, err := io.ReadAll(res.Body)
-	utils.DebugLog(fmt.Sprintf("response: %s", text))
+	utils.UniversalDebugLog(fmt.Sprintf("response: %s", text))
 
 	if err != nil {
 		return err
@@ -99,11 +99,11 @@ func GetDataResponseFuture[T interface{}](url string, params interface{}, respon
 	var uerr = json.Unmarshal(text, &data)
 
 	if uerr != nil {
-		return err
+		return fmt.Errorf("failed to unmarshall JSON: %s, %s", err, text)
 	}
 
 	if data.Data == nil {
-		return fmt.Errorf("%s", data)
+		return fmt.Errorf("missing data: %v, raw: %s", data, text)
 	}
 
 	err = mapstructure.Decode(data.Data, response)

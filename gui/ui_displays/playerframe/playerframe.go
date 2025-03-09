@@ -1,4 +1,4 @@
-package mainframe
+package playerframe
 
 // gonna move all the mainframe widgets + loop logic here
 // do the same thing for amm after in another file
@@ -9,23 +9,32 @@ import (
 	"strings"
 	"time"
 
-	"artifactsmmo.com/m/gui/backend"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
-	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 	ui "github.com/keaysma/termui/v3"
 	"github.com/keaysma/termui/v3/widgets"
 )
 
+var s = utils.GetSettings()
+var TAB_HEIGHT = s.TabHeight
+
 var commandValue = ""
-var logLines = []string{}
+
+// var logLines = []string{}
 var commandHistory = []string{}
 var commandHistory_ptr = 0
 
 type Mainframe struct {
+	// TODO: Do this... differently?
+	loglines []string
+
+	kernel                    *game.Kernel
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
 	OrderReferenceList        *widgets.Paragraph
+	EquipmentDisplay          *widgets.Table
+	InventoryDisplay          *widgets.List
 	CharacterDisplay          *widgets.Table
 	CooldownGauge             *widgets.Gauge
 	CommandEntry              *widgets.Paragraph
@@ -36,12 +45,11 @@ type Mainframe struct {
 	GaugeSkillGearcrafting    *widgets.Gauge
 	GaugeSkillJewelrycrafting *widgets.Gauge
 	GaugeSkillCooking         *widgets.Gauge
-
-	// Settings
-	TabHeight int
+	GaugeSkillAlchemy         *widgets.Gauge
+	BankItemList              *widgets.List
 }
 
-func Init(s *utils.Settings) *Mainframe {
+func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	logs := widgets.NewParagraph()
 	logs.Title = "Logs"
 	logs.Text = ""
@@ -54,8 +62,21 @@ func Init(s *utils.Settings) *Mainframe {
 	orderReferenceList.Title = "Order Reference"
 	orderReferenceList.Text = ""
 
+	equipmentDisplay := widgets.NewTable()
+	equipmentDisplay.Title = "Equipment"
+	equipmentDisplay.Rows = [][]string{
+		{"", ""},
+		{"", ""},
+	}
+
+	inventoryDisplay := widgets.NewList()
+	inventoryDisplay.Title = "Inventory"
+	inventoryDisplay.Rows = []string{
+		"",
+	}
+
 	characterDisplay := widgets.NewTable()
-	characterDisplay.Title = s.Character
+	characterDisplay.Title = kernel.CharacterName
 	characterDisplay.Rows = [][]string{
 		{"k", "v"},
 	}
@@ -74,11 +95,17 @@ func Init(s *utils.Settings) *Mainframe {
 	gauge_skill_gearcrafting := widgets.NewGauge()
 	gauge_skill_jewelrycrafting := widgets.NewGauge()
 	gauge_skill_cooking := widgets.NewGauge()
+	gauge_skill_alchemy := widgets.NewGauge()
+
+	bankItemsList := widgets.NewList()
 
 	mainframeWigets := Mainframe{
+		kernel:                    kernel,
 		Logs:                      logs,
 		CommandList:               commandList,
 		OrderReferenceList:        orderReferenceList,
+		EquipmentDisplay:          equipmentDisplay,
+		InventoryDisplay:          inventoryDisplay,
 		CharacterDisplay:          characterDisplay,
 		CooldownGauge:             cooldownGauge,
 		CommandEntry:              command_entry,
@@ -89,59 +116,85 @@ func Init(s *utils.Settings) *Mainframe {
 		GaugeSkillGearcrafting:    gauge_skill_gearcrafting,
 		GaugeSkillJewelrycrafting: gauge_skill_jewelrycrafting,
 		GaugeSkillCooking:         gauge_skill_cooking,
-
-		TabHeight: s.TabHeight,
+		GaugeSkillAlchemy:         gauge_skill_alchemy,
+		BankItemList:              bankItemsList,
 	}
 
 	return &mainframeWigets
 }
 
 func (m *Mainframe) Draw() {
-	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking)
+	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking, m.GaugeSkillAlchemy, m.EquipmentDisplay)
 
 	if m.OrderReferenceList.Text != "" {
 		ui.Render(m.OrderReferenceList)
+	} else {
+		ui.Render(m.InventoryDisplay)
+	}
+
+	if m.kernel.BankItemListShown {
+		ui.Render(m.BankItemList)
 	}
 }
 
 func (m *Mainframe) ResizeWidgets(w int, h int) {
-	m.Logs.SetRect(0, m.TabHeight, w/2, h-3)
-	m.CommandList.SetRect(w/2, m.TabHeight, w-(w/4)-1, h-6)
-	m.OrderReferenceList.SetRect(w/2, h-18, w-(w/4)-1, h-6)
-	m.CharacterDisplay.SetRect((3*w)/4, m.TabHeight, w, h-21-6)
-	m.CooldownGauge.SetRect(w/2, h-6, w, h-3)
-	m.CommandEntry.SetRect(0, h-3, w, h)
+	mid_w := w - 72      // w/2
+	last_w := mid_w + 42 // w-(w/4) aka last_w
 
-	base_h := h - 21 - 6
-	m.GaugeSkillMining.SetRect((3*w)/4, base_h, w, base_h+3)
-	m.GaugeSkillWoodcutting.SetRect((3*w)/4, base_h+3, w, base_h+6)
-	m.GaugeSkillFishing.SetRect((3*w)/4, base_h+6, w, base_h+9)
-	m.GaugeSkillWeaponcrafting.SetRect((3*w)/4, base_h+9, w, base_h+12)
-	m.GaugeSkillGearcrafting.SetRect((3*w)/4, base_h+12, w, base_h+15)
-	m.GaugeSkillJewelrycrafting.SetRect((3*w)/4, base_h+15, w, base_h+18)
-	m.GaugeSkillCooking.SetRect((3*w)/4, base_h+18, w, base_h+21)
+	first_h := 14
+	mid_h := h - 21 - 16
+
+	m.Logs.SetRect(0, TAB_HEIGHT, mid_w, h-3)
+
+	// swap commands and equipment (it does look weird though...)
+	// m.CommandList.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+	m.CommandList.SetRect(last_w, first_h+24, w, h-6)
+	m.OrderReferenceList.SetRect(mid_w, h-18, last_w-1, h-6)
+	m.InventoryDisplay.SetRect(mid_w, mid_h, last_w-1, h-6)
+
+	m.CharacterDisplay.SetRect(last_w, TAB_HEIGHT, w, first_h)
+	m.CooldownGauge.SetRect(mid_w, h-6, w, h-3)
+
+	m.GaugeSkillMining.SetRect(last_w, first_h, w, first_h+3)
+	m.GaugeSkillWoodcutting.SetRect(last_w, first_h+3, w, first_h+6)
+	m.GaugeSkillFishing.SetRect(last_w, first_h+6, w, first_h+9)
+	m.GaugeSkillWeaponcrafting.SetRect(last_w, first_h+9, w, first_h+12)
+	m.GaugeSkillGearcrafting.SetRect(last_w, first_h+12, w, first_h+15)
+	m.GaugeSkillJewelrycrafting.SetRect(last_w, first_h+15, w, first_h+18)
+	m.GaugeSkillCooking.SetRect(last_w, first_h+18, w, first_h+21)
+	m.GaugeSkillAlchemy.SetRect(last_w, first_h+21, w, first_h+24)
+
+	// m.EquipmentDisplay.SetRect(last_w, first_h+24, w, h-6)
+	m.EquipmentDisplay.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+
+	m.BankItemList.SetRect(mid_w-36, TAB_HEIGHT+1, mid_w-1, h-4)
+
+	m.CommandEntry.SetRect(0, h-3, w, h)
 }
 
-func (m *Mainframe) Loop(heavy bool) {
+// For rendering-related tasks that should still happen
+// when the current mainframe is not visible
+func (m *Mainframe) BackgroundLoop() {
 	select {
+	case line := <-m.kernel.LogsChannel:
+		m.loglines = append(m.loglines, line)
 	case line := <-utils.LogsChannel:
-		logLines = append(logLines, line)
+		m.loglines = append(m.loglines, line)
 	default:
 	}
 	h := m.Logs.Inner.Dy()
-	if len(logLines) > h {
-		logLines = logLines[max(0, len(logLines)-h):]
+	if len(m.loglines) > h {
+		m.loglines = m.loglines[max(0, len(m.loglines)-h):]
 	}
-	m.Logs.Text = strings.Join(logLines, "\n")
+	m.Logs.Text = strings.Join(m.loglines, "\n")
+}
 
-	generator_name := ""
-	shared := backend.SharedState.Ref()
-	m.CommandList.Text = strings.Join(shared.Commands, "\n")
-	generator_name = shared.Current_Generator_Name
-	backend.SharedState.Unlock()
+func (m *Mainframe) Loop(heavy bool) {
+	m.CommandList.Text = strings.Join(m.kernel.Commands.ShallowCopy(), "\n")
 
+	generator_name := m.kernel.CurrentGeneratorName.ShallowCopy()
 	if generator_name != "" {
-		m.CommandList.Title = fmt.Sprintf("Commands (generator: %s)", generator_name)
+		m.CommandList.Title = fmt.Sprintf("Commands (gen: %s)", generator_name)
 	} else {
 		m.CommandList.Title = "Commands"
 	}
@@ -153,12 +206,13 @@ func (m *Mainframe) Loop(heavy bool) {
 		var max_dur = 1
 		var now = time.Now()
 
-		cd := state.GlobalCooldown.Ref()
-		if cd.End != nil {
-			remaining = cd.End.Sub(now)
-			max_dur = cd.Duration_seconds
-		}
-		state.GlobalCooldown.Unlock()
+		m.kernel.CooldownState.With(func(value *state.CooldownData) *state.CooldownData {
+			if value.End != nil {
+				remaining = value.End.Sub(now)
+				max_dur = value.Duration_seconds
+			}
+			return value
+		})
 
 		if remaining.Seconds() < 0 {
 			remaining = time.Duration(0)
@@ -167,16 +221,9 @@ func (m *Mainframe) Loop(heavy bool) {
 		gauge_value = (remaining.Seconds() / float64(max_dur))
 		m.CooldownGauge.Percent = int(gauge_value * 100)
 
-		var character *types.Character = &types.Character{}
-		char_state := state.GlobalCharacter.Ref()
-		if char_state != nil {
-			*character = *char_state
-		} else {
-			character = nil
-		}
-		state.GlobalCharacter.Unlock()
+		{
+			character := m.kernel.CharacterState.Ref()
 
-		if character != nil {
 			m.CharacterDisplay.Rows = [][]string{
 				{"Position", fmt.Sprintf("(%d, %d)", character.X, character.Y)},
 				{"HP", fmt.Sprintf("%d/%d", character.Hp, character.Max_hp)},
@@ -205,18 +252,70 @@ func (m *Mainframe) Loop(heavy bool) {
 
 			m.GaugeSkillCooking.Title = fmt.Sprintf("Cooking: %d", character.Cooking_level)
 			m.GaugeSkillCooking.Percent = int((float64(character.Cooking_xp) / float64(character.Cooking_max_xp)) * 100)
+
+			m.GaugeSkillAlchemy.Title = fmt.Sprintf("Alchemy: %d", character.Alchemy_level)
+			m.GaugeSkillAlchemy.Percent = int((float64(character.Alchemy_xp) / float64(character.Alchemy_max_xp)) * 100)
+
+			newList := []string{}
+			itemCount, slotCount := 0, 0
+			for _, item := range character.Inventory {
+				entry := fmt.Sprintf("(%d) %s", item.Quantity, item.Code)
+				newList = append(newList, entry)
+				if item.Quantity > 0 {
+					itemCount += item.Quantity
+					slotCount++
+				}
+			}
+			m.InventoryDisplay.Rows = newList
+			m.InventoryDisplay.Title = fmt.Sprintf("Inv (%d/%d) (%d/%d)", slotCount, len(character.Inventory), itemCount, character.Inventory_max_items)
+
+			newEquipmentTable := [][]string{
+				{"weapon", character.Weapon_slot},
+				{"shield", character.Shield_slot},
+				{"helmet", character.Helmet_slot},
+				{"body_armor", character.Body_armor_slot},
+				{"legs_armor", character.Leg_armor_slot},
+				{"amulet", character.Amulet_slot},
+				{"ring1", character.Ring1_slot},
+				{"ring2", character.Ring2_slot},
+				{"utility1", character.Utility1_slot},
+				{"utility2", character.Utility2_slot},
+				{"artifact1", character.Artifact1_slot},
+			}
+			m.EquipmentDisplay.Rows = newEquipmentTable
+
+			m.kernel.CharacterState.Unlock()
 		}
 
 		m.OrderReferenceList.Text = ""
-		ordersList := state.OrderIdsReference.Ref()
-		for i, id := range *ordersList {
-			m.OrderReferenceList.Text += fmt.Sprintf("%d: %s\n", i, id)
+		{
+			ordersList := state.OrderIdsReference.Ref()
+			for i, id := range *ordersList {
+				m.OrderReferenceList.Text += fmt.Sprintf("%d: %s\n", i, id)
+			}
+
+			state.OrderIdsReference.Unlock()
 		}
-		state.OrderIdsReference.Unlock()
+
+		if m.kernel.BankItemListShown {
+			newBankItems := []string{}
+			{
+				bankItems := state.GlobalState.BankState.Ref()
+
+				for _, item := range *bankItems {
+					if m.kernel.BankItemListFilter == nil || strings.Contains(item.Code, *m.kernel.BankItemListFilter) {
+						newBankItems = append(newBankItems, fmt.Sprintf("(%6d) %s", item.Quantity, item.Code))
+					}
+				}
+
+				state.GlobalState.BankState.Unlock()
+			}
+			m.BankItemList.Rows = newBankItems
+		}
 	}
 }
 
-var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight"}
+var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight", "list-bank", "hide-bank"}
 
 func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 	switch event.ID {
@@ -246,24 +345,21 @@ func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 		} else if commandValue == "help" {
 			// utils.Log pushes to log channel and that deadlocks
 			// logLines = append(logLines, "help message")
-			utils.Log("help message")
+			m.kernel.Log("help message")
 		} else if commandValue == "clear" {
-			logLines = []string{}
+			m.loglines = []string{}
 			state.OrderIdsReference.Set(&[]string{})
 		} else if commandValue == "stop" {
-			backend.SharedState.With(func(value *backend.SharedStateType) *backend.SharedStateType {
-				value.Commands = []string{}
-				return value
-			})
-			// } else if strings.Split(commandValue, " ")[0] == "o" || strings.Split(commandValue, " ")[0] == "myo" || strings.Split(commandValue, " ")[0] == "simulate-fight" {
+			m.kernel.Commands.Set(&[]string{})
 		} else if utils.Contains(PRIORITY_COMMANDS, strings.Split(commandValue, " ")[0]) {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
-			backend.PriorityCommands <- commandValue
+			m.kernel.PriorityCommands <- commandValue
 		} else if commandValue != "" {
 			commandHistory = append(commandHistory[max(0, len(commandHistory)-50):], commandValue)
-			shared := backend.SharedState.Ref()
-			shared.Commands = append(shared.Commands, commandValue)
-			backend.SharedState.Unlock()
+			m.kernel.Commands.With(func(value *[]string) *[]string {
+				newValue := append(*value, commandValue)
+				return &newValue
+			})
 		}
 		commandValue = ""
 		commandHistory_ptr = 0

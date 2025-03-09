@@ -3,7 +3,6 @@ package generators
 import (
 	"fmt"
 	"math"
-	"strings"
 	"time"
 
 	"artifactsmmo.com/m/api"
@@ -17,14 +16,14 @@ import (
 var simulationCount = 5
 var totalFightCooldownThreshold = 7000 // 1800.0
 
-func Tasks(task_type string) Generator {
+func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 	var retries = 0
-	log := utils.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
+	log := kernel.LogPre(fmt.Sprintf("[tasks]<%s>", task_type))
 
 	var initialized = false
 
 	// Items Generator state
-	var items_sub_generator *Generator = nil
+	var items_sub_generator *game.Generator = nil
 
 	// Monsters Generator state
 	var monstersMaps *[]api.MapTile
@@ -58,11 +57,16 @@ func Tasks(task_type string) Generator {
 
 		retries = 0
 
-		char := state.GlobalCharacter.Ref()
-		characterName, characterHaste, current_task, current_task_type, task_progress, task_total := char.Name, char.Haste, char.Task, char.Task_type, char.Task_progress, char.Task_total
-		x, y := char.X, char.Y
-		hp, max_hp := char.Hp, char.Max_hp
-		state.GlobalCharacter.Unlock()
+		characterName, characterHaste, current_task, current_task_type, task_progress, task_total := "", 0, "", "", 0, 0
+		x, y := 0, 0
+		hp, max_hp := 0, 0
+		{
+			char := kernel.CharacterState.Ref()
+			characterName, characterHaste, current_task, current_task_type, task_progress, task_total = char.Name, char.Haste, char.Task, char.Task_type, char.Task_progress, char.Task_total
+			x, y = char.X, char.Y
+			hp, max_hp = char.Hp, char.Max_hp
+			kernel.CharacterState.Unlock()
+		}
 
 		if current_task == "" {
 			initialized = false
@@ -77,29 +81,16 @@ func Tasks(task_type string) Generator {
 			return fmt.Sprintf("new-task %s", task_type)
 		}
 
+		// Put away any items we can
+		// make sure we have enough space
+		// for tasks_coin
+		next_command := DepositCheck(kernel, map[string]int{})
+		if next_command != "" {
+			return next_command
+		}
+
 		if task_progress >= task_total {
 			items_sub_generator = nil
-
-			// Put away any items we can
-			// make sure we have enough space
-			// for tasks_coins
-			// next_command := DepositCheck(map[string]int{})
-			// if next_command != "" {
-			// 	return next_command
-			// }
-
-			itemCount := 0
-			char := state.GlobalCharacter.Ref()
-			for _, slot := range char.Inventory {
-				itemCount += slot.Quantity
-			}
-			state.GlobalCharacter.Unlock()
-			log(fmt.Sprintf("Has %d items", itemCount))
-
-			if itemCount > 0 {
-				return "deposit-everything"
-			}
-
 			return "complete-task"
 		}
 
@@ -178,7 +169,18 @@ func Tasks(task_type string) Generator {
 				log(fmt.Sprintf("Total fight cooldown (without rest estimates): %d", totalFightCooldown))
 				log(fmt.Sprintf("Total fight cooldown (with rest estimates): %d", totalCooldown))
 
-				if totalCooldown > totalFightCooldownThreshold {
+				tasksCoinCount := 0
+				{
+					bank := state.GlobalState.BankState.Ref()
+					char := kernel.CharacterState.Ref()
+					tasksCoinCount += utils.CountInventory(&char.Inventory, "task_coin")
+					tasksCoinCount += utils.CountBank(bank, "task_coin")
+
+					kernel.CharacterState.Unlock()
+					state.GlobalState.BankState.Unlock()
+				}
+
+				if totalCooldown > totalFightCooldownThreshold && tasksCoinCount > 0 {
 					log(fmt.Sprintf("Task will take too long, abort task %d > %d", totalCooldown, totalFightCooldownThreshold))
 					return "cancel-task"
 				}
@@ -199,9 +201,8 @@ func Tasks(task_type string) Generator {
 				}
 			}
 
-			startsWithMove := strings.HasPrefix(last, "move")
-			if !startsWithMove && last != "rest" && last != "fight" {
-				closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, monstersMaps)
+			closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, monstersMaps)
+			if x != closest_map.X || y != closest_map.Y {
 				move := fmt.Sprintf("move %d %d", closest_map.X, closest_map.Y)
 				return move
 			}
@@ -214,9 +215,9 @@ func Tasks(task_type string) Generator {
 		}
 
 		if current_task_type == "items" {
-			char := state.GlobalCharacter.Ref()
+			char := kernel.CharacterState.Ref()
 			task_item_count := utils.CountInventory(&char.Inventory, char.Task)
-			state.GlobalCharacter.Unlock()
+			kernel.CharacterState.Unlock()
 
 			// Turn in items if
 			// - We're done with the task
@@ -228,7 +229,7 @@ func Tasks(task_type string) Generator {
 			// now we effectively need to sub-task the entire make or flip gen make
 			if items_sub_generator == nil {
 				log(fmt.Sprintf("building item generator for %s", current_task))
-				generator := Make(current_task, true)
+				generator := Make(kernel, current_task, -1, true)
 				items_sub_generator = &generator
 			}
 

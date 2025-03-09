@@ -8,11 +8,18 @@ import (
 )
 
 type CooldownData struct {
-	// datetime
 	Duration_seconds int
 	End              *time.Time
 }
 
-var GlobalCooldown = utils.SyncData[CooldownData]{}
-var GlobalCharacter = utils.SyncData[types.Character]{}
 var OrderIdsReference = utils.SyncData[[]string]{}
+
+type GlobalStateType struct {
+	BankState utils.SyncData[[]types.InventoryItem]
+}
+
+var GlobalState = GlobalStateType{
+	BankState: utils.SyncData[[]types.InventoryItem]{
+		Value: []types.InventoryItem{},
+	},
+}

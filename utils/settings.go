@@ -6,12 +6,11 @@ import (
 )
 
 type Settings struct {
-	Api_token string
-	Character string
-	Debug     bool
-	Raw       map[string]string
-	TabHeight int
-	// character_name string
+	Api_token      string
+	Start_commands []string
+	Debug          bool
+	Raw            map[string]string
+	TabHeight      int
 }
 
 func GetEnvironMap() map[string]string {
@@ -34,15 +33,20 @@ func GetSettings() *Settings {
 	var raw = GetEnvironMap()
 
 	api_token := raw["token"]
-	character := raw["character"]
 	_, debug := raw["debug"]
 
+	start_commands := []string{}
+	raw_start_commands, has := raw["start_commands"]
+	if has {
+		start_commands = strings.Split(raw_start_commands, ",")
+	}
+
 	var settings = Settings{
-		Api_token: api_token,
-		Character: character,
-		Debug:     debug,
-		Raw:       raw,
-		TabHeight: 3,
+		Api_token:      api_token,
+		Start_commands: start_commands,
+		Debug:          debug,
+		Raw:            raw,
+		TabHeight:      3,
 	}
 
 	return &settings

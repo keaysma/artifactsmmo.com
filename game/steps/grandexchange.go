@@ -7,14 +7,15 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-func ListSellOrders(code string) error {
-	logHead := utils.LogPre("<ge/list-sell-orders> (o): ")
-	log := utils.LogPre("")
+func ListSellOrders(kernel *game.Kernel, code string) error {
+	logHead := kernel.LogPre("<ge/list-sell-orders> (o): ")
+	log := kernel.LogPre("")
 
 	orders, err := api.GetSellOrders(api.GetSellOrdersParams{
 		Code: code,
@@ -45,9 +46,9 @@ func ListSellOrders(code string) error {
 	return nil
 }
 
-func ListMySellOrders(code string) error {
-	logHead := utils.LogPre("<ge/list-my-sell-orders> (o): ")
-	log := utils.LogPre("")
+func ListMySellOrders(kernel *game.Kernel, code string) error {
+	logHead := kernel.LogPre("<ge/list-my-sell-orders> (o): ")
+	log := kernel.LogPre("")
 
 	orders, err := api.GetMySellOrders(
 		api.GetMySellOrdersParams{
@@ -75,8 +76,8 @@ func ListMySellOrders(code string) error {
 	return nil
 }
 
-func CancelOrder(character string, idMaybe string) (*types.Character, error) {
-	log := utils.LogPre("<ge/cancel-order>")
+func CancelOrder(kernel *game.Kernel, idMaybe string) error {
+	log := kernel.LogPre("<ge/cancel-order>")
 
 	// convert idMaybe to int
 	id := idMaybe
@@ -85,7 +86,7 @@ func CancelOrder(character string, idMaybe string) (*types.Character, error) {
 		ordersCache := state.OrderIdsReference.Ref()
 		if refNum < 0 || refNum >= int64(len(*ordersCache)) {
 			log(fmt.Sprintf("invalid order reference %s", idMaybe))
-			return nil, err
+			return err
 		}
 		id = (*ordersCache)[refNum]
 		state.OrderIdsReference.Unlock()
@@ -93,29 +94,29 @@ func CancelOrder(character string, idMaybe string) (*types.Character, error) {
 
 	log(fmt.Sprintf("getting ready to cancel order %s", id))
 
-	_, err = Move(character, coords.GrandExchange)
+	_, err = Move(kernel, coords.GrandExchange)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	res, err := actions.CancelSellOrder(character, id)
+	res, err := actions.CancelSellOrder(kernel.CharacterName, id)
 	if err != nil {
 		log(fmt.Sprintf("failed to cancel order %s: %s", id, err))
-		return nil, err
+		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
-	return &res.Character, nil
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
+	return nil
 }
 
-func Sell(character string, code string, quantity int, minPrice int) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<ge/sell>", character))
+func Sell(kernel *game.Kernel, code string, quantity int, minPrice int) error {
+	log := kernel.LogPre(fmt.Sprintf("[%s]<ge/sell>", kernel.CharacterName))
 
-	_, err := Move(character, coords.GrandExchange)
+	_, err := Move(kernel, coords.GrandExchange)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	sellOrders, err := api.GetSellOrders(
@@ -125,7 +126,7 @@ func Sell(character string, code string, quantity int, minPrice int) (*types.Cha
 	)
 	if err != nil {
 		log(fmt.Sprintf("failed to get sell orders for %s: %s", code, err))
-		return nil, err
+		return err
 	}
 
 	sellOrderHistory, err := api.GetSellOrderHistory(
@@ -134,7 +135,7 @@ func Sell(character string, code string, quantity int, minPrice int) (*types.Cha
 	)
 	if err != nil {
 		log(fmt.Sprintf("failed to get sell order history for %s: %s", code, err))
-		return nil, err
+		return err
 	}
 
 	averageSellPrice := 0
@@ -160,24 +161,24 @@ func Sell(character string, code string, quantity int, minPrice int) (*types.Cha
 	}
 
 	log(fmt.Sprintf("creating sell order for %d %s at %d gp", quantity, code, price))
-	res, err := actions.CreateSellOrder(character, code, quantity, price)
+	res, err := actions.CreateSellOrder(kernel.CharacterName, code, quantity, price)
 	if err != nil {
 		log(fmt.Sprintf("failed to sell %s", code))
-		return nil, err
+		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
-	return &res.Character, nil
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
+	return nil
 }
 
-func Buy(character string, code string, quantity int, maxPrice int) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<ge/buy>", character))
+func Buy(kernel *game.Kernel, code string, quantity int, maxPrice int) error {
+	log := kernel.LogPre(fmt.Sprintf("[%s]<ge/buy>", kernel.CharacterName))
 
-	_, err := Move(character, coords.GrandExchange)
+	_, err := Move(kernel, coords.GrandExchange)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	sellOrders, err := api.GetSellOrders(
@@ -187,12 +188,12 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 	)
 	if err != nil {
 		log(fmt.Sprintf("failed to get sell orders for %s: %s", code, err))
-		return nil, err
+		return err
 	}
 
 	if len(*sellOrders) == 0 {
 		log(fmt.Sprintf("no sell orders for %s", code))
-		return nil, err
+		return err
 	}
 
 	var bestOrder *types.SellOrderEntry = nil
@@ -207,24 +208,24 @@ func Buy(character string, code string, quantity int, maxPrice int) (*types.Char
 	// Price Check is done implicitly
 	if bestOrder == nil {
 		log(fmt.Sprintf("no sell orders for %s below %d gp", code, maxPrice))
-		return nil, err
+		return err
 	}
 
 	log(fmt.Sprintf("hitting sell order %s, buying %d %s at %d gp", bestOrder.Id, quantity, code, bestOrder.Price))
-	res, err := actions.HitSellOrder(character, bestOrder.Id, quantity)
+	res, err := actions.HitSellOrder(kernel.CharacterName, bestOrder.Id, quantity)
 	if err != nil {
 		log(fmt.Sprintf("failed to buy %s", code))
-		return nil, err
+		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
-	return &res.Character, nil
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
+	return nil
 }
 
-func HitOrder(character string, idMaybe string, quantity int) (*types.Character, error) {
-	log := utils.LogPre("<ge/hit-order>")
+func HitOrder(kernel *game.Kernel, idMaybe string, quantity int) error {
+	log := kernel.LogPre("<ge/hit-order>")
 
 	// convert idMaybe to int
 	id := idMaybe
@@ -233,15 +234,15 @@ func HitOrder(character string, idMaybe string, quantity int) (*types.Character,
 		ordersCache := state.OrderIdsReference.Ref()
 		if refNum < 0 || refNum >= int64(len(*ordersCache)) {
 			log(fmt.Sprintf("invalid order reference %s", idMaybe))
-			return nil, err
+			return err
 		}
 		id = (*ordersCache)[refNum]
 		state.OrderIdsReference.Unlock()
 	}
 
-	_, err = Move(character, coords.GrandExchange)
+	_, err = Move(kernel, coords.GrandExchange)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	orderQuantity := quantity
@@ -249,7 +250,7 @@ func HitOrder(character string, idMaybe string, quantity int) (*types.Character,
 		info, err := api.GetSellOrder(id)
 		if err != nil {
 			log(fmt.Sprintf("failed to get order %s: %s", id, err))
-			return nil, err
+			return err
 		}
 
 		log(fmt.Sprintf("order %s has %d items", id, info.Quantity))
@@ -257,14 +258,14 @@ func HitOrder(character string, idMaybe string, quantity int) (*types.Character,
 		orderQuantity = info.Quantity
 	}
 
-	res, err := actions.HitSellOrder(character, id, orderQuantity)
+	res, err := actions.HitSellOrder(kernel.CharacterName, id, orderQuantity)
 	if err != nil {
 		log(fmt.Sprintf("failed to hit order  %s: %s", id, err))
-		return nil, err
+		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(res.Order))
-	state.GlobalCharacter.Set(&res.Character)
-	api.WaitForDown(res.Cooldown)
-	return &res.Character, nil
+	kernel.DebugLog(utils.PrettyPrint(res.Order))
+	kernel.CharacterState.Set(&res.Character)
+	kernel.WaitForDown(res.Cooldown)
+	return nil
 }

@@ -5,12 +5,13 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/utils"
 )
 
-func EquipItem(character string, code string, slot string, quantity int) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<equip>: ", character))
-	char, err := api.GetCharacterByName(character)
+func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) error {
+	log := kernel.LogPre(fmt.Sprintf("[%s]<equip>: ", kernel.CharacterName))
+	char, err := api.GetCharacterByName(kernel.CharacterName)
 	if err != nil {
 		log("failed to get character info")
 		return err
@@ -38,7 +39,7 @@ func EquipItem(character string, code string, slot string, quantity int) error {
 	curSlot := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(selectedSlot))).String()
 	if curSlot != "" {
 		log(fmt.Sprintf("unequipping %d %s from %s", quantity, curSlot, selectedSlot))
-		err = UnequipItem(character, selectedSlot, 1)
+		err = UnequipItem(kernel, selectedSlot, 1)
 		if err != nil {
 			log(fmt.Sprintf("failed to unequip %s", selectedSlot))
 			return err
@@ -47,28 +48,30 @@ func EquipItem(character string, code string, slot string, quantity int) error {
 
 	log(fmt.Sprintf("equipping %d %s to %s", quantity, code, selectedSlot))
 
-	mres, err := actions.EquipItem(character, code, selectedSlot, quantity)
+	mres, err := actions.EquipItem(kernel.CharacterName, code, selectedSlot, quantity)
 	if err != nil {
 		log(fmt.Sprintf("failed to equip %d %s to %s", quantity, code, selectedSlot))
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(mres.Item))
-	api.WaitForDown(mres.Cooldown)
+	kernel.DebugLog(utils.PrettyPrint(mres.Item))
+	kernel.CharacterState.Set(&mres.Character)
+	kernel.WaitForDown(mres.Cooldown)
 	return nil
 }
 
-func UnequipItem(character string, slot string, quantity int) error {
-	log := utils.LogPre(fmt.Sprintf("[%s]<unequip>: ", character))
+func UnequipItem(kernel *game.Kernel, slot string, quantity int) error {
+	log := kernel.LogPre(fmt.Sprintf("[%s]<unequip>: ", kernel.CharacterName))
 	log(fmt.Sprintf("enequipping %d from %s", quantity, slot))
 
-	mres, err := actions.UnequipItem(character, slot, quantity)
+	mres, err := actions.UnequipItem(kernel.CharacterName, slot, quantity)
 	if err != nil {
 		log(fmt.Sprintf("failed to unequip %d from %s", quantity, slot))
 		return err
 	}
 
-	utils.DebugLog(utils.PrettyPrint(mres.Item))
-	api.WaitForDown(mres.Cooldown)
+	kernel.DebugLog(utils.PrettyPrint(mres.Item))
+	kernel.CharacterState.Set(&mres.Character)
+	kernel.WaitForDown(mres.Cooldown)
 	return nil
 }

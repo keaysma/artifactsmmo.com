@@ -10,7 +10,7 @@ import (
 func PrettyPrint(data interface{}) string {
 	out, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
-		DebugLog(fmt.Sprintf("Error pretty printing: %s", err))
+		UniversalDebugLog(fmt.Sprintf("Error pretty printing: %s", err))
 		return ""
 	}
 

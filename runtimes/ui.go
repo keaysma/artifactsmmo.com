@@ -2,24 +2,25 @@ package runtimes
 
 import (
 	"log"
-	"os"
+	"strings"
 	"time"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/gui/backend"
-	"artifactsmmo.com/m/gui/mainframe"
-	"artifactsmmo.com/m/state"
-	"artifactsmmo.com/m/types"
+	"artifactsmmo.com/m/gui/ui_displays/playerframe"
 	"artifactsmmo.com/m/utils"
 	ui "github.com/keaysma/termui/v3"
 	"github.com/keaysma/termui/v3/widgets"
 )
 
 var s = utils.GetSettings()
+var kernels = map[string]*game.Kernel{}
 
 type GUIWidget struct {
 	Draw                func()
 	ResizeWidgets       func(w int, h int)
+	BackgroundLoop      func()
 	Loop                func(heavy bool)
 	HandleKeyboardInput func(event ui.Event)
 }
@@ -31,7 +32,14 @@ func (g *GUIWidget) WidgetList() []ui.Drawable {
 var wxs = []GUIWidget{}
 
 func UI() {
-	err := ui.Init()
+	var err error
+
+	characters, err := api.GetAllCharacters()
+	if err != nil {
+		log.Fatalf("failed to get characters: %s", err)
+	}
+
+	err = ui.Init()
 	if err != nil {
 		log.Fatalf("failed to initialize termui: %s", err)
 	}
@@ -43,67 +51,60 @@ func UI() {
 	// 	panic(err)
 	// }
 
-	// tabs := widgets.NewTabPane("mainframe", "charts", "md")
-	tabs := widgets.NewTabPane("mainframe")
+	characterNames := []string{}
+	for i, character := range *characters {
+		characterNames = append(characterNames, character.Name)
+		kernels[character.Name] = backend.NewKernel(character)
+
+		start_commands := []string{}
+		if len(s.Start_commands) > i {
+			raw_start_commands := s.Start_commands[i]
+			start_commands = strings.Split(raw_start_commands, ";")
+		}
+		kernels[character.Name].Commands.Set(&start_commands)
+	}
+
+	tabs := widgets.NewTabPane(characterNames...)
 	tabs.Border = true
 
-	mainframeWidgets := mainframe.Init(s)
-	wxs = append(wxs, GUIWidget{
-		Draw:                mainframeWidgets.Draw,
-		ResizeWidgets:       mainframeWidgets.ResizeWidgets,
-		Loop:                mainframeWidgets.Loop,
-		HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
-	})
-
-	// chartsWidgets := charts.Init(s, conn)
-	// wxs = append(wxs, GUIWidget{
-	// 	Draw:                chartsWidgets.Draw,
-	// 	ResizeWidgets:       chartsWidgets.ResizeWidgets,
-	// 	Loop:                chartsWidgets.Loop,
-	// 	HandleKeyboardInput: chartsWidgets.HandleKeyboardInput,
-	// })
-
-	char, err := api.GetCharacterByName(s.Character)
-	if err != nil {
-		log.Fatalf("failed to get character info for %s: %s", s.Character, err)
-		os.Exit(1)
-	}
-	if char == nil {
-		log.Fatalf("char is nil: %s", err)
-	}
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character { return char })
-
-	// If this fails let's just ignore it, not critical
-	end, err := time.Parse(time.RFC3339, char.Cooldown_expiration)
-	if err == nil {
-		state.GlobalCooldown.Set(&state.CooldownData{
-			Duration_seconds: char.Cooldown,
-			End:              &end,
+	for _, characterName := range characterNames {
+		mainframeWidgets := playerframe.Init(s, kernels[characterName])
+		wxs = append(wxs, GUIWidget{
+			Draw:                mainframeWidgets.Draw,
+			ResizeWidgets:       mainframeWidgets.ResizeWidgets,
+			BackgroundLoop:      mainframeWidgets.BackgroundLoop,
+			Loop:                mainframeWidgets.Loop,
+			HandleKeyboardInput: mainframeWidgets.HandleKeyboardInput,
 		})
 	}
 
-	go backend.Gameloop()
-	go backend.PriorityLoop(backend.PriorityCommands)
+	// go backend.Gameloop()
+	// go backend.PriorityLoop(backend.PriorityCommands)
+	for _, characterName := range characterNames {
+		kernel := kernels[characterName]
+		go backend.Gameloop(kernel)
+		go backend.PriorityLoop(kernel)
+	}
 
+	heavy := 0
 	draw := func() {
-		wxs[tabs.ActiveTabIndex].Draw()
 		ui.Render(tabs)
+		wxs[tabs.ActiveTabIndex].Draw()
+		wxs[tabs.ActiveTabIndex].Loop(heavy == 0)
 	}
 
 	resize := func(w int, h int) {
-		tabHeight := 3
-		tabs.SetRect(0, 0, w, tabHeight)
+		tabs.SetRect(0, 0, w, s.TabHeight)
 		wxs[tabs.ActiveTabIndex].ResizeWidgets(w, h)
+		draw()
 	}
 
 	w, h := ui.TerminalDimensions()
-	resize(w, h)
-	draw()
-
-	heavy := 0
-	loop := func() {
-		wxs[tabs.ActiveTabIndex].Loop(heavy == 0)
-		heavy = (heavy + 1) % 6
+	// resize(w, h) - resize ALL frames once
+	tabs.SetRect(0, 0, w, s.TabHeight)
+	for _, wx := range wxs {
+		wx.ResizeWidgets(w, h)
+		wx.Draw()
 	}
 
 	uiEvents := ui.PollEvents()
@@ -111,19 +112,30 @@ func UI() {
 		select {
 		case event := <-uiEvents:
 			switch event.Type {
+			case ui.MouseEvent:
+				switch event.ID {
+				case "MouseWheelUp":
+					// decrease offset
+				case "MouseWheelDown":
+					// increase offset
+				default:
+					// case "MouseLeft":
+					// case "MouseRelease":
+					// case "MouseRight":
+				}
 			case ui.ResizeEvent:
-				payload := event.Payload.(ui.Resize)
-				resize(payload.Width, payload.Height)
-
+				resize(ui.TerminalDimensions())
 			case ui.KeyboardEvent:
 				switch event.ID {
 				// no-ops
 				case "<Escape>":
 				case "<C-c>", "<C-v>":
 				case "<Left>":
+					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex - 1 + len(tabs.TabNames)) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
 				case "<Right>":
+					heavy = 0
 					tabs.ActiveTabIndex = (tabs.ActiveTabIndex + 1) % len(tabs.TabNames)
 					resize(ui.TerminalDimensions())
 				default:
@@ -133,8 +145,12 @@ func UI() {
 		default:
 		}
 
-		loop()
+		heavy = (heavy + 1) % 6
 		draw()
+
+		for _, wx := range wxs {
+			wx.BackgroundLoop()
+		}
 
 		time.Sleep(50_000_000)
 

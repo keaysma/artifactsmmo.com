@@ -4,20 +4,20 @@ import (
 	"fmt"
 
 	"artifactsmmo.com/m/api"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
-var INVENTORY_CLEAR_THRESHOLD = 1.0 // 0.9
+var INVENTORY_CLEAR_THRESHOLD = 0.9
 var BANK_CLEAR_THRESHOLD = 1.0
 
-func DepositCheck(needsCodeQuantity map[string]int) string {
-	log := utils.LogPre("<deposit-check>: ")
+func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string {
+	log := kernel.LogPre("<deposit-check>: ")
 	heldCodeQuantity := map[string]int{}
 
-	char := state.GlobalCharacter.Ref()
+	char := kernel.CharacterState.Ref()
 	currentFilledSlots := 0
 	totalSlots := len(char.Inventory)
 	currentInventoryCount := 0
@@ -29,7 +29,7 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 			currentFilledSlots++
 		}
 	}
-	state.GlobalCharacter.Unlock()
+	kernel.CharacterState.Unlock()
 
 	if float64(currentInventoryCount) < (float64(maxInventoryCount)*INVENTORY_CLEAR_THRESHOLD) && currentFilledSlots < totalSlots {
 		// Inventory is not full
@@ -39,7 +39,7 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 
 	// Special case: Our inventory is full of auxiliary items
 	// Time to put some stuff in the bank
-	bankItems, err := steps.GetAllBankItems()
+	bankItems, err := steps.GetAllBankItems(false)
 	if err != nil {
 		log(fmt.Sprintf("Check failed, fetching bank items was unsuccessful: %s", err))
 		return "sleep 5"
@@ -108,12 +108,12 @@ func DepositCheck(needsCodeQuantity map[string]int) string {
 	return "clear-gen"
 }
 
-func WithdrawCheck(needsCodeQuantity map[string]int, targetItemCode string) string {
+func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, targetItemCode string) string {
 	// targetItemCode is the item we're trying to make
 	// do not consider it when calculating how much space we need
 	// to make that item
 
-	log := utils.LogPre("<withdraw-check>: ")
+	log := kernel.LogPre("<withdraw-check>: ")
 	heldCodeQuantity := map[string]int{}
 
 	spaceRequiredPerCraft := 0
@@ -128,14 +128,14 @@ func WithdrawCheck(needsCodeQuantity map[string]int, targetItemCode string) stri
 	// Incase there are 0 requirements for the item
 	spaceRequiredPerCraft = max(1, spaceRequiredPerCraft)
 
-	char := state.GlobalCharacter.Ref()
+	char := kernel.CharacterState.Ref()
 	currentInventoryCount := 0
 	maxInventoryCount := char.Inventory_max_items
 	for _, slot := range char.Inventory {
 		heldCodeQuantity[slot.Code] = slot.Quantity
 		currentInventoryCount += slot.Quantity
 	}
-	state.GlobalCharacter.Unlock()
+	kernel.CharacterState.Unlock()
 
 	freeSpace := maxInventoryCount - currentInventoryCount
 	log(fmt.Sprintf("free space: %d", freeSpace))
@@ -146,7 +146,7 @@ func WithdrawCheck(needsCodeQuantity map[string]int, targetItemCode string) stri
 	maxCanMake := max(1, float64(freeSpace)/float64(spaceRequiredPerCraft))
 	log(fmt.Sprintf("max can make: %f", maxCanMake))
 
-	bankItems, err := steps.GetAllBankItems()
+	bankItems, err := steps.GetAllBankItems(false)
 	if err != nil {
 		log(fmt.Sprintf("Check failed, fetching bank items was unsuccessful: %s", err))
 		return "sleep 5"
@@ -190,96 +190,88 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, skill_map *map[string]api.MapTile, last string, top bool) string {
-	log := utils.DebugLogPre("<next-make-action>: ")
-
+func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, log func(string), skill_map *map[string]api.MapTile, last string, top bool) (string, bool) {
 	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
-		return ""
+		return "", top
 	}
 
 	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
 		tile, ok := (*skill_map)[component.Code]
 		if !ok {
-			utils.Log(fmt.Sprintf("no map for resource %s", component.Code))
-			return "cancel-task"
+			log(fmt.Sprintf("no map for resource %s", component.Code))
+			return "cancel-task", top
 		}
 
 		if tile.Content.Type == "event" {
-			// want to skip events for now
-			// they tend to take too much time
-			return "cancel-task"
+			log(fmt.Sprintf("find event tile for resource %s", component.Code))
+			events, err := api.GetAllActiveEvents(1, 100)
+			if err != nil {
+				log(fmt.Sprintf("failed to get event info: %s", err))
+				return "sleep 10", top
+			}
 
-			/*
-				utils.Log(fmt.Sprintf("find event tile for resource %s", component.Code))
-				events, err := api.GetAllActiveEvents(1, 100)
-				if err != nil {
-					utils.Log(fmt.Sprintf("failed to get event info: %s", err))
-					return "sleep 10"
-				}
+			if len(*events) == 0 {
+				log(fmt.Sprintf("no event info found for %s", component.Code))
+				return "noop", top // return "sleep 10"
+			}
 
-				if len(*events) == 0 {
-					utils.Log(fmt.Sprintf("no event info found for %s", component.Code))
-					return "sleep 10"
-				}
-
-				didFindActiveEvent := false
-				for _, event := range *events {
-					if event.Map.Content.Code == tile.Content.Code {
-						didFindActiveEvent = true
-						utils.Log(fmt.Sprintf("event: %s", event.Code))
-						if character.X != event.Map.X || character.Y != event.Map.Y {
-							return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y)
-						}
+			didFindActiveEvent := false
+			for _, event := range *events {
+				if event.Map.Content.Code == tile.Content.Code {
+					didFindActiveEvent = true
+					log(fmt.Sprintf("event: %s", event.Code))
+					if character.X != event.Map.X || character.Y != event.Map.Y {
+						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y), top
 					}
 				}
+			}
 
-				if !didFindActiveEvent {
-					utils.Log(fmt.Sprintf("no active events for %s, tile %s - sleep", component.Code, tile.Content.Code))
-					return "sleep 10"
-				}
-			*/
+			if !didFindActiveEvent {
+				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
+				return "noop", top // "sleep 10", top
+			}
 		} else if character.X != tile.X || character.Y != tile.Y {
 			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
-			utils.DebugLog(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
-			return move
+			log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
+			return move, top
 		}
 
 		switch component.Action {
 		case "gather":
-			return "gather"
+			return "gather", top
 		case "fight":
 			if steps.FightHpSafetyCheck(character.Hp, character.Max_hp) {
-				return "fight"
+				return "fight", top
 			} else {
-				return "rest"
+				return "rest", top
 			}
 		case "withdraw":
 			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
-			return withdraw
+			return withdraw, top
 		default:
 			log(fmt.Sprintf("HOW DID WE GET HERE??? action is %s", component.Action))
-			return "clear-gen"
+			return "clear-gen", top
 		}
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command := NextMakeAction(&subcomponent, character, skill_map, last, false)
+		next_command, is_top := NextMakeAction(&subcomponent, character, log, skill_map, last, false)
 		if next_command != "" {
-			return next_command
+			return next_command, is_top
 		}
 	}
 
-	return fmt.Sprintf("auto-craft %d %s", 1, component.Code) // component.Quantity
+	return fmt.Sprintf("auto-craft %d %s", 1, component.Code), top // component.Quantity
 }
 
-func Make(code string, needsFinishedItem bool) Generator {
+func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) game.Generator {
 	// needsFinishedItem:
 	// ... sometimes we want to permit putting the finished product in the bank (we're skilling, need more space to make more items)
 	// ... other times we need to hold on to that finished item (we're doing tasks, need to turn these finished items in to the task master)
 
 	data, err := steps.GetItemComponentsTree(code)
 	if err != nil {
-		utils.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
+		kernel.Log(fmt.Sprintf("failed to get details on %s: %s", code, err))
 		return Clear_gen
 	}
 
@@ -289,16 +281,22 @@ func Make(code string, needsFinishedItem bool) Generator {
 	var mapCodeAction = steps.ActionMap{}
 	steps.BuildItemActionMapFromComponentTree(data, &mapCodeAction)
 
-	resource_tile_map, err := steps.FindMapsForActions(mapCodeAction)
+	resource_tile_map, err := steps.FindMapsForActions(kernel, mapCodeAction)
 	if err != nil || resource_tile_map == nil || len(*resource_tile_map) == 0 {
-		utils.Log(fmt.Sprintf("failed to get map info: %s", err))
+		kernel.Log(fmt.Sprintf("failed to get map info: %s", err))
 		return Clear_gen
 	}
 
 	var retries = 0
+	var finished_count = 0
 
 	return func(last string, success bool) string {
 		next_command := "clear-gen"
+
+		kernel.Log(fmt.Sprintf("goal: %d, finished: %d", count, finished_count))
+		if count > 0 && finished_count >= count {
+			return next_command
+		}
 
 		if !success {
 			// temporary - retry last command
@@ -321,24 +319,29 @@ func Make(code string, needsFinishedItem bool) Generator {
 
 		retries = 0
 
-		next_command = DepositCheck(countByResource)
+		next_command = DepositCheck(kernel, countByResource)
 		if next_command != "" {
 			return next_command
 		}
 
-		next_command = WithdrawCheck(countByResource, code)
+		next_command = WithdrawCheck(kernel, countByResource, code)
 		if next_command != "" {
 			return next_command
 		}
 
-		char := state.GlobalCharacter.Ref()
-		next_command = NextMakeAction(data, char, resource_tile_map, last, true)
-		state.GlobalCharacter.Unlock()
+		is_top := false
+		log := kernel.DebugLogPre("<next-make-action>: ")
+		{
+			char := kernel.CharacterState.Ref()
+			next_command, is_top = NextMakeAction(data, char, log, resource_tile_map, last, true)
+			kernel.CharacterState.Unlock()
+		}
 
-		// state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		// 	next_command = get_next_command(data, value, resource_tile_map, last, true)
-		// 	return value
-		// })
+		log(fmt.Sprintf("next command: %s, (is_top: %v)", next_command, is_top))
+
+		if is_top {
+			finished_count++
+		}
 
 		return next_command
 	}

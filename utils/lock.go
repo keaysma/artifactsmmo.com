@@ -33,4 +33,10 @@ func (t *SyncData[T]) Set(new_value *T) {
 	t.lock.Unlock()
 }
 
+func (t *SyncData[T]) ShallowCopy() T {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	return t.Value
+}
+
 // var TestData = SyncData[int]{value: 4}

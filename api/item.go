@@ -10,7 +10,7 @@ import (
 type ItemDetailResponse = types.ItemDetails
 
 func GetItemDetails(code string) (*ItemDetailResponse, error) {
-	utils.Log(fmt.Sprintf("Getting item details for %s", code))
+	utils.UniversalDebugLog(fmt.Sprintf("Getting item details for %s", code))
 	var out ItemDetailResponse
 	err := GetDataResponseFuture(
 		fmt.Sprintf("items/%s", code),

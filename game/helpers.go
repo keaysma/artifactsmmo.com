@@ -1,14 +1,6 @@
-package api
+package game
 
-import (
-	"fmt"
-	"time"
-
-	"artifactsmmo.com/m/state"
-	"artifactsmmo.com/m/types"
-	"artifactsmmo.com/m/utils"
-)
-
+/*
 func WaitForDown(cooldown types.Cooldown) {
 	if cooldown.Remaining_seconds <= 0 {
 		return
@@ -32,3 +24,4 @@ func WaitForDown(cooldown types.Cooldown) {
 	utils.Log(fmt.Sprintf("Cooldown remaining: %d", cooldown.Remaining_seconds))
 	time.Sleep(time.Duration(cooldown.Remaining_seconds) * time.Second)
 }
+*/

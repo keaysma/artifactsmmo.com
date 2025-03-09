@@ -6,32 +6,32 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	coords "artifactsmmo.com/m/consts/places"
-	"artifactsmmo.com/m/state"
+	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
 // Just craft
-func Craft(character string, code string, quantity int) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<craft>: ", character))
+func Craft(kernel *game.Kernel, code string, quantity int) (*types.Character, error) {
+	log := kernel.LogPre(fmt.Sprintf("[%s]<craft>: ", kernel.CharacterName))
 
-	mres, err := actions.Craft(character, code, quantity)
+	mres, err := actions.Craft(kernel.CharacterName, code, quantity)
 	if err != nil {
 		log(fmt.Sprintf("Failed to craft %s", code))
 		return nil, err
 	}
 
-	utils.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Details)))
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
+	kernel.DebugLog(fmt.Sprintln(utils.PrettyPrint(mres.Details)))
+	kernel.CharacterState.With(func(value *types.Character) *types.Character {
 		return &mres.Character
 	})
-	api.WaitForDown(mres.Cooldown)
+	kernel.WaitForDown(mres.Cooldown)
 	return &mres.Character, nil
 }
 
 // Automatically handles inventory check, getting to location, and Crafting
-func AutoCraft(character string, code string, quantity int) (*types.Character, error) {
-	log := utils.LogPre(fmt.Sprintf("[%s]<autocraft>: ", character))
+func AutoCraft(kernel *game.Kernel, code string, quantity int) (*types.Character, error) {
+	log := kernel.LogPre(fmt.Sprintf("[%s]<autocraft>: ", kernel.CharacterName))
 
 	res, err := api.GetItemDetails(code)
 	if err != nil {
@@ -39,15 +39,12 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 		return nil, err // fmt.Errorf("failed to get details on %s: %s", code, err)
 	}
 
-	char, err := api.GetCharacterByName(character)
+	char, err := api.GetCharacterByName(kernel.CharacterName)
 	if err != nil {
 		log("failed to get character info")
 		return nil, err
 	}
-
-	state.GlobalCharacter.With(func(value *types.Character) *types.Character {
-		return char
-	})
+	kernel.CharacterState.Set(char)
 
 	for _, component := range res.Craft.Items {
 		cur_count := utils.CountInventory(&char.Inventory, component.Code)
@@ -77,13 +74,12 @@ func AutoCraft(character string, code string, quantity int) (*types.Character, e
 		},
 		tiles,
 	)
-	var place *coords.Coord = &coords.Coord{X: tile.X, Y: tile.Y, Name: tile.Name}
 
-	_, move_err := Move(character, *place)
+	_, move_err := Move(kernel, tile.IntoCoord())
 	if move_err != nil {
 		log("failed to move character")
 		return nil, err
 	}
 
-	return Craft(character, code, quantity)
+	return Craft(kernel, code, quantity)
 }
