@@ -109,7 +109,14 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 				}
 
 				// TODO: pick the best map
-				(*mapCodeTile)[code] = (*tiles)[0]
+				for _, tile := range *tiles {
+					if tile.Content.Code != monster_code {
+						continue
+					}
+
+					(*mapCodeTile)[code] = tile
+					break
+				}
 
 				continue
 			} else {
