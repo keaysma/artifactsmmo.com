@@ -9,17 +9,24 @@ My implementation of an artifacts-mmo API client, written in Golang
     - [x] a display of bank items, can be toggled into view using something like `ctrl+b` (`<C-b>`) or maybe just `<`, similar to how orders work (then orders could be viewed with `>`) - `list-bank` does the displaying - I did this PER CHARACTER, which was a mistake, but it's actually highly useful as it allows you to compare/contrast lists
     - [x] a `bank-has` command to filter entire bank list for searching - `list-bank [part-of-a-code]` and also `hide-bank`
     - [x] Use the cached bank state to make bank decisions, only busting cache when a bank operation is done
-- [ ] Something like generators that looks out for events and acts on them while they're active
-- [ ] Command history per kernel
-- [ ] Improve error handling for generators
-- [ ] Scrolling on logs
-- [ ] Cache static responses
+- [x] Something like generators that looks out for events and acts on them while they're active
+- [ ] display of all active generators
+- [ ] Fighting armor + weapon set picker
+    - [ ] `find` command that accepts params and finds items that match that description
+- [ ] `move to:<monster/resource>` to move to the closest monster/resource
+- [ ] `go-equip` or something to equip from bank
+- [ ] Generators do not "lock in" event locations when active - `gen make demon_horn` when demons are present ends up getting stuck after the event ends
 - [ ] Revised fight simulator
     - [ ] Includes items
     - [ ] Includes crits
     - [ ] Includes enemy dodging
     - [ ] Can be forced to include nothing
-- [ ] Fighting armor + weapon set picker
+- [ ] Scrolling on logs
+- [ ] Command history per kernel
+- [ ] Cache static responses
+    - [x] events
+    - [ ] map locations
+- [ ] Improve error handling for generators
 - [ ] Better inventory management in generators
 - [ ] Season 4 market automation
 
