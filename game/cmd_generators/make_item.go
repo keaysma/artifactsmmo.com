@@ -14,7 +14,7 @@ var INVENTORY_CLEAR_THRESHOLD = 0.9
 var BANK_CLEAR_THRESHOLD = 1.0
 
 func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string {
-	log := kernel.LogPre("<deposit-check>: ")
+	log := kernel.DebugLogPre("<deposit-check>: ")
 	heldCodeQuantity := map[string]int{}
 
 	char := kernel.CharacterState.Ref()
@@ -23,11 +23,13 @@ func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string 
 	currentInventoryCount := 0
 	maxInventoryCount := char.Inventory_max_items
 	for _, slot := range char.Inventory {
+		if slot.Code == "" {
+			continue
+		}
+
 		heldCodeQuantity[slot.Code] = slot.Quantity
 		currentInventoryCount += slot.Quantity
-		if slot.Code != "" {
-			currentFilledSlots++
-		}
+		currentFilledSlots++
 	}
 	kernel.CharacterState.Unlock()
 
@@ -45,7 +47,13 @@ func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string 
 		return "sleep 5"
 	}
 
-	maxBankCount := len(*bankItems)
+	bankDetails, err := steps.GetBankDetails()
+	if err != nil {
+		log(fmt.Sprintf("Check failed, fetching bank details was unsuccessful: %s", err))
+		return "sleep 5"
+	}
+
+	maxBankCount := bankDetails.Slots
 	currentBankCount := 0
 	bankCodeQuantity := map[string]int{}
 	for _, slot := range *bankItems {
@@ -113,7 +121,7 @@ func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, target
 	// do not consider it when calculating how much space we need
 	// to make that item
 
-	log := kernel.LogPre("<withdraw-check>: ")
+	log := kernel.DebugLogPre("<withdraw-check>: ")
 	heldCodeQuantity := map[string]int{}
 
 	spaceRequiredPerCraft := 0
@@ -339,7 +347,7 @@ func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) g
 
 		log(fmt.Sprintf("next command: %s, (is_top: %v)", next_command, is_top))
 
-		if is_top {
+		if is_top && next_command != "noop" {
 			finished_count++
 		}
 
