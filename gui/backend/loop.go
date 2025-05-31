@@ -893,6 +893,8 @@ func Gameloop(kernel *game.Kernel) {
 					newValue := append(*value, c)
 					return &newValue
 				})
+
+				break
 			}
 		} else {
 			commandsRef := kernel.Commands.Ref()
