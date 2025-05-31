@@ -14,6 +14,19 @@ import (
 type BankDepositCodeCb func(item types.InventorySlot) bool
 type BankDepositQuantityCb func(item types.InventorySlot) int
 
+func GetBankDetails() (*api.BankDetailsResponse, error) {
+	curState := state.GlobalState.BankDetails.Ref()
+	if *curState != nil {
+		// Potential for disaster?
+		ref := **curState
+		state.GlobalState.BankDetails.Unlock()
+		return &ref, nil
+	}
+	state.GlobalState.BankDetails.Unlock()
+
+	return api.GetBankDetails()
+}
+
 func GetAllBankItems(bypassCache bool) (*[]types.InventoryItem, error) {
 	curState := state.GlobalState.BankState.Ref()
 	if !bypassCache && len(*curState) > 0 {
@@ -88,6 +101,9 @@ func DepositBySelect(kernel *game.Kernel, codeSelct BankDepositCodeCb, quantityS
 		bank := res.Bank[:len(res.Bank):len(res.Bank)]
 		state.GlobalState.BankState.Set(&bank)
 
+		var empty *api.BankDetailsResponse = nil
+		state.GlobalState.BankDetails.Set(&empty)
+
 		char = &res.Character
 		kernel.CharacterState.Set(char)
 		kernel.WaitForDown(res.Cooldown)
@@ -154,6 +170,9 @@ func WithdrawBySelect(kernel *game.Kernel, codeSelect BankWithdrawCodeCb, quanti
 		allBankItems := res.Bank
 		cloned := allBankItems[:len(allBankItems):len(allBankItems)]
 		state.GlobalState.BankState.Set(&cloned)
+
+		var empty *api.BankDetailsResponse = nil
+		state.GlobalState.BankDetails.Set(&empty)
 
 		kernel.WaitForDown(res.Cooldown)
 		return char, nil
