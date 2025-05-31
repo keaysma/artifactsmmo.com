@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"artifactsmmo.com/m/types"
 )
@@ -30,7 +31,19 @@ func GetAllEvents(page int, size int) (*EventsResponse, error) {
 	return &out, nil
 }
 
+type CachedProto struct {
+	Data  *ActiveEventsResponse
+	Epoch int64
+}
+
+var cacheGetAllActiveEvents *CachedProto = nil
+
 func GetAllActiveEvents(page int, size int) (*ActiveEventsResponse, error) {
+	epochNow := time.Now().Unix()
+	if cacheGetAllActiveEvents != nil && epochNow-cacheGetAllActiveEvents.Epoch < 3 {
+		return cacheGetAllActiveEvents.Data, nil
+	}
+
 	payload := map[string]string{
 		"page": fmt.Sprintf("%d", page),
 		"size": fmt.Sprintf("%d", size),
@@ -46,6 +59,12 @@ func GetAllActiveEvents(page int, size int) (*ActiveEventsResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	newCache := CachedProto{
+		Epoch: epochNow,
+		Data:  &out,
+	}
+	cacheGetAllActiveEvents = &newCache
 
 	return &out, nil
 }
