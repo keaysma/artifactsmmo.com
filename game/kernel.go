@@ -14,10 +14,10 @@ var s = utils.GetSettings()
 type Kernel struct {
 	GeneratorPaused      []bool
 	Generators           []*Generator
+	GeneratorNames       utils.SyncData[[]string]
 	Last_command         string
 	Last_command_success bool
 	CharacterName        string
-	CurrentGeneratorName utils.SyncData[string]
 	Commands             utils.SyncData[[]string]
 	PriorityCommands     chan string
 	LogsChannel          chan string

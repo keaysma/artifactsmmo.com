@@ -32,6 +32,7 @@ type Mainframe struct {
 	kernel                    *game.Kernel
 	Logs                      *widgets.Paragraph
 	CommandList               *widgets.Paragraph
+	GeneratorDisplay          *widgets.List
 	OrderReferenceList        *widgets.Paragraph
 	EquipmentDisplay          *widgets.Table
 	InventoryDisplay          *widgets.List
@@ -57,6 +58,9 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 	commandList := widgets.NewParagraph()
 	commandList.Title = "Commands"
 	commandList.Text = ""
+
+	generatorsDisplay := widgets.NewList()
+	generatorsDisplay.Title = "Gens"
 
 	orderReferenceList := widgets.NewParagraph()
 	orderReferenceList.Title = "Order Reference"
@@ -103,6 +107,7 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 		kernel:                    kernel,
 		Logs:                      logs,
 		CommandList:               commandList,
+		GeneratorDisplay:          generatorsDisplay,
 		OrderReferenceList:        orderReferenceList,
 		EquipmentDisplay:          equipmentDisplay,
 		InventoryDisplay:          inventoryDisplay,
@@ -124,7 +129,23 @@ func Init(s *utils.Settings, kernel *game.Kernel) *Mainframe {
 }
 
 func (m *Mainframe) Draw() {
-	ui.Render(m.Logs, m.CommandList, m.CharacterDisplay, m.CooldownGauge, m.CommandEntry, m.GaugeSkillMining, m.GaugeSkillWoodcutting, m.GaugeSkillFishing, m.GaugeSkillWeaponcrafting, m.GaugeSkillGearcrafting, m.GaugeSkillJewelrycrafting, m.GaugeSkillCooking, m.GaugeSkillAlchemy, m.EquipmentDisplay)
+	ui.Render(
+		m.Logs,
+		m.CommandList,
+		m.CharacterDisplay,
+		m.CooldownGauge,
+		m.CommandEntry,
+		m.GaugeSkillMining,
+		m.GaugeSkillWoodcutting,
+		m.GaugeSkillFishing,
+		m.GaugeSkillWeaponcrafting,
+		m.GaugeSkillGearcrafting,
+		m.GaugeSkillJewelrycrafting,
+		m.GaugeSkillCooking,
+		m.GaugeSkillAlchemy,
+		m.EquipmentDisplay,
+		m.GeneratorDisplay,
+	)
 
 	if m.OrderReferenceList.Text != "" {
 		ui.Render(m.OrderReferenceList)
@@ -142,15 +163,25 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 	last_w := mid_w + 42 // w-(w/4) aka last_w
 
 	first_h := 14
-	mid_h := h - 21 - 16
+	mid_h := h - 15 - 25
+	inv_h := h - 18
 
-	m.Logs.SetRect(0, TAB_HEIGHT, mid_w, h-3)
+	bank_w := mid_w - 36
+
+	if m.kernel.BankItemListShown {
+		m.Logs.SetRect(0, TAB_HEIGHT, bank_w, h-3)
+
+	} else {
+
+		m.Logs.SetRect(0, TAB_HEIGHT, mid_w, h-3)
+	}
 
 	// swap commands and equipment (it does look weird though...)
 	// m.CommandList.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
 	m.CommandList.SetRect(last_w, first_h+24, w, h-6)
-	m.OrderReferenceList.SetRect(mid_w, h-18, last_w-1, h-6)
-	m.InventoryDisplay.SetRect(mid_w, mid_h, last_w-1, h-6)
+	m.OrderReferenceList.SetRect(mid_w, h-18, last_w, h-6)
+	m.InventoryDisplay.SetRect(mid_w, mid_h, last_w, inv_h)
+	m.GeneratorDisplay.SetRect(mid_w, inv_h, last_w, h-6)
 
 	m.CharacterDisplay.SetRect(last_w, TAB_HEIGHT, w, first_h)
 	m.CooldownGauge.SetRect(mid_w, h-6, w, h-3)
@@ -165,9 +196,9 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 	m.GaugeSkillAlchemy.SetRect(last_w, first_h+21, w, first_h+24)
 
 	// m.EquipmentDisplay.SetRect(last_w, first_h+24, w, h-6)
-	m.EquipmentDisplay.SetRect(mid_w, TAB_HEIGHT, last_w-1, mid_h)
+	m.EquipmentDisplay.SetRect(mid_w, TAB_HEIGHT, last_w, mid_h)
 
-	m.BankItemList.SetRect(mid_w-36, TAB_HEIGHT+1, mid_w-1, h-4)
+	m.BankItemList.SetRect(bank_w, TAB_HEIGHT, mid_w, h-3)
 
 	m.CommandEntry.SetRect(0, h-3, w, h)
 }
@@ -192,12 +223,14 @@ func (m *Mainframe) BackgroundLoop() {
 func (m *Mainframe) Loop(heavy bool) {
 	m.CommandList.Text = strings.Join(m.kernel.Commands.ShallowCopy(), "\n")
 
-	generator_name := m.kernel.CurrentGeneratorName.ShallowCopy()
-	if generator_name != "" {
-		m.CommandList.Title = fmt.Sprintf("Commands (gen: %s)", generator_name)
-	} else {
-		m.CommandList.Title = "Commands"
-	}
+	m.kernel.GeneratorNames.With(func(value *[]string) *[]string {
+		rows := []string{}
+		for i, val := range *value {
+			rows = append(rows, fmt.Sprintf("[%d] %s", i, val))
+		}
+		m.GeneratorDisplay.Rows = rows
+		return value
+	})
 
 	// Updates that run infrequently
 	if heavy {

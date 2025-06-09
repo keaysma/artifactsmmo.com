@@ -28,14 +28,14 @@ func NewKernel(character types.Character) *game.Kernel {
 	}
 
 	internalState := game.Kernel{
-		CharacterName:        character.Name,
-		GeneratorPaused:      make([]bool, 10),
-		Generators:           make([]*game.Generator, NUM_GENERATORS),
+		CharacterName:   character.Name,
+		GeneratorPaused: make([]bool, 10),
+		Generators:      make([]*game.Generator, NUM_GENERATORS),
+		GeneratorNames: utils.SyncData[[]string]{
+			Value: make([]string, 10),
+		},
 		Last_command:         "",
 		Last_command_success: false,
-		CurrentGeneratorName: utils.SyncData[string]{
-			Value: "",
-		},
 		Commands: utils.SyncData[[]string]{
 			Value: make([]string, 0),
 		},
@@ -735,7 +735,10 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		if new_name != "" {
 			log(fmt.Sprintf("generator %d set to %s", generator_number, new_name))
-			kernel.CurrentGeneratorName.Set(&new_name)
+			kernel.GeneratorNames.With(func(value *[]string) *[]string {
+				(*value)[generator_number] = new_name
+				return value
+			})
 		}
 
 		kernel.Generators[generator_number] = &newGenerator
@@ -801,11 +804,17 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			}
 
 			kernel.Generators[maybe_generator_number] = nil
+			kernel.GeneratorNames.With(func(value *[]string) *[]string {
+				(*value)[maybe_generator_number] = ""
+				return value
+			})
 			log(fmt.Sprintf("cleared generator %d", maybe_generator_number))
 		} else {
 			kernel.Generators = make([]*game.Generator, NUM_GENERATORS)
-			empty := ""
-			kernel.CurrentGeneratorName.Set(&empty)
+			kernel.GeneratorNames.With(func(value *[]string) *[]string {
+				new := make([]string, 10)
+				return &new
+			})
 			log("cleared all generators")
 		}
 

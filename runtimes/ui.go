@@ -91,6 +91,11 @@ func UI() {
 		ui.Render(tabs)
 		wxs[tabs.ActiveTabIndex].Draw()
 		wxs[tabs.ActiveTabIndex].Loop(heavy == 0)
+		if heavy%6 == 3 {
+			_w, _h := ui.TerminalDimensions()
+			tabs.SetRect(0, 0, _w, s.TabHeight)
+			wxs[tabs.ActiveTabIndex].ResizeWidgets(_w, _h)
+		}
 	}
 
 	resize := func(w int, h int) {

@@ -10,7 +10,7 @@ My implementation of an artifacts-mmo API client, written in Golang
     - [x] a `bank-has` command to filter entire bank list for searching - `list-bank [part-of-a-code]` and also `hide-bank`
     - [x] Use the cached bank state to make bank decisions, only busting cache when a bank operation is done
 - [x] Something like generators that looks out for events and acts on them while they're active
-- [ ] display of all active generators
+- [x] display of all active generators
 - [ ] Fighting armor + weapon set picker
     - [ ] `find` command that accepts params and finds items that match that description
 - [ ] `move to:<monster/resource>` to move to the closest monster/resource
