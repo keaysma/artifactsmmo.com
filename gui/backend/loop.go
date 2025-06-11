@@ -2,10 +2,14 @@ package backend
 
 import (
 	"fmt"
+	"regexp"
+	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
 	generators "artifactsmmo.com/m/game/cmd_generators"
@@ -816,6 +820,178 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 				return &new
 			})
 			log("cleared all generators")
+		}
+
+		return true
+	case "best":
+		if len(parts) < 2 {
+			log("usage: best <type>[ <range:number>] [(^)/_]<effect0:string> [...]")
+			return false
+		}
+
+		search_type := parts[1]
+
+		var min_level int64 = 0
+		var max_level int64 = 999
+
+		var sorts = make([]steps.SortCri, 0)
+
+		if len(parts) >= 3 {
+			maybe_range := parts[2]
+
+			regx_range, err := regexp.Compile(`(\d*)-(\d*)`)
+			if err != nil {
+				log("failed to compile regexp for level range match")
+				return false
+			}
+
+			regx_single, err := regexp.Compile(`(\d+)`)
+			if err != nil {
+				log("failed to compile regexp for level single match")
+				return false
+			}
+
+			criteria_start := 3
+			matches_range := regx_range.FindStringSubmatch(maybe_range)
+			matches_single := regx_single.FindStringSubmatch(maybe_range)
+			if len(matches_range) > 0 {
+				// log("range found")
+				maybe_min_level := matches_range[1]
+				maybe_max_level := matches_range[2]
+
+				min_level, err = strconv.ParseInt(maybe_min_level, 10, 64)
+				if err != nil {
+					min_level = 0
+				}
+
+				max_level, err = strconv.ParseInt(maybe_max_level, 10, 64)
+				if err != nil {
+					max_level = 999
+				}
+			} else if len(matches_single) > 0 {
+				maybe_level := matches_single[1]
+				// log(fmt.Sprintf("single found: '%s', %v", maybe_level, matches_single))
+				min_level, err = strconv.ParseInt(maybe_level, 10, 64)
+				if err != nil {
+					min_level = 0
+				}
+
+				max_level, err = strconv.ParseInt(maybe_level, 10, 64)
+				if err != nil {
+					max_level = 999
+				}
+			} else {
+				// log("no level")
+				criteria_start = 2
+			}
+
+			// log(fmt.Sprintf("%d, %v", criteria_start, parts[criteria_start:]))
+
+			for _, cri := range parts[criteria_start:] {
+				if cri[0] == '^' {
+					sorts = append(sorts, steps.SortCri{
+						Prop: cri[1:],
+						Dir:  true,
+					})
+				} else if cri[0] == '_' {
+					sorts = append(sorts, steps.SortCri{
+						Prop: cri[1:],
+						Dir:  false,
+					})
+				} else {
+					sorts = append(sorts, steps.SortCri{
+						Prop: cri[:],
+						Dir:  true,
+					})
+				}
+			}
+
+		}
+
+		sort_str := ""
+		if len(sorts) > 0 {
+			sort_str = ", sort by "
+		}
+		for i, c := range sorts {
+			if i > 0 {
+				sort_str += ", "
+			}
+			dir := "desc"
+			if !c.Dir {
+				dir = "asc"
+			}
+			sort_str += fmt.Sprintf("%s (%s)", c.Prop, dir)
+		}
+
+		log(fmt.Sprintf("find the best type=%s, min_level=%d, max_level=%d%s", search_type, min_level, max_level, sort_str))
+		allItems, err := steps.GetAllItemsWithFilter(api.GetAllItemsFilter{
+			Itype:          search_type,
+			Craft_material: "",
+			Craft_skill:    "",
+			Min_level:      strconv.FormatInt(min_level, 10),
+			Max_level:      strconv.FormatInt(max_level, 10),
+		}, sorts)
+		if err != nil {
+			log(fmt.Sprintf("Failed to get items: %s", err))
+			return false
+		}
+
+		sort.Slice(*allItems, func(i, j int) bool {
+			l, r := (*allItems)[i], (*allItems)[j]
+
+			for _, cri := range sorts {
+				li := slices.IndexFunc(l.Effects, func(e types.Effect) bool {
+					return e.Code == cri.Prop
+				})
+
+				if li < 0 {
+					return !cri.Dir
+				}
+
+				ri := slices.IndexFunc(r.Effects, func(e types.Effect) bool {
+					return e.Code == cri.Prop
+				})
+
+				if ri < 0 {
+					return cri.Dir
+				}
+
+				lv := l.Effects[li]
+				rv := r.Effects[ri]
+
+				if cri.Dir {
+					return lv.Value > rv.Value
+				} else {
+					return lv.Value < rv.Value
+				}
+			}
+
+			if l.Level == r.Level {
+				return false
+			}
+
+			return l.Level > r.Level
+		})
+
+		for _, item := range (*allItems)[:min(len(*allItems), 10)] {
+			lvlstr := strconv.FormatInt(int64(item.Level), 10)
+			out := fmt.Sprintf("[%d]", item.Level) + strings.Repeat(" ", max(0, 3-len(lvlstr)))
+
+			out += item.Name[:min(len(item.Name), 24)] + strings.Repeat(" ", max(0, 25-len(item.Name)))
+
+			for _, cri := range sorts {
+				idx := slices.IndexFunc(item.Effects, func(e types.Effect) bool {
+					return e.Code == cri.Prop
+				})
+
+				if idx >= 0 {
+					effect := item.Effects[idx]
+					sVal := strconv.FormatInt(int64(effect.Value), 10)
+					out += fmt.Sprintf(" %s=%d", effect.Code, effect.Value) + strings.Repeat(" ", max(0, 24-len(effect.Code)-len(sVal)))
+				}
+			}
+
+			log(out)
 		}
 
 		return true

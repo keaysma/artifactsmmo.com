@@ -25,7 +25,7 @@ type InventoryItem struct {
 }
 
 type Effect struct {
-	Name  string
+	Code  string
 	Value int
 }
 

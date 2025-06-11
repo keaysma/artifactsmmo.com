@@ -348,7 +348,7 @@ func (m *Mainframe) Loop(heavy bool) {
 	}
 }
 
-var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight", "list-bank", "hide-bank"}
+var PRIORITY_COMMANDS = []string{"o", "myo", "simulate-fight", "list-bank", "hide-bank", "best"}
 
 func (m *Mainframe) HandleKeyboardInput(event ui.Event) {
 	switch event.ID {
