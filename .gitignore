@@ -26,3 +26,5 @@ go.work.sum
 
 # I write most of my code from a Mac
 **/.DS_Store
+
+data/
