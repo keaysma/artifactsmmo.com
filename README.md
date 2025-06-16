@@ -13,13 +13,12 @@ My implementation of an artifacts-mmo API client, written in Golang
 - [x] display of all active generators
 - [ ] Fighting armor + weapon set picker
     - [x] `best` command that accepts params and finds items that match that description: 
-        - `best <type>[ <range:number>] [(^)/_]<effect0:string> [...]`
-    - [ ] `equip` can automatically pick-out items from the bank
+        - `best <type>[ <range:number>][ ((^)/_)<effect0:string> [...]]`
+    - [x] `equip` can automatically pick-out items from the bank
     - [ ] `equip` can accept "all" or "max" which will replenish potions to either 50, or equip how ever many you have
         - [ ] `unequip` can unequip how many of that item you have equiped
     - [ ] update the fight algorithm to run `equip` based on best equipment for enemy
 - [ ] `move to:<monster/resource>` to move to the closest monster/resource
-- [ ] `go-equip` or something to equip from bank
 - [ ] Generators do not "lock in" event locations when active - `gen make demon_horn` when demons are present ends up getting stuck after the event ends
 - [ ] Revised fight simulator
     - [ ] Includes items

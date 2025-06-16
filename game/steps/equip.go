@@ -6,6 +6,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
@@ -42,6 +43,62 @@ func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) erro
 		err = UnequipItem(kernel, selectedSlot, 1)
 		if err != nil {
 			log(fmt.Sprintf("failed to unequip %s", selectedSlot))
+			return err
+		}
+	}
+
+	has_item_in_inv := false
+	for _, slot := range char.Inventory {
+		if slot.Code == code {
+			has_item_in_inv = true
+			break
+		}
+	}
+
+	if !has_item_in_inv {
+		itemCount := utils.CountAllInventory(char)
+		if itemCount > char.Inventory_max_items {
+			log("inventory is too tall")
+			return fmt.Errorf("inventory is too tall")
+		}
+
+		slotCount := utils.CountSlotsInventory(char)
+		if slotCount >= len(char.Inventory) {
+			log("inventory is stacked too wide")
+			return fmt.Errorf("inventory is stacked too wide")
+		}
+
+		has_item_in_bank := false
+		bank, err := GetAllBankItems(false)
+		if err != nil {
+			log(fmt.Sprintf("failed to list bank items %s", selectedSlot))
+			return err
+		}
+
+		for _, slot := range *bank {
+			if slot.Code == code {
+				has_item_in_bank = true
+				break
+			}
+		}
+
+		if !has_item_in_bank {
+			log(fmt.Sprintf("no %s in inventory or bank", code))
+			return fmt.Errorf("no %s in inventory or bank", code)
+		}
+
+		log(fmt.Sprintf("retreiving %s from bank", code))
+		_, err = WithdrawBySelect(
+			kernel,
+			func(item types.InventoryItem) bool {
+				return item.Code == code
+			},
+			func(item types.InventoryItem) int {
+				return quantity
+			},
+		)
+		if err != nil {
+			log(fmt.Sprintf("failed to withdraw %s from bank", code))
 			return err
 		}
 	}
