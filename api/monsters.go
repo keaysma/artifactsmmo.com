@@ -10,7 +10,15 @@ type GetAllMonstersParams struct {
 	Drop *string
 }
 
+// sos being too hacky
+var CACHE_THAT_SHOULD_BE_DONE_BETTER_AND_ELSEWHERE = map[string]*types.Monster{}
+
 func GetMonsterByCode(code string) (*types.Monster, error) {
+	cached, inCache := CACHE_THAT_SHOULD_BE_DONE_BETTER_AND_ELSEWHERE[code]
+	if inCache {
+		return cached, nil
+	}
+
 	var out types.Monster
 	err := GetDataResponseFuture(
 		fmt.Sprintf("monsters/%s", code),
@@ -21,6 +29,8 @@ func GetMonsterByCode(code string) (*types.Monster, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	CACHE_THAT_SHOULD_BE_DONE_BETTER_AND_ELSEWHERE[code] = &out
 
 	return &out, nil
 }
