@@ -179,7 +179,7 @@ func GenLevelTargetsFromResourceBySkill(kernel *game.Kernel, skill string) (*[]L
 	return &targets, nil
 }
 
-func Level(kernel *game.Kernel, skill string) game.Generator {
+func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 	var retries = 0
 	var subGenerator game.Generator = nil
 	var mapLevelTarget *[]LevelTarget = nil
@@ -280,6 +280,11 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 		currentLevel := GetLevelBySkill(char, skill)
 		kernel.CharacterState.Unlock()
 
+		if currentLevel >= untilLevel {
+			log("Reached level target, stopping")
+			return "clear-gen"
+		}
+
 		if currentLevel != lastLevelCheck {
 			log("Checking efficiency")
 			isEfficient := false
@@ -338,6 +343,16 @@ func Level(kernel *game.Kernel, skill string) game.Generator {
 				log("Setting task")
 				switch skill {
 				case "fight":
+					equipCommand, err := LoadOutForFight(kernel, currentTarget.Target)
+					if err != nil {
+						log(fmt.Sprintf("failed to get equipment loadout for %s: %s", currentTarget.Target, err))
+						return "clear-gen"
+					}
+
+					if equipCommand != nil {
+						return *equipCommand
+					}
+
 					char := kernel.CharacterState.Ref()
 					x, y := char.X, char.Y
 					kernel.CharacterState.Unlock()

@@ -688,7 +688,16 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 				log("missing generator argument")
 				return false
 			}
-			newGenerator = generators.Level(kernel, generator_args[0])
+
+			var count int = -1
+			if len(generator_args) > 1 {
+				maybe_count, err := strconv.ParseInt(generator_args[1], 10, 64)
+				if err == nil && maybe_count != 0 {
+					count = int(maybe_count)
+				}
+			}
+
+			newGenerator = generators.Level(kernel, generator_args[0], count)
 			new_name = fmt.Sprintf("level <%s>", generator_args[0])
 		case "forever":
 			if generator_args[0] == "" {
