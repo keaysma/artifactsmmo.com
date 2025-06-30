@@ -183,7 +183,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		var err error
-		var quantity int64 = 1
+		var quantity int64 = 0
 		if len(parts) == 4 {
 			raw_quantity := parts[3]
 			quantity, err = strconv.ParseInt(raw_quantity, 10, 64)
@@ -202,13 +202,29 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		return true
 	case "unequip":
 		if len(parts) < 2 || len(parts) > 3 {
-			log("usage: unequip <slot:number>[ <quantity:number>]")
+			log("usage: unequip <slot:string>[ <quantity:number>]")
 			return false
 		}
 		slot := parts[1]
+		switch slot {
+		case "u1":
+			slot = "utility1"
+		case "u2":
+			slot = "utility2"
+		case "a1":
+			slot = "artifact1"
+		case "a2":
+			slot = "artifact2"
+		case "a3":
+			slot = "artifact3"
+		case "r1":
+			slot = "ring1"
+		case "r2":
+			slot = "ring2"
+		}
 
 		var err error
-		var quantity int64 = 1
+		var quantity int64 = 0
 		if len(parts) == 3 {
 			raw_quantity := parts[2]
 			quantity, err = strconv.ParseInt(raw_quantity, 10, 64)

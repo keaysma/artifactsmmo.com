@@ -2,6 +2,7 @@ package steps
 
 import (
 	"fmt"
+	"strings"
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/api/actions"
@@ -10,7 +11,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) error {
+func EquipItem(kernel *game.Kernel, code string, slot string, rawQuantity int) error {
 	log := kernel.LogPre(fmt.Sprintf("[%s]<equip>: ", kernel.CharacterName))
 	char, err := api.GetCharacterByName(kernel.CharacterName)
 	if err != nil {
@@ -39,13 +40,24 @@ func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) erro
 
 	curSlot := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(selectedSlot))).String()
 	if curSlot != "" {
-		log(fmt.Sprintf("unequipping %d %s from %s", quantity, curSlot, selectedSlot))
+		useQuantiy := 1
+		if strings.Contains(slot, "utility") {
+			useQuantiy = int(utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot_quantity", utils.Caser.String(slot))).Int())
+		}
+
+		log(fmt.Sprintf("unequipping %d %s from %s", useQuantiy, curSlot, selectedSlot))
 		err = UnequipItem(kernel, selectedSlot, 1)
 		if err != nil {
 			log(fmt.Sprintf("failed to unequip %s", selectedSlot))
 			return err
 		}
 	}
+
+	equipQuantity := 1
+	if strings.Contains(slot, "utility") {
+		equipQuantity = 100
+	}
+	log(fmt.Sprintf("equipping %d %s to %s", equipQuantity, code, selectedSlot))
 
 	has_item_in_inv := false
 	for _, slot := range char.Inventory {
@@ -94,7 +106,7 @@ func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) erro
 				return item.Code == code
 			},
 			func(item types.InventoryItem) int {
-				return quantity
+				return equipQuantity
 			},
 		)
 		if err != nil {
@@ -103,11 +115,9 @@ func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) erro
 		}
 	}
 
-	log(fmt.Sprintf("equipping %d %s to %s", quantity, code, selectedSlot))
-
-	mres, err := actions.EquipItem(kernel.CharacterName, code, selectedSlot, quantity)
+	mres, err := actions.EquipItem(kernel.CharacterName, code, selectedSlot, equipQuantity)
 	if err != nil {
-		log(fmt.Sprintf("failed to equip %d %s to %s", quantity, code, selectedSlot))
+		log(fmt.Sprintf("failed to equip %d %s to %s", equipQuantity, code, selectedSlot))
 		return err
 	}
 
@@ -119,11 +129,26 @@ func EquipItem(kernel *game.Kernel, code string, slot string, quantity int) erro
 
 func UnequipItem(kernel *game.Kernel, slot string, quantity int) error {
 	log := kernel.LogPre(fmt.Sprintf("[%s]<unequip>: ", kernel.CharacterName))
-	log(fmt.Sprintf("enequipping %d from %s", quantity, slot))
 
-	mres, err := actions.UnequipItem(kernel.CharacterName, slot, quantity)
+	useQuantiy := quantity
+	displayQuantity := "all"
+	if quantity > 0 {
+		displayQuantity = string(quantity)
+	} else {
+		kernel.CharacterState.With(func(value *types.Character) *types.Character {
+			if strings.Contains(slot, "utility") {
+				useQuantiy = int(utils.GetFieldFromStructByName(value, fmt.Sprintf("%s_slot_quantity", utils.Caser.String(slot))).Int())
+			} else {
+				useQuantiy = 1
+			}
+			return value
+		})
+	}
+	log(fmt.Sprintf("enequipping %s from %s", displayQuantity, slot))
+
+	mres, err := actions.UnequipItem(kernel.CharacterName, slot, useQuantiy)
 	if err != nil {
-		log(fmt.Sprintf("failed to unequip %d from %s", quantity, slot))
+		log(fmt.Sprintf("failed to unequip %s from %s", displayQuantity, slot))
 		return err
 	}
 
