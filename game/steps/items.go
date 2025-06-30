@@ -1,6 +1,8 @@
 package steps
 
 import (
+	"encoding/json"
+	"fmt"
 	"slices"
 	"sort"
 
@@ -13,8 +15,26 @@ type SortCri struct {
 	Dir  bool
 }
 
+var ANSWERS_CACHE = map[string]*api.ItemsResponse{}
+
 func GetAllItemsWithFilter(filter api.GetAllItemsFilter, sorts []SortCri) (*api.ItemsResponse, error) {
 	allItems := make(api.ItemsResponse, 0)
+
+	filterData, err := json.Marshal(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	sortData, err := json.Marshal(sorts)
+	if err != nil {
+		return nil, err
+	}
+
+	cacheKey := fmt.Sprintf("%s-%s", filterData, sortData)
+	cached, inCache := ANSWERS_CACHE[cacheKey]
+	if inCache {
+		return cached, nil
+	}
 
 	page := 1
 	for {
@@ -68,6 +88,8 @@ func GetAllItemsWithFilter(filter api.GetAllItemsFilter, sorts []SortCri) (*api.
 
 		return l.Level > r.Level
 	})
+
+	ANSWERS_CACHE[cacheKey] = &allItems
 
 	return &allItems, nil
 }
