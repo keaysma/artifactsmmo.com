@@ -134,6 +134,7 @@ type Character struct {
 	Cooldown               int
 	Cooldown_expiration    string
 	Weapon_slot            string
+	Rune_slot              string
 	Shield_slot            string
 	Helmet_slot            string
 	Body_armor_slot        string
@@ -149,6 +150,7 @@ type Character struct {
 	Utility1_slot_quantity int
 	Utility2_slot          string
 	Utility2_slot_quantity int
+	Bag_slot               string
 	Task                   string
 	Task_type              string
 	Task_progress          int

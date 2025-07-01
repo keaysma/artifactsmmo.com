@@ -308,12 +308,17 @@ func (m *Mainframe) Loop(heavy bool) {
 				{"helmet", character.Helmet_slot},
 				{"body_armor", character.Body_armor_slot},
 				{"legs_armor", character.Leg_armor_slot},
+				{"boots", character.Boots_slot},
 				{"amulet", character.Amulet_slot},
 				{"ring1", character.Ring1_slot},
 				{"ring2", character.Ring2_slot},
-				{"utility1", character.Utility1_slot},
-				{"utility2", character.Utility2_slot},
+				{"utility1", fmt.Sprintf("(%d) %s", character.Utility1_slot_quantity, character.Utility1_slot)},
+				{"utility2", fmt.Sprintf("(%d) %s", character.Utility2_slot_quantity, character.Utility2_slot)},
 				{"artifact1", character.Artifact1_slot},
+				{"artifact2", character.Artifact2_slot},
+				{"artifact3", character.Artifact3_slot},
+				{"rune", character.Rune_slot},
+				{"bag", character.Bag_slot},
 			}
 			m.EquipmentDisplay.Rows = newEquipmentTable
 
