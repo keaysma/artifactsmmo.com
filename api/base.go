@@ -21,7 +21,7 @@ import (
 */
 
 type Params *map[string]string
-type Body *map[string]interface{}
+type Body interface{} //*map[string]interface{}
 
 type DataResponse struct {
 	Data interface{} `json:"data"`

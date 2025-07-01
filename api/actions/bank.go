@@ -23,14 +23,16 @@ type BankGoldResponse struct {
 }
 
 func BankDeposit(character string, code string, quantity int) (*BankItemResponse, error) {
-	var payload = map[string]interface{}{
-		"code":     code,
-		"quantity": quantity,
+	var payload = []map[string]interface{}{
+		{
+			"code":     code,
+			"quantity": quantity,
+		},
 	}
 
 	var out BankItemResponse
 	err := api.PostDataResponseFuture(
-		fmt.Sprintf("my/%s/action/bank/deposit", character),
+		fmt.Sprintf("my/%s/action/bank/deposit/item", character),
 		&payload,
 		&out,
 	)
@@ -43,14 +45,15 @@ func BankDeposit(character string, code string, quantity int) (*BankItemResponse
 }
 
 func BankWithdraw(character string, code string, quantity int) (*BankItemResponse, error) {
-	var payload = map[string]interface{}{
-		"code":     code,
-		"quantity": quantity,
+	var payload = []map[string]interface{}{
+		{
+			"code":     code,
+			"quantity": quantity,
+		},
 	}
-
 	var out BankItemResponse
 	err := api.PostDataResponseFuture(
-		fmt.Sprintf("my/%s/action/bank/withdraw", character),
+		fmt.Sprintf("my/%s/action/bank/withdraw/item", character),
 		&payload,
 		&out,
 	)
