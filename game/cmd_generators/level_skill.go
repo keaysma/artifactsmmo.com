@@ -280,7 +280,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 		currentLevel := GetLevelBySkill(char, skill)
 		kernel.CharacterState.Unlock()
 
-		if currentLevel >= untilLevel {
+		if untilLevel > 0 && currentLevel >= untilLevel {
 			log("Reached level target, stopping")
 			return "clear-gen"
 		}
