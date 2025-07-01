@@ -285,7 +285,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 			return "clear-gen"
 		}
 
-		if currentLevel != lastLevelCheck {
+		if currentLevel != lastLevelCheck || subGenerator == nil {
 			log("Checking efficiency")
 			isEfficient := false
 			var newLevelTarget *LevelTarget = nil
