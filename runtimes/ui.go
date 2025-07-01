@@ -56,12 +56,15 @@ func UI() {
 		characterNames = append(characterNames, character.Name)
 		kernels[character.Name] = backend.NewKernel(character)
 
-		start_commands := []string{}
 		if len(s.Start_commands) > i {
 			raw_start_commands := s.Start_commands[i]
-			start_commands = strings.Split(raw_start_commands, ";")
+			if raw_start_commands == "" {
+				continue
+			}
+
+			start_commands := strings.Split(raw_start_commands, ";")
+			kernels[character.Name].Commands.Set(&start_commands)
 		}
-		kernels[character.Name].Commands.Set(&start_commands)
 	}
 
 	tabs := widgets.NewTabPane(characterNames...)
