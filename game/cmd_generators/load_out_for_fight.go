@@ -17,6 +17,12 @@ type SortableValueField struct {
 	Value int
 }
 
+type EquipConfig struct {
+	Itype string
+	Slot  string
+	Sorts []steps.SortCri
+}
+
 func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sorts []steps.SortCri) (*string, error) {
 	log := kernel.LogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
 
@@ -144,208 +150,137 @@ func LoadOutForFight(kernel *game.Kernel, target string) (*string, error) {
 	highestMonsterAttack := monsterAttack[0].Field
 	log(fmt.Sprintf("defend against %s", highestMonsterAttack))
 
-	// weapon
-	cmd, err := tryEquip(
-		kernel,
-		target,
-		"weapon",
-		"weapon",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("attack_%s", lowestMonsterRes),
-				Dir:  true,
+	equipConfigs := []EquipConfig{
+		{
+			Itype: "weapon",
+			Slot:  "weapon",
+			Sorts: []steps.SortCri{
+				{
+					Prop: fmt.Sprintf("attack_%s", lowestMonsterRes),
+					Dir:  true,
+				},
 			},
 		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
+		{
+			"helmet",
+			"helmet",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"body_armor",
+			"body_armor",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"leg_armor",
+			"leg_armor",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"boots",
+			"boots",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"shield",
+			"shield",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"amulet",
+			"amulet",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"ring",
+			"ring1",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
+		{
+			"ring",
+			"ring2",
+			[]steps.SortCri{
+				{
+					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
+					Dir:  true,
+				},
+				{
+					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
+					Dir:  true,
+				},
+			},
+		},
 	}
 
-	// helmet
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"helmet",
-		"helmet",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// body armor
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"body_armor",
-		"body_armor",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// leg armor
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"leg_armor",
-		"leg_armor",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// boots
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"boots",
-		"boots",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// shield
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"shield",
-		"shield",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// amulet
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"amulet",
-		"amulet",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// ring1
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"ring",
-		"ring1",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
-	}
-
-	// ring2
-	cmd, err = tryEquip(
-		kernel,
-		target,
-		"ring",
-		"ring2",
-		[]steps.SortCri{
-			{
-				Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-				Dir:  true,
-			},
-			{
-				Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-				Dir:  true,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	if cmd != nil {
-		return cmd, nil
+	for _, equipConfig := range equipConfigs {
+		cmd, err := tryEquip(
+			kernel,
+			target,
+			equipConfig.Itype,
+			equipConfig.Slot,
+			equipConfig.Sorts,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if cmd != nil {
+			return cmd, nil
+		}
 	}
 
 	// TODO: Fight simulations to determine utility1, utility2
