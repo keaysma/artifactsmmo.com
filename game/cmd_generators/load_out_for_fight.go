@@ -62,7 +62,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 		invCount := utils.CountInventory(&char.Inventory, item.Code)
 		kernel.CharacterState.Unlock()
 		if invCount > 0 {
-			cmd := fmt.Sprintf("equip %s", item.Code)
+			cmd := fmt.Sprintf("equip %s %s", slot, item.Code)
 			return &cmd, nil
 		}
 
@@ -72,7 +72,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 		state.GlobalState.BankState.Unlock()
 		if bankCount > 0 {
 			// "equip" should now handle withdrawing
-			cmd := fmt.Sprintf("equip %s", item.Code)
+			cmd := fmt.Sprintf("equip %s %s", slot, item.Code)
 			return &cmd, nil
 		}
 	}
