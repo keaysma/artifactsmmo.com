@@ -849,7 +849,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		return true
 	case "best":
 		if len(parts) < 2 {
-			log("usage: best <type>[ <range:number>] [(^)/_]<effect0:string> [...]")
+			log("usage: best <type:string>[ <level-range>][ <effect0:equation> [...]]")
 			return false
 		}
 
@@ -863,7 +863,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		if len(parts) >= 3 {
 			maybe_range := parts[2]
 
-			regx_range, err := regexp.Compile(`(\d*)-(\d*)`)
+			regx_range, err := regexp.Compile(`(\d*)\.\.(\d*)`)
 			if err != nil {
 				log("failed to compile regexp for level range match")
 				return false
@@ -909,23 +909,26 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 				criteria_start = 2
 			}
 
-			// log(fmt.Sprintf("%d, %v", criteria_start, parts[criteria_start:]))
+			// log(fmt.Sprintf("%d, %v, %d", criteria_start, parts[criteria_start:], len(parts[criteria_start:])))
 
 			for _, cri := range parts[criteria_start:] {
-				if cri[0] == '^' {
+				if cri[0] == '-' {
 					sorts = append(sorts, steps.SortCri{
-						Prop: cri[1:],
-						Dir:  true,
-					})
-				} else if cri[0] == '_' {
-					sorts = append(sorts, steps.SortCri{
-						Prop: cri[1:],
-						Dir:  false,
+						Equation: []steps.SortEq{
+							{
+								Prop: cri[1:],
+								Op:   "Sub",
+							},
+						},
 					})
 				} else {
 					sorts = append(sorts, steps.SortCri{
-						Prop: cri[:],
-						Dir:  true,
+						Equation: []steps.SortEq{
+							{
+								Prop: cri,
+								Op:   "Add",
+							},
+						},
 					})
 				}
 			}
@@ -940,11 +943,24 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			if i > 0 {
 				sort_str += ", "
 			}
-			dir := "desc"
-			if !c.Dir {
-				dir = "asc"
+			eq := ""
+			for i, e := range c.Equation {
+				if i == 0 {
+					if e.Op == "Sub" {
+						eq += "-"
+					}
+				} else {
+					switch e.Op {
+					case "Add":
+						eq += " + "
+					case "Sub":
+						eq += " - "
+					}
+				}
+
+				eq += e.Prop
 			}
-			sort_str += fmt.Sprintf("%s (%s)", c.Prop, dir)
+			sort_str += eq
 		}
 
 		log(fmt.Sprintf("find the best type=%s, min_level=%d, max_level=%d%s", search_type, min_level, max_level, sort_str))
@@ -966,16 +982,21 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 			out += item.Name[:min(len(item.Name), 24)] + strings.Repeat(" ", max(0, 25-len(item.Name)))
 
-			for _, cri := range sorts {
-				idx := slices.IndexFunc(item.Effects, func(e types.Effect) bool {
-					return e.Code == cri.Prop
-				})
+			for i, cri := range sorts {
+				summation := 0
 
-				if idx >= 0 {
-					effect := item.Effects[idx]
-					sVal := strconv.FormatInt(int64(effect.Value), 10)
-					out += fmt.Sprintf(" %s=%d", effect.Code, effect.Value) + strings.Repeat(" ", max(0, 24-len(effect.Code)-len(sVal)))
+				for _, eq := range cri.Equation {
+					idx := slices.IndexFunc(item.Effects, func(e types.Effect) bool {
+						return e.Code == eq.Prop
+					})
+
+					if idx >= 0 {
+						effect := item.Effects[idx]
+						summation += effect.Value
+					}
 				}
+
+				out += fmt.Sprintf(" eq[%d]=%d", i, summation) + strings.Repeat(" ", max(0, 12))
 			}
 
 			log(out)

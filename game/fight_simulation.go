@@ -85,12 +85,23 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 			*/
 			hit_fire := int(math.Round((float64(character.Attack_fire) * (1 + (float64(character.Dmg_fire) / 100))) * (1 - (float64(monster.Res_fire) / 100))))
 			if hit_fire > 0 {
-				monster.Hp -= hit_fire
+				// critical strike disabled for now
+				// todo: is critical determined for all element at once, or per element?
+				if false && rand.Float64() < float64(character.Critical_strike)/100 {
+					monster.Hp -= int(float64(hit_fire) * 1.5)
+					result.Logs = append(
+						result.Logs,
+						fmt.Sprintf("Turn %d: The character used fire attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", result.Turns, int(hit_fire), monster.Hp, monsterMaxHp),
+					)
+				} else {
+					monster.Hp -= hit_fire
+					result.Logs = append(
+						result.Logs,
+						fmt.Sprintf("Turn %d: The character used fire attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, int(hit_fire), monster.Hp, monsterMaxHp),
+					)
+				}
 				monster.Hp = max(0, monster.Hp)
-				result.Logs = append(
-					result.Logs,
-					fmt.Sprintf("Turn %d: The character used fire attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, int(hit_fire), monster.Hp, monsterMaxHp),
-				)
+
 			}
 
 			hit_earth := int(math.Round((float64(character.Attack_earth) * (1 + (float64(character.Dmg_earth) / 100))) * (1 - (float64(monster.Res_earth) / 100))))

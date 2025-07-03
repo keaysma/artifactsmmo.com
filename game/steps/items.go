@@ -10,9 +10,13 @@ import (
 	"artifactsmmo.com/m/types"
 )
 
-type SortCri struct {
+type SortEq struct {
 	Prop string
-	Dir  bool
+	Op   string
+}
+
+type SortCri struct {
+	Equation []SortEq
 }
 
 var ANSWERS_CACHE = map[string]*api.ItemsResponse{}
@@ -58,35 +62,42 @@ func GetAllItemsWithFilter(filter api.GetAllItemsFilter, sorts []SortCri) (*api.
 		l, r := allItems[i], allItems[j]
 
 		for _, cri := range sorts {
-			li := slices.IndexFunc(l.Effects, func(e types.Effect) bool {
-				return e.Code == cri.Prop
-			})
+			sumL := 0
+			sumR := 0
 
-			ri := slices.IndexFunc(r.Effects, func(e types.Effect) bool {
-				return e.Code == cri.Prop
-			})
+			for _, eq := range cri.Equation {
+				li := slices.IndexFunc(l.Effects, func(e types.Effect) bool {
+					return e.Code == eq.Prop
+				})
 
-			lv := types.Effect{
-				Value: 0,
-			}
-			if li > -1 {
-				lv = l.Effects[li]
+				ri := slices.IndexFunc(r.Effects, func(e types.Effect) bool {
+					return e.Code == eq.Prop
+				})
+
+				lv := 0
+				if li > -1 {
+					lv = l.Effects[li].Value
+				}
+
+				rv := 0
+				if ri > -1 {
+					rv = r.Effects[ri].Value
+				}
+
+				if eq.Op == "Add" {
+					sumL += lv
+					sumR += rv
+				} else if eq.Op == "Sub" {
+					sumL -= lv
+					sumR -= rv
+				}
 			}
 
-			rv := types.Effect{
-				Value: 0,
-			}
-			if ri > -1 {
-				rv = r.Effects[ri]
-			}
-
-			if lv.Value == rv.Value {
+			if sumL == sumR {
 				continue
-			} else if cri.Dir {
-				return lv.Value > rv.Value
-			} else {
-				return lv.Value < rv.Value
 			}
+
+			return sumL > sumR
 		}
 
 		return l.Level > r.Level

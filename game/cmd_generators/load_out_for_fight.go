@@ -23,6 +23,9 @@ type EquipConfig struct {
 	Sorts []steps.SortCri
 }
 
+// if this could instead return item details instead of just an equip string then
+// we could have a middle-interface that turns this into an equip string
+// we could pass the raw result on to the fight simulator to emulate how a character would fare if equipped w/ best items
 func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sorts []steps.SortCri) (*string, error) {
 	log := kernel.LogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
 
@@ -117,8 +120,14 @@ func LoadOutForFight(kernel *game.Kernel, target string) (*string, error) {
 		return l.Value < r.Value
 	})
 
-	lowestMonsterRes := monsterRes[0].Field
-	log(fmt.Sprintf("vulnerable to %s", lowestMonsterRes))
+	lowestMonsterResList := []string{monsterRes[0].Field}
+	for _, res := range monsterRes[1:] {
+		if res.Value == monsterRes[0].Value {
+			lowestMonsterResList = append(lowestMonsterResList, res.Field)
+		}
+	}
+
+	log(fmt.Sprintf("vulnerable to: %v", lowestMonsterResList))
 
 	// Determine the monsters highest damage
 	// Extract an elemental type that can be used for
@@ -147,122 +156,111 @@ func LoadOutForFight(kernel *game.Kernel, target string) (*string, error) {
 		return l.Value >= r.Value
 	})
 
-	highestMonsterAttack := monsterAttack[0].Field
-	log(fmt.Sprintf("defend against %s", highestMonsterAttack))
+	highestMonsterAttackList := []string{monsterAttack[0].Field}
+	for _, atk := range monsterAttack[1:] {
+		if atk.Value == monsterAttack[0].Value {
+			highestMonsterAttackList = append(highestMonsterAttackList, atk.Field)
+		}
+	}
+	log(fmt.Sprintf("defend against: %v", highestMonsterAttackList))
+
+	var weaponsEqs []steps.SortEq
+	for _, res := range lowestMonsterResList {
+		weaponsEqs = append(weaponsEqs, steps.SortEq{
+			Prop: fmt.Sprintf("attack_%s", res),
+			Op:   "Add",
+		})
+	}
+
+	var armorDmgEqs []steps.SortEq = []steps.SortEq{
+		{
+			Prop: "dmg",
+			Op:   "Add",
+		},
+	}
+	for _, res := range lowestMonsterResList {
+		armorDmgEqs = append(armorDmgEqs, steps.SortEq{
+			Prop: fmt.Sprintf("dmg_%s", res),
+			Op:   "Add",
+		})
+	}
+
+	var armorResEqs []steps.SortEq
+	for _, res := range highestMonsterAttackList {
+		armorResEqs = append(armorResEqs, steps.SortEq{
+			Prop: fmt.Sprintf("res_%s", res),
+			Op:   "Add",
+		})
+	}
 
 	equipConfigs := []EquipConfig{
 		{
 			Itype: "weapon",
 			Slot:  "weapon",
 			Sorts: []steps.SortCri{
-				{
-					Prop: fmt.Sprintf("attack_%s", lowestMonsterRes),
-					Dir:  true,
-				},
+				{Equation: weaponsEqs},
 			},
 		},
 		{
 			"helmet",
 			"helmet",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
+				{Equation: armorResEqs},
 			},
 		},
 		{
 			"body_armor",
 			"body_armor",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
+				{Equation: armorResEqs},
 			},
 		},
 		{
 			"leg_armor",
 			"leg_armor",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
+				{Equation: armorResEqs},
 			},
 		},
 		{
 			"boots",
 			"boots",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
+				{Equation: armorResEqs},
 			},
 		},
 		{
 			"shield",
 			"shield",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorResEqs},
 			},
 		},
 		{
 			"amulet",
 			"amulet",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
 			},
 		},
 		{
 			"ring",
 			"ring1",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
+				{Equation: armorResEqs},
 			},
 		},
 		{
 			"ring",
 			"ring2",
 			[]steps.SortCri{
-				{
-					Prop: fmt.Sprintf("dmg_%s", lowestMonsterRes),
-					Dir:  true,
-				},
-				{
-					Prop: fmt.Sprintf("res_%s", highestMonsterAttack),
-					Dir:  true,
-				},
+				{Equation: armorDmgEqs},
+				{Equation: armorResEqs},
 			},
 		},
 	}
