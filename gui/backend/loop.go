@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -960,43 +959,6 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			log(fmt.Sprintf("Failed to get items: %s", err))
 			return false
 		}
-
-		sort.Slice(*allItems, func(i, j int) bool {
-			l, r := (*allItems)[i], (*allItems)[j]
-
-			for _, cri := range sorts {
-				li := slices.IndexFunc(l.Effects, func(e types.Effect) bool {
-					return e.Code == cri.Prop
-				})
-
-				if li < 0 {
-					return !cri.Dir
-				}
-
-				ri := slices.IndexFunc(r.Effects, func(e types.Effect) bool {
-					return e.Code == cri.Prop
-				})
-
-				if ri < 0 {
-					return cri.Dir
-				}
-
-				lv := l.Effects[li]
-				rv := r.Effects[ri]
-
-				if cri.Dir {
-					return lv.Value > rv.Value
-				} else {
-					return lv.Value < rv.Value
-				}
-			}
-
-			if l.Level == r.Level {
-				return false
-			}
-
-			return l.Level > r.Level
-		})
 
 		for _, item := range (*allItems)[:min(len(*allItems), 10)] {
 			lvlstr := strconv.FormatInt(int64(item.Level), 10)
