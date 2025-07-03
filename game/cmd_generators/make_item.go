@@ -198,9 +198,15 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, character *types.Character, log func(string), skill_map *map[string]api.MapTile, last string, top bool) (string, bool) {
-	if !top && utils.CountInventory(&character.Inventory, component.Code) >= component.Quantity {
-		return "", top
+func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string]api.MapTile, last string, top bool) (string, bool) {
+	if !top {
+		var currentComponentQuantity int
+		kernel.CharacterState.Read(func(value *types.Character) {
+			currentComponentQuantity = utils.CountInventory(&value.Inventory, component.Code)
+		})
+		if currentComponentQuantity >= component.Quantity {
+			return "", top
+		}
 	}
 
 	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
@@ -208,6 +214,18 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 		if !ok {
 			log(fmt.Sprintf("no map for resource %s", component.Code))
 			return "cancel-task", top
+		}
+
+		if component.Action == "fight" {
+			equipCommand, err := LoadOutForFight(kernel, component.Code)
+			if err != nil {
+				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
+				return "clear-gen", top
+			}
+
+			if equipCommand != nil {
+				return *equipCommand, top
+			}
 		}
 
 		if tile.Content.Type == "event" {
@@ -228,7 +246,14 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 				if event.Map.Content.Code == tile.Content.Code {
 					didFindActiveEvent = true
 					log(fmt.Sprintf("event: %s", event.Code))
-					if character.X != event.Map.X || character.Y != event.Map.Y {
+					var x int
+					var y int
+					{
+						character := kernel.CharacterState.Ref()
+						x, y = character.X, character.Y
+						kernel.CharacterState.Unlock()
+					}
+					if x != event.Map.X || y != event.Map.Y {
 						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y), top
 					}
 				}
@@ -238,17 +263,34 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
 				return "noop", top // "sleep 10", top
 			}
-		} else if character.X != tile.X || character.Y != tile.Y {
-			move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
-			log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
-			return move, top
+		} else {
+			var x int
+			var y int
+			{
+				character := kernel.CharacterState.Ref()
+				x, y = character.X, character.Y
+				kernel.CharacterState.Unlock()
+			}
+			if x != tile.X || y != tile.Y {
+				move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
+				log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
+				return move, top
+			}
 		}
 
 		switch component.Action {
 		case "gather":
 			return "gather", top
 		case "fight":
-			if steps.FightHpSafetyCheck(character.Hp, character.Max_hp) {
+			var hp int
+			var maxHp int
+			{
+				character := kernel.CharacterState.Ref()
+				hp, maxHp = character.Hp, character.Max_hp
+				kernel.CharacterState.Unlock()
+			}
+
+			if steps.FightHpSafetyCheck(hp, maxHp) {
 				return "fight", top
 			} else {
 				return "rest", top
@@ -263,7 +305,7 @@ func NextMakeAction(component *steps.ItemComponentTree, character *types.Charact
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command, is_top := NextMakeAction(&subcomponent, character, log, skill_map, last, false)
+		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, last, false)
 		if next_command != "" {
 			return next_command, is_top
 		}
@@ -339,11 +381,7 @@ func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) g
 
 		is_top := false
 		log := kernel.DebugLogPre("<next-make-action>: ")
-		{
-			char := kernel.CharacterState.Ref()
-			next_command, is_top = NextMakeAction(data, char, log, resource_tile_map, last, true)
-			kernel.CharacterState.Unlock()
-		}
+		next_command, is_top = NextMakeAction(data, kernel, log, resource_tile_map, last, true)
 
 		log(fmt.Sprintf("next command: %s, (is_top: %v)", next_command, is_top))
 
