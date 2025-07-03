@@ -21,6 +21,12 @@ func (t *SyncData[T]) Unlock() {
 	t.lock.Unlock()
 }
 
+func (t *SyncData[T]) Read(f func(value *T)) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	f(&t.Value)
+}
+
 func (t *SyncData[T]) With(f func(value *T) *T) {
 	t.lock.Lock()
 	t.Value = *f(&t.Value)
