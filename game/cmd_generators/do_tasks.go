@@ -13,7 +13,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var simulationCount = 5
+var simulationCount = 10_000
 var totalFightCooldownThreshold = 7000 // 1800.0
 
 func Tasks(kernel *game.Kernel, task_type string) game.Generator {
@@ -107,7 +107,14 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 				// 2. Can fight monster reasonably fast
 
 				log("Amount is OK, check simulation result")
-				fightResult, err := game.RunSimulations(characterName, current_task, simulationCount, nil)
+
+				loadout, err := LoadOutForFight(kernel, current_task)
+				if err != nil {
+					log(fmt.Sprintf("Failed to get loadout for fight simulation: %s", err))
+					return "clear-gen"
+				}
+
+				fightResult, err := game.RunSimulations(characterName, current_task, simulationCount, &loadout)
 				if err != nil {
 					log(fmt.Sprintf("Failed to get fight simulation results, abort: %s", err))
 					return "clear-gen"
@@ -120,7 +127,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 					}
 				}
 
-				if wins < simulationCount {
+				if (float64(wins) / float64(simulationCount)) < 0.9 {
 					log(fmt.Sprintf("Won %d/%d fights, insufficiently successful, abort", wins, simulationCount))
 					return "cancel-task"
 				}
@@ -130,7 +137,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 				for _, result := range *fightResult {
 					cooldown := game.GetCooldown(result.FightDetails.Turns, characterHaste)
 					endHpSum += result.Metadata.CharacterEndHp
-					log(fmt.Sprintf("cooldown: %d", cooldown))
+					// log(fmt.Sprintf("cooldown: %d", cooldown))
 
 					cooldownSum += cooldown
 				}
@@ -180,7 +187,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 					state.GlobalState.BankState.Unlock()
 				}
 
-				if totalCooldown > totalFightCooldownThreshold && tasksCoinCount > 0 {
+				if totalCooldown > totalFightCooldownThreshold && tasksCoinCount > 10 {
 					log(fmt.Sprintf("Task will take too long, abort task %d > %d", totalCooldown, totalFightCooldownThreshold))
 					return "cancel-task"
 				}
