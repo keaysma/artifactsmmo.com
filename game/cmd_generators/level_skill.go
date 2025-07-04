@@ -308,7 +308,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 							return "clear-gen"
 						}
 
-						res, err := game.RunSimulations(characterName, target.Target, 1, &loadout)
+						res, err := game.RunSimulations(characterName, target.Target, 10_000, &loadout)
 						if err != nil {
 							log(fmt.Sprintf("Failed to run fight simulation: %s", err))
 							return "clear-gen"
@@ -319,7 +319,26 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 							return "clear-gen"
 						}
 
-						if (*res)[0].FightDetails.Result == "win" {
+						lowestHp := 0
+						highestHp := 0
+						countWins := 0
+						countLosses := 1 // slight loss bias, but also prevent x/0
+						for _, r := range *res {
+							if r.FightDetails.Result == "win" {
+								countWins++
+							} else {
+								countLosses++
+							}
+
+							hpDelta := r.Metadata.CharacterEndHp - r.Metadata.MonsterEndHp
+							highestHp = max(highestHp, hpDelta)
+							lowestHp = min(lowestHp, hpDelta)
+						}
+
+						ratioWinLoss := float64(countWins) / float64(countLosses)
+						log(fmt.Sprintf("Simulation results: %f (%d win/%d lose), hp-range: %d..%d", ratioWinLoss, countWins, countLosses, lowestHp, highestHp))
+
+						if ratioWinLoss >= 1 {
 							log(fmt.Sprintf("Can beat %s", target.Target))
 							newLevelTarget = &target
 							break
@@ -360,6 +379,15 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 				log("Setting task")
 				switch skill {
 				case "fight":
+					char := kernel.CharacterState.Ref()
+					hp, maxHp := char.X, char.Y
+					kernel.CharacterState.Unlock()
+
+					if hp < maxHp {
+						log("hp < map hp - this can mess with equip/unequip actions, resting")
+						return "rest"
+					}
+
 					equipCommand, err := LoadOutCommand(kernel, currentTarget.Target)
 					if err != nil {
 						log(fmt.Sprintf("failed to get equipment loadout for %s: %s", currentTarget.Target, err))
@@ -370,7 +398,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 						return equipCommand
 					}
 
-					char := kernel.CharacterState.Ref()
+					char = kernel.CharacterState.Ref()
 					x, y := char.X, char.Y
 					kernel.CharacterState.Unlock()
 
@@ -393,15 +421,15 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 							return next_command
 						}
 
-						if last != move && last != "rest" && last != "fight" {
+						char := kernel.CharacterState.Ref()
+						chp, cmapHp, cx, cy := char.Hp, char.Max_hp, char.X, char.Y
+						kernel.CharacterState.Unlock()
+
+						if cx != closest_map.X || cy != closest_map.Y {
 							return move
 						}
 
-						char := kernel.CharacterState.Ref()
-						hp, max_hp := char.Hp, char.Max_hp
-						kernel.CharacterState.Unlock()
-
-						if !steps.FightHpSafetyCheck(hp, max_hp) {
+						if !steps.FightHpSafetyCheck(chp, cmapHp) {
 							return "rest"
 						}
 
