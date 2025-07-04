@@ -230,21 +230,22 @@ type Resource struct {
 }
 
 type Monster struct {
-	Name         string
-	Code         string
-	Level        int
-	Hp           int
-	Attack_fire  int
-	Attack_earth int
-	Attack_water int
-	Attack_air   int
-	Res_fire     int
-	Res_earth    int
-	Res_water    int
-	Res_air      int
-	Min_gold     int
-	Max_gold     int
-	Drops        []ResourceDrop
+	Name            string
+	Code            string
+	Level           int
+	Hp              int
+	Attack_fire     int
+	Attack_earth    int
+	Attack_water    int
+	Attack_air      int
+	Res_fire        int
+	Res_earth       int
+	Res_water       int
+	Res_air         int
+	Critical_strike int
+	Min_gold        int
+	Max_gold        int
+	Drops           []ResourceDrop
 }
 
 type BlockedHits struct {
