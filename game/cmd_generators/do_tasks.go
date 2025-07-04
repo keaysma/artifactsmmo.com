@@ -201,14 +201,14 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 				}
 			}
 
-			equipCommand, err := LoadOutForFight(kernel, current_task)
+			equipCommand, err := LoadOutCommand(kernel, current_task)
 			if err != nil {
 				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", current_task, err))
 				return "clear-gen"
 			}
 
-			if equipCommand != nil {
-				return *equipCommand
+			if equipCommand != "" {
+				return equipCommand
 			}
 
 			closest_map := steps.PickClosestMap(coords.Coord{X: x, Y: y}, monstersMaps)

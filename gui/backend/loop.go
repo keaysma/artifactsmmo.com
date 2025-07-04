@@ -199,6 +199,68 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		return true
+	case "loadout":
+		if len(parts) < 2 {
+			log("usage: equip [<slot:string>:]<code:string>[:<quantity:number>] [...]")
+			return false
+		}
+
+		type eqset struct {
+			Slot     string
+			Code     string
+			Quantity int
+		}
+		equipSets := []eqset{}
+
+		for _, pair := range parts[1:] {
+			sec := strings.Split(pair, ":")
+
+			eq := eqset{}
+
+			if len(sec) == 1 {
+				eq.Code = sec[0]
+			} else if len(sec) == 2 {
+				// This is either:
+				// code:quantity
+				// slot:code
+
+				maybeQt, err := strconv.ParseInt(sec[1], 10, 64)
+				if err == nil {
+					// it is code:quantity
+					eq.Code = sec[0]
+					eq.Quantity = int(maybeQt)
+				} else {
+					// it is slot:code
+					eq.Slot = sec[0]
+					eq.Code = sec[1]
+				}
+			} else if len(sec) == 3 {
+				maybeQt, err := strconv.ParseInt(sec[2], 10, 64)
+				if err != nil {
+					log("usage: equip [<slot:string>:]<code:string>[:<quantity:number>] [...]")
+					return false
+				}
+
+				eq.Slot = sec[0]
+				eq.Code = sec[1]
+				eq.Quantity = int(maybeQt)
+			} else {
+				log("usage: equip [<slot:string>:]<code:string>[:<quantity:number>] [...]")
+				return false
+			}
+
+			equipSets = append(equipSets, eq)
+		}
+
+		for _, eq := range equipSets {
+			err := steps.EquipItem(kernel, eq.Code, eq.Slot, eq.Quantity)
+			if err != nil {
+				log(fmt.Sprintf("failed to equip %d %s to %s: %s", eq.Quantity, eq.Code, eq.Slot, err))
+				return false
+			}
+		}
+
+		return true
 	case "unequip":
 		if len(parts) < 2 || len(parts) > 3 {
 			log("usage: unequip <slot:string>[ <quantity:number>]")

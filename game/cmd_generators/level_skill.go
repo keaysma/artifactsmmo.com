@@ -343,14 +343,14 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 				log("Setting task")
 				switch skill {
 				case "fight":
-					equipCommand, err := LoadOutForFight(kernel, currentTarget.Target)
+					equipCommand, err := LoadOutCommand(kernel, currentTarget.Target)
 					if err != nil {
 						log(fmt.Sprintf("failed to get equipment loadout for %s: %s", currentTarget.Target, err))
 						return "clear-gen"
 					}
 
-					if equipCommand != nil {
-						return *equipCommand
+					if equipCommand != "" {
+						return equipCommand
 					}
 
 					char := kernel.CharacterState.Ref()

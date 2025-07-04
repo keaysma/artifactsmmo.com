@@ -9,6 +9,7 @@ import (
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
@@ -26,7 +27,7 @@ type EquipConfig struct {
 // if this could instead return item details instead of just an equip string then
 // we could have a middle-interface that turns this into an equip string
 // we could pass the raw result on to the fight simulator to emulate how a character would fare if equipped w/ best items
-func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sorts []steps.SortCri) (*string, error) {
+func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sorts []steps.SortCri) (*types.ItemDetails, error) {
 	log := kernel.LogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
 
 	char := kernel.CharacterState.Ref()
@@ -65,8 +66,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 		invCount := utils.CountInventory(&char.Inventory, item.Code)
 		kernel.CharacterState.Unlock()
 		if invCount > 0 {
-			cmd := fmt.Sprintf("equip %s %s", slot, item.Code)
-			return &cmd, nil
+			return &item, nil
 		}
 
 		// ... otherwise check bank
@@ -74,9 +74,8 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 		bankCount := utils.CountBank(bank, item.Code)
 		state.GlobalState.BankState.Unlock()
 		if bankCount > 0 {
-			// "equip" should now handle withdrawing
-			cmd := fmt.Sprintf("equip %s %s", slot, item.Code)
-			return &cmd, nil
+			return &item, nil
+
 		}
 	}
 
@@ -85,7 +84,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 	return nil, nil
 }
 
-func LoadOutForFight(kernel *game.Kernel, target string) (*string, error) {
+func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.ItemDetails, error) {
 	log := kernel.LogPre(fmt.Sprintf("[loadout]<%s>: ", target))
 
 	monsterData, err := api.GetMonsterByCode(target)
@@ -265,8 +264,10 @@ func LoadOutForFight(kernel *game.Kernel, target string) (*string, error) {
 		},
 	}
 
+	loadout := map[string]*types.ItemDetails{}
+
 	for _, equipConfig := range equipConfigs {
-		cmd, err := tryEquip(
+		item, err := tryEquip(
 			kernel,
 			target,
 			equipConfig.Itype,
@@ -276,13 +277,34 @@ func LoadOutForFight(kernel *game.Kernel, target string) (*string, error) {
 		if err != nil {
 			return nil, err
 		}
-		if cmd != nil {
-			return cmd, nil
+		if item != nil {
+			loadout[equipConfig.Slot] = item
 		}
 	}
 
 	// TODO: Fight simulations to determine utility1, utility2
 	// TODO: artifacts
 
-	return nil, nil
+	return loadout, nil
+}
+
+func LoadOutCommand(kernel *game.Kernel, target string) (string, error) {
+	loadout, err := LoadOutForFight(kernel, target)
+	if err != nil {
+		return "", err
+	}
+
+	for len(loadout) == 0 {
+		return "", nil
+	}
+
+	cmd := "loadout "
+	for slot, item := range loadout {
+		cmd += fmt.Sprintf("%s:%s ", slot, item.Code)
+	}
+
+	// snip that extra space
+	cmd = cmd[:len(cmd)-1]
+
+	return cmd, nil
 }

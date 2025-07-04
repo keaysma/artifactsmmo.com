@@ -217,14 +217,14 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		}
 
 		if component.Action == "fight" {
-			equipCommand, err := LoadOutForFight(kernel, tile.Content.Code)
+			equipCommand, err := LoadOutCommand(kernel, tile.Content.Code)
 			if err != nil {
 				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
 				return "clear-gen", top
 			}
 
-			if equipCommand != nil {
-				return *equipCommand, top
+			if equipCommand != "" {
+				return equipCommand, top
 			}
 		}
 
