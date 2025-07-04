@@ -39,6 +39,7 @@ TODOs:
 
 type FightSimulationMetadata struct {
 	CharacterEndHp int
+	MonsterEndHp   int
 	Cooldown       int
 }
 
@@ -49,6 +50,42 @@ type FightSimulationData struct {
 
 func GetCooldown(turns int, haste int) int {
 	return int(math.Round(float64(2*turns) * (1 - (0.01 * float64(haste)))))
+}
+
+func handleElementalDamageCharacterAttack(element string, character types.Character, monster types.Monster, criticalMultiplier float64) int {
+	elementAttackField := fmt.Sprintf("Attack_%s", element)
+	elementAttackValue := utils.GetFieldFromStructByName(character, elementAttackField).Int()
+
+	elementDmgField := fmt.Sprintf("Dmg_%s", element)
+	elementDmgValue := utils.GetFieldFromStructByName(character, elementDmgField).Int()
+
+	dmgValue := character.Dmg
+
+	elementResField := fmt.Sprintf("Res_%s", element)
+	elementResValue := utils.GetFieldFromStructByName(monster, elementResField).Int()
+
+	hit := int(math.Round((float64(elementAttackValue) * (1 + (float64(elementDmgValue+int64(dmgValue)) / 100))) * (1 - (float64(elementResValue) / 100)) * float64(criticalMultiplier)))
+	return hit
+}
+
+func handleElementalDamageMonsterAttack(element string, character types.Character, monster types.Monster, criticalMultiplier float64) (int, bool) {
+	elementAttackField := fmt.Sprintf("Attack_%s", element)
+	elementAttackValue := utils.GetFieldFromStructByName(monster, elementAttackField).Int()
+
+	elementResField := fmt.Sprintf("Res_%s", element)
+	elementResValue := utils.GetFieldFromStructByName(character, elementResField).Int()
+
+	hit := int(math.Round(float64(elementAttackValue)*(1-(float64(elementResValue)/100))) * criticalMultiplier)
+	if hit == 0 {
+		return 0, false
+	}
+
+	pBlock := (float64(elementResValue) / 10.0) / 100.0
+	if rand.Float64() <= pBlock {
+		return 0, true
+	}
+
+	return hit, false
 }
 
 func simulateFight(character types.Character, monster types.Monster) *FightSimulationData {
@@ -84,134 +121,57 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				Turn 1: The character used earth attack and dealt 33 damage. (Monster HP: 447/480)
 				Turn 1: The character used water attack and dealt 20 damage. (Monster HP: 427/480)
 			*/
-			hit_fire := int(math.Round((float64(character.Attack_fire) * (1 + (float64(character.Dmg_fire+character.Dmg) / 100))) * (1 - (float64(monster.Res_fire) / 100))))
-			if hit_fire > 0 {
-				// critical strike disabled for now
-				// todo: is critical determined for all element at once, or per element?
-				if false && rand.Float64() < float64(character.Critical_strike)/100 {
-					monster.Hp -= int(float64(hit_fire) * 1.5)
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The character used fire attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", result.Turns, int(hit_fire), monster.Hp, monsterMaxHp),
-					)
-				} else {
-					monster.Hp -= hit_fire
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The character used fire attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, int(hit_fire), monster.Hp, monsterMaxHp),
-					)
+			isCriticalStrike := rand.Float64() < (float64(character.Critical_strike) / 100.0)
+			criticalMultiplier := 1.0
+			if isCriticalStrike {
+				criticalMultiplier = 1.5
+			}
+
+			for _, element := range []string{"fire", "earth", "water", "air"} {
+				hit := handleElementalDamageCharacterAttack(element, character, monster, criticalMultiplier)
+				if hit == 0 {
+					continue
 				}
-				monster.Hp = max(0, monster.Hp)
 
-			}
-
-			hit_earth := int(math.Round((float64(character.Attack_earth) * (1 + (float64(character.Dmg_earth+character.Dmg) / 100))) * (1 - (float64(monster.Res_earth) / 100))))
-			if hit_earth > 0 {
-				monster.Hp -= hit_earth
-				monster.Hp = max(0, monster.Hp)
-				result.Logs = append(
-					result.Logs,
-					fmt.Sprintf("Turn %d: The character used earth attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, int(hit_earth), monster.Hp, monsterMaxHp),
-				)
-			}
-
-			hit_water := int(math.Round((float64(character.Attack_water) * (1 + (float64(character.Dmg_water+character.Dmg) / 100))) * (1 - (float64(monster.Res_water) / 100))))
-			if hit_water > 0 {
-				monster.Hp -= hit_water
-				monster.Hp = max(0, monster.Hp)
-				result.Logs = append(
-					result.Logs,
-					fmt.Sprintf("Turn %d: The character used water attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, int(hit_water), monster.Hp, monsterMaxHp),
-				)
-			}
-
-			hit_air := int(math.Round((float64(character.Attack_air) * (1 + (float64(character.Dmg_air+character.Dmg) / 100))) * (1 - (float64(monster.Res_air) / 100))))
-			if hit_air > 0 {
-				monster.Hp -= hit_air
-				monster.Hp = max(0, monster.Hp)
-				result.Logs = append(
-					result.Logs,
-					fmt.Sprintf("Turn %d: The character used air attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, int(hit_air), monster.Hp, monsterMaxHp),
-				)
+				logMessage := fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, element, int(hit), monster.Hp, monsterMaxHp)
+				if isCriticalStrike {
+					logMessage = fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", result.Turns, element, int(hit), monster.Hp, monsterMaxHp)
+				}
+				result.Logs = append(result.Logs, logMessage)
+				monster.Hp = max(0, monster.Hp-hit)
 			}
 		} else {
 			// Monster's turn
 			/*
 				Turn 2: The monster used water attack and dealt 35 damage. (Character HP: 515/550)
 			*/
-			hit_fire := int(math.Round(float64(monster.Attack_fire) * (1 - (float64(character.Res_fire) / 100))))
-			if hit_fire > 0 {
-				block_chance := (float64(character.Res_fire) / 10.0) / 100.0
-				if rand.Float64() > block_chance {
-					character.Hp -= hit_fire
-					character.Hp = max(0, character.Hp)
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used fire attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, int(hit_fire), character.Hp, character.Max_hp),
-					)
-				} else {
-					result.Player_blocked_hits.Fire++
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used fire attack but the character blocked it. (Character HP: %d/%d)", result.Turns, character.Hp, character.Max_hp),
-					)
-				}
+
+			isCriticalStrike := rand.Float64() < (float64(monster.Critical_strike) / 100.0)
+			criticalMultiplier := 1.0
+			if isCriticalStrike {
+				criticalMultiplier = 1.5
 			}
 
-			hit_earth := int(math.Round(float64(monster.Attack_earth) * (1 - (float64(character.Res_earth) / 100))))
-			if hit_earth > 0 {
-				block_chance := (float64(character.Res_earth) / 10.0) / 100.0
-				if rand.Float64() > block_chance {
-					character.Hp -= hit_earth
-					character.Hp = max(0, character.Hp)
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used earth attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, int(hit_earth), character.Hp, character.Max_hp),
-					)
-				} else {
-					result.Player_blocked_hits.Earth++
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used earth attack but the character blocked it. (Character HP: %d/%d)", result.Turns, character.Hp, character.Max_hp),
-					)
+			for _, element := range []string{"fire", "earth", "water", "air"} {
+				hit, didBlock := handleElementalDamageMonsterAttack(element, character, monster, criticalMultiplier)
+				if hit == 0 {
+					continue
 				}
-			}
 
-			hit_water := int(math.Round(float64(monster.Attack_water) * (1 - (float64(character.Res_water) / 100))))
-			if hit_water > 0 {
-				block_chance := (float64(character.Res_water) / 10.0) / 100.0
-				if rand.Float64() > block_chance {
-					character.Hp -= hit_water
-					character.Hp = max(0, character.Hp)
+				if didBlock {
+					blockHitsField := utils.GetFieldFromStructByName(result.Player_blocked_hits, element)
+					blockHitsField.SetInt(blockHitsField.Int() + 1)
 					result.Logs = append(
 						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used water attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, int(hit_water), character.Hp, character.Max_hp),
+						fmt.Sprintf("Turn %d: The monster used %s attack but the character blocked it. (Character HP: %d/%d)", result.Turns, element, character.Hp, character.Max_hp),
 					)
 				} else {
-					result.Player_blocked_hits.Water++
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used water attack but the character blocked it. (Character HP: %d/%d)", result.Turns, character.Hp, character.Max_hp),
-					)
-				}
-			}
-
-			hit_air := int(math.Round(float64(monster.Attack_air) * (1 - (float64(character.Res_air) / 100))))
-			if hit_air > 0 {
-				block_chance := (float64(character.Res_air) / 10.0) / 100.0
-				if rand.Float64() > block_chance {
-					character.Hp -= hit_air
-					character.Hp = max(0, character.Hp)
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used air attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, int(hit_air), character.Hp, character.Max_hp),
-					)
-				} else {
-					result.Player_blocked_hits.Air++
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used air attack but the character blocked it. (Character HP: %d/%d)", result.Turns, character.Hp, character.Max_hp),
-					)
+					logMessage := fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, element, int(hit), character.Hp, character.Max_hp)
+					if isCriticalStrike {
+						logMessage = fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage (Critical Strike). (Character HP: %d/%d)", result.Turns, element, int(hit), character.Hp, character.Max_hp)
+					}
+					result.Logs = append(result.Logs, logMessage)
+					character.Hp = max(0, character.Hp-hit)
 				}
 			}
 		}
@@ -239,6 +199,7 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 		Metadata: FightSimulationMetadata{
 			Cooldown:       GetCooldown(result.Turns, character.Haste),
 			CharacterEndHp: character.Hp,
+			MonsterEndHp:   monster.Hp,
 		},
 	}
 }
