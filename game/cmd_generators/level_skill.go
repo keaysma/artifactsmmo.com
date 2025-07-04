@@ -301,8 +301,25 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 				if newLevelTarget == nil {
 					if skill == "fight" && (newLevelTarget != currentTarget || currentTarget == nil) {
 						log(fmt.Sprintf("Check if can beat %s", target.Target))
-						res, err := game.RunSimulations(characterName, target.Target, 1)
-						if err == nil && (*res)[0].FightDetails.Result == "win" {
+
+						loadout, err := LoadOutForFight(kernel, target.Target)
+						if err != nil {
+							log(fmt.Sprintf("Failed to get loadout for fight simulation: %s", err))
+							return "clear-gen"
+						}
+
+						res, err := game.RunSimulations(characterName, target.Target, 1, &loadout)
+						if err != nil {
+							log(fmt.Sprintf("Failed to run fight simulation: %s", err))
+							return "clear-gen"
+						}
+
+						if res == nil {
+							log("Fight simulation results are blank, abort")
+							return "clear-gen"
+						}
+
+						if (*res)[0].FightDetails.Result == "win" {
 							log(fmt.Sprintf("Can beat %s", target.Target))
 							newLevelTarget = &target
 							break

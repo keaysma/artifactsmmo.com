@@ -1067,13 +1067,15 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		return true
 	case "simulate-fight":
 		if len(parts) != 2 {
-			log("usage: simulate-fight <monster_code:string>")
+			log("usage: simulate-fight <monster_code:string> [[<slot:string>:]<code:string>[:<quantity:int>][,...]]")
 			return false
 		}
 
 		monster_code := parts[1]
 
-		res, err := game.RunSimulations(kernel.CharacterName, monster_code, 1)
+		// TODO: Support custom load-out for fight
+
+		res, err := game.RunSimulations(kernel.CharacterName, monster_code, 1, nil)
 		if err != nil {
 			log(fmt.Sprintf("failed to simulate fight: %s", err))
 			return false

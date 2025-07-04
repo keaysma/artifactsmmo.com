@@ -7,6 +7,7 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/types"
+	"artifactsmmo.com/m/utils"
 )
 
 /*
@@ -83,7 +84,7 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				Turn 1: The character used earth attack and dealt 33 damage. (Monster HP: 447/480)
 				Turn 1: The character used water attack and dealt 20 damage. (Monster HP: 427/480)
 			*/
-			hit_fire := int(math.Round((float64(character.Attack_fire) * (1 + (float64(character.Dmg_fire) / 100))) * (1 - (float64(monster.Res_fire) / 100))))
+			hit_fire := int(math.Round((float64(character.Attack_fire) * (1 + (float64(character.Dmg_fire+character.Dmg) / 100))) * (1 - (float64(monster.Res_fire) / 100))))
 			if hit_fire > 0 {
 				// critical strike disabled for now
 				// todo: is critical determined for all element at once, or per element?
@@ -104,7 +105,7 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 
 			}
 
-			hit_earth := int(math.Round((float64(character.Attack_earth) * (1 + (float64(character.Dmg_earth) / 100))) * (1 - (float64(monster.Res_earth) / 100))))
+			hit_earth := int(math.Round((float64(character.Attack_earth) * (1 + (float64(character.Dmg_earth+character.Dmg) / 100))) * (1 - (float64(monster.Res_earth) / 100))))
 			if hit_earth > 0 {
 				monster.Hp -= hit_earth
 				monster.Hp = max(0, monster.Hp)
@@ -114,7 +115,7 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				)
 			}
 
-			hit_water := int(math.Round((float64(character.Attack_water) * (1 + (float64(character.Dmg_water) / 100))) * (1 - (float64(monster.Res_water) / 100))))
+			hit_water := int(math.Round((float64(character.Attack_water) * (1 + (float64(character.Dmg_water+character.Dmg) / 100))) * (1 - (float64(monster.Res_water) / 100))))
 			if hit_water > 0 {
 				monster.Hp -= hit_water
 				monster.Hp = max(0, monster.Hp)
@@ -124,7 +125,7 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				)
 			}
 
-			hit_air := int(math.Round((float64(character.Attack_air) * (1 + (float64(character.Dmg_air) / 100))) * (1 - (float64(monster.Res_air) / 100))))
+			hit_air := int(math.Round((float64(character.Attack_air) * (1 + (float64(character.Dmg_air+character.Dmg) / 100))) * (1 - (float64(monster.Res_air) / 100))))
 			if hit_air > 0 {
 				monster.Hp -= hit_air
 				monster.Hp = max(0, monster.Hp)
@@ -242,10 +243,44 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 	}
 }
 
-func RunSimulations(character string, monster string, iterations int) (*[]FightSimulationData, error) {
-	character_data, err := api.GetCharacterByName(character)
+func RunSimulations(character string, monster string, iterations int, applyLoadout *map[string]*types.ItemDetails) (*[]FightSimulationData, error) {
+	characterData, err := api.GetCharacterByName(character)
 	if err != nil {
 		return nil, err
+	}
+
+	if applyLoadout != nil {
+		for slot, item := range *applyLoadout {
+			if item == nil {
+				continue
+			}
+
+			curEquip := utils.GetFieldFromStructByName(characterData, fmt.Sprintf("%s_slot", utils.Caser.String(slot))).String()
+			if curEquip != "" {
+				curEquipInfo, err := api.GetItemDetails(curEquip)
+				if err != nil {
+					return nil, fmt.Errorf("failed to get items details for %s: %s", curEquip, err)
+				}
+
+				// simulate unequipping that item
+				for _, effect := range curEquipInfo.Effects {
+					currentEffectValue := utils.GetFieldFromStructByName(characterData, effect.Code)
+					if !currentEffectValue.IsValid() {
+						return nil, fmt.Errorf("applyLoadout: %s: invalid effect: %s", item.Code, effect.Code)
+					}
+					currentEffectValue.SetInt(currentEffectValue.Int() - int64(effect.Value))
+				}
+			}
+
+			// simulate equipping the new item
+			for _, effect := range item.Effects {
+				currentEffectValue := utils.GetFieldFromStructByName(characterData, effect.Code)
+				if !currentEffectValue.IsValid() {
+					return nil, fmt.Errorf("applyLoadout: %s: invalid effect: %s", item.Code, effect.Code)
+				}
+				currentEffectValue.SetInt(currentEffectValue.Int() + int64(effect.Value))
+			}
+		}
 	}
 
 	monster_data, err := api.GetMonsterByCode(monster)
@@ -255,7 +290,7 @@ func RunSimulations(character string, monster string, iterations int) (*[]FightS
 
 	results := []FightSimulationData{}
 	for i := 0; i < iterations; i++ {
-		result := *simulateFight(*character_data, *monster_data)
+		result := *simulateFight(*characterData, *monster_data)
 		results = append(results, result)
 	}
 

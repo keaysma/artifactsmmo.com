@@ -107,7 +107,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 				// 2. Can fight monster reasonably fast
 
 				log("Amount is OK, check simulation result")
-				fightResult, err := game.RunSimulations(characterName, current_task, simulationCount)
+				fightResult, err := game.RunSimulations(characterName, current_task, simulationCount, nil)
 				if err != nil {
 					log(fmt.Sprintf("Failed to get fight simulation results, abort: %s", err))
 					return "clear-gen"
