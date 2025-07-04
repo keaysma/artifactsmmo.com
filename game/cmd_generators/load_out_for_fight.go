@@ -24,9 +24,6 @@ type EquipConfig struct {
 	Sorts []steps.SortCri
 }
 
-// if this could instead return item details instead of just an equip string then
-// we could have a middle-interface that turns this into an equip string
-// we could pass the raw result on to the fight simulator to emulate how a character would fare if equipped w/ best items
 func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sorts []steps.SortCri) (*types.ItemDetails, error) {
 	log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
 
@@ -84,7 +81,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 	return nil, nil
 }
 
-func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.ItemDetails, error) {
+func LoadOutForFightV1(kernel *game.Kernel, target string) (map[string]*types.ItemDetails, error) {
 	log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>: ", target))
 
 	monsterData, err := api.GetMonsterByCode(target)
@@ -162,6 +159,20 @@ func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.Item
 		}
 	}
 	log(fmt.Sprintf("defend against: %v", highestMonsterAttackList))
+
+	// TODO
+	/*
+		A better equation is needed to account for scenarios where we have a really strong weapon for the least vulnerable element and a really weak weapon for the most vulnerable element
+		ex:
+		- we have a 14 atk earth weapon
+		- we have a 3 atk air weapon
+		- the enemy is resistant to earth
+		- we end up picking the air weapon, even though the earth weapon is still actually more effective
+
+		this could ultimately require circumnavigating the sort (which seems silly to do, why not just get rid of it???) ...
+		... or somehow allowing this equation:
+		sum(el => el_atk * (1 - el_resist))
+	*/
 
 	var weaponsEqs []steps.SortEq
 	for _, res := range lowestMonsterResList {
@@ -296,6 +307,117 @@ func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.Item
 		}
 
 		kernel.Log(fmt.Sprintf("[loadout]<%s>: %s", target, displayLoadout))
+	}
+
+	return loadout, nil
+}
+
+func tryEquipByScore(kernel *game.Kernel, target string, itype string, slot string) (*types.ItemDetails, error) {
+	log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
+
+	char := kernel.CharacterState.Ref()
+	level := char.Level
+	kernel.CharacterState.Unlock()
+
+	result, err := steps.GetAllItemsWithTarget(
+		api.GetAllItemsFilter{
+			Itype:          itype,
+			Craft_material: "",
+			Craft_skill:    "",
+			Min_level:      "0",
+			Max_level:      strconv.FormatInt(int64(level), 10),
+		},
+		target,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, res := range *result {
+		item := res.ItemDetails
+		log(fmt.Sprintf("try to equip %s", item.Code))
+
+		char := kernel.CharacterState.Ref()
+		curEquip := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(slot))).String()
+		kernel.CharacterState.Unlock()
+
+		// if it is equipped we're good
+		if curEquip == item.Code {
+			log(fmt.Sprintf("Character already equipped %s", item.Code))
+			return nil, nil
+		}
+
+		// ... otherwise check inv
+		char = kernel.CharacterState.Ref()
+		invCount := utils.CountInventory(&char.Inventory, item.Code)
+		kernel.CharacterState.Unlock()
+		if invCount > 0 {
+			return &item, nil
+		}
+
+		// ... otherwise check bank
+		bank := state.GlobalState.BankState.Ref()
+		bankCount := utils.CountBank(bank, item.Code)
+		state.GlobalState.BankState.Unlock()
+		if bankCount > 0 {
+			return &item, nil
+
+		}
+	}
+
+	log("No equippable items")
+
+	return nil, nil
+}
+
+func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.ItemDetails, error) {
+	// log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>: ", target))
+
+	loadout := map[string]*types.ItemDetails{}
+
+	mapSlotType := map[string]string{
+		"weapon":     "weapon",
+		"shield":     "shield",
+		"helmet":     "helmet",
+		"body_armor": "body_armor",
+		"leg_armor":  "leg_armor",
+		"boots":      "boots",
+		"amulet":     "amulet",
+		"ring1":      "ring",
+		"ring2":      "ring",
+	}
+
+	for slot, itype := range mapSlotType {
+		item, err := tryEquipByScore(
+			kernel,
+			target,
+			itype,
+			slot,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if item != nil {
+			loadout[slot] = item
+		}
+	}
+
+	// TODO: Fight simulations to determine utility1, utility2
+	// TODO: artifacts
+
+	if len(loadout) > 0 {
+		displayLoadout := ""
+
+		for slot, item := range loadout {
+			if item == nil {
+				continue
+			}
+			displayLoadout += fmt.Sprintf("%s:%s ", slot, item.Code)
+		}
+
+		kernel.Log(fmt.Sprintf("[loadout]<%s>: %s", target, displayLoadout))
+	} else {
+		kernel.Log("no loadout changes")
 	}
 
 	return loadout, nil
