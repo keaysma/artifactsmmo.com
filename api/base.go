@@ -30,7 +30,7 @@ type SeqRedis struct {
 var rx = SeqRedis{
 	ctx: context.Background(),
 	r: redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: "127.0.0.1:6379",
 		DB:   1,
 	}),
 	locke: &sync.Mutex{},
@@ -83,7 +83,7 @@ func GetDataResponse[T interface{}](url string, params interface{}, response *T)
 	for rule, duration := range CACHE_CONFIG {
 		regrule := strings.ReplaceAll(rule, "*", ".*")
 		match, err := regexp.MatchString(
-			regrule,
+			fmt.Sprintf("^%s", regrule),
 			url,
 		)
 
