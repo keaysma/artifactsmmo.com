@@ -6,7 +6,7 @@ import (
 
 func GetAllMyCharacters() (*[]types.Character, error) {
 	var out []types.Character
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/characters",
 		nil,
 		&out,
@@ -39,7 +39,7 @@ type GetLogsParams struct {
 
 func GetLogs(in GetLogsParams) (*[]Log, error) {
 	var out []Log
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/logs",
 		in,
 		&out,

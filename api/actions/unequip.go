@@ -13,7 +13,7 @@ func UnequipItem(character string, slot string, quantity int) (*EquipResponse, e
 	}
 
 	var out EquipResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/unequip", character),
 		&payload,
 		&out,

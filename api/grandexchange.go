@@ -20,7 +20,7 @@ func GetSellOrderHistory(code string, in GetSellOrderHistoryParams) (*SellOrderH
 	utils.UniversalDebugLog(fmt.Sprintf("Getting sell history for %s", code))
 
 	var out SellOrderHistoryResponse
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		fmt.Sprintf("grandexchange/history/%s", code),
 		in,
 		&out,
@@ -42,7 +42,7 @@ func GetSellOrders(in GetSellOrdersParams) (*SellOrdersResponse, error) {
 	utils.UniversalDebugLog(fmt.Sprintf("Getting active sell orders for %s", in.Code))
 
 	var out = SellOrdersResponse{}
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"grandexchange/orders",
 		in,
 		&out,
@@ -59,7 +59,7 @@ func GetSellOrder(id string) (*types.SellOrderEntry, error) {
 	utils.UniversalDebugLog(fmt.Sprintf("Getting sell order %s", id))
 
 	var out types.SellOrderEntry
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		fmt.Sprintf("/grandexchange/orders/%s", id),
 		nil,
 		&out,

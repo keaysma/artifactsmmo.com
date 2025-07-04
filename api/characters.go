@@ -10,7 +10,7 @@ import (
 
 func GetCharacterByName(name string) (*types.Character, error) {
 	var out types.Character
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		fmt.Sprintf("characters/%s", name),
 		nil,
 		&out,
@@ -25,7 +25,7 @@ func GetCharacterByName(name string) (*types.Character, error) {
 
 func GetAllCharacters() (*[]types.Character, error) {
 	var out []types.Character
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/characters",
 		nil,
 		&out,

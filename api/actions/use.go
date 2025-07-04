@@ -20,7 +20,7 @@ func Use(character string, code string, quantity int) (*UseResponse, error) {
 	}
 
 	var out UseResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/use", character),
 		&payload,
 		&out,

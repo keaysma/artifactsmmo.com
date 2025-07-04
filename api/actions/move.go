@@ -20,7 +20,7 @@ func Move(character string, x int, y int) (*MoveResponse, error) {
 	}
 
 	var out MoveResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/move", character),
 		&payload,
 		&out,

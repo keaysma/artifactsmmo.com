@@ -12,7 +12,7 @@ type GetMySellOrdersParams struct {
 
 func GetMySellOrders(in GetMySellOrdersParams) (*[]types.SellOrderEntry, error) {
 	var out []types.SellOrderEntry
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/grandexchange/orders",
 		in,
 		&out,

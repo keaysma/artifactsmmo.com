@@ -15,7 +15,7 @@ type BankDetailsResponse struct {
 
 func GetBankItemByCode(code string) (*[]types.InventoryItem, error) {
 	var out []types.InventoryItem
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/bank/items",
 		&map[string]string{
 			"code": code,
@@ -34,7 +34,7 @@ const GET_BANK_ITEMS_PAGE_SIZE = 100
 
 func GetBankItems(page int) (*[]types.InventoryItem, error) {
 	var out []types.InventoryItem
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/bank/items",
 		&map[string]string{
 			"page": fmt.Sprintf("%d", page),
@@ -51,7 +51,7 @@ func GetBankItems(page int) (*[]types.InventoryItem, error) {
 
 func GetBankDetails() (*BankDetailsResponse, error) {
 	var out BankDetailsResponse
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"my/bank",
 		nil,
 		&out,

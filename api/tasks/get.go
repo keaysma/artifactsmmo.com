@@ -22,7 +22,7 @@ type GetTaskResponse struct {
 
 func GetTask(code string) (*GetTaskResponse, error) {
 	var out GetTaskResponse
-	err := api.GetDataResponseFuture(
+	err := api.GetDataResponse(
 		fmt.Sprintf("tasks/list/%s", code),
 		nil,
 		&out,

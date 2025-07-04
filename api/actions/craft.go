@@ -25,7 +25,7 @@ func Craft(character string, code string, quantity int) (*CraftingResponse, erro
 	}
 
 	var out CraftingResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/crafting", character),
 		&payload,
 		&out,

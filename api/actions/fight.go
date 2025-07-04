@@ -17,7 +17,7 @@ func Fight(character string) (*FightResponse, error) {
 	var payload = map[string]interface{}{}
 
 	var out FightResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/fight", character),
 		&payload,
 		&out,

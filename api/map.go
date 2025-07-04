@@ -33,7 +33,7 @@ func GetAllMapsByContentType(content_type string, content_code string) (*[]MapTi
 	}
 
 	var out []MapTile
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"maps",
 		&payload,
 		&out,

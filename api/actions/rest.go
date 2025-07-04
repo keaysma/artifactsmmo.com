@@ -15,7 +15,7 @@ type RestResponse struct {
 
 func Rest(character string) (*RestResponse, error) {
 	var out RestResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/rest", character),
 		&map[string]interface{}{},
 		&out,

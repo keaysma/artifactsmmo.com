@@ -28,9 +28,7 @@ My implementation of an artifacts-mmo API client, written in Golang
     - [ ] Can be forced to include nothing
 - [ ] Scrolling on logs
 - [ ] Command history per kernel
-- [ ] Cache static responses
-    - [x] events
-    - [ ] map locations
+- [x] Cache static responses
 - [ ] Improve error handling for generators
 - [ ] Better inventory management in generators
 - [ ] Season 4 market automation

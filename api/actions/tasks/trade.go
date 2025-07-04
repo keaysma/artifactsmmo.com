@@ -20,7 +20,7 @@ func TradeTaskItem(character string, code string, quantity int) (*TradeTaskItemR
 	}
 
 	var out TradeTaskItemResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/task/trade", character),
 		&payload,
 		&out,

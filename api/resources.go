@@ -11,7 +11,7 @@ type GetAllResourcesParams struct {
 
 func GetAllResources(in GetAllResourcesParams) (*[]types.Resource, error) {
 	var out []types.Resource
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"resources",
 		in,
 		&out,

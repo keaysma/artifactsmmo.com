@@ -31,7 +31,7 @@ func BankDeposit(character string, code string, quantity int) (*BankItemResponse
 	}
 
 	var out BankItemResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/bank/deposit/item", character),
 		&payload,
 		&out,
@@ -52,7 +52,7 @@ func BankWithdraw(character string, code string, quantity int) (*BankItemRespons
 		},
 	}
 	var out BankItemResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/bank/withdraw/item", character),
 		&payload,
 		&out,
@@ -71,7 +71,7 @@ func BankDepositGold(character string, quantity int) (*BankGoldResponse, error) 
 	}
 
 	var out BankGoldResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/bank/deposit/gold", character),
 		&payload,
 		&out,
@@ -90,7 +90,7 @@ func BankWithdrawGold(character string, quantity int) (*BankGoldResponse, error)
 	}
 
 	var out BankGoldResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/bank/withdraw/gold", character),
 		&payload,
 		&out,

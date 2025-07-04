@@ -20,7 +20,7 @@ func GetAllItemsByType(item_type string, page int, size int) (*ItemsResponse, er
 	}
 
 	var out ItemsResponse
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"items",
 		&payload,
 		&out,
@@ -42,7 +42,7 @@ func GetAllItemsByCraftSkill(craft_skill string, page int, size int) (*ItemsResp
 	}
 
 	var out ItemsResponse
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"items",
 		&payload,
 		&out,
@@ -91,7 +91,7 @@ func GetAllItemsFiltered(filter GetAllItemsFilter, page int, size int) (*ItemsRe
 	}
 
 	var out ItemsResponse
-	err := GetDataResponseFuture(
+	err := GetDataResponse(
 		"items",
 		&payload,
 		&out,

@@ -20,7 +20,7 @@ type GatherResponse struct {
 
 func Gather(character string) (*GatherResponse, error) {
 	var out GatherResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/gathering", character),
 		nil,
 		&out,

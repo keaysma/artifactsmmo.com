@@ -33,7 +33,7 @@ func CreateSellOrder(character string, code string, quantity int, price int) (*C
 	}
 
 	var out CreateSellOrderResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/grandexchange/sell", character),
 		&payload,
 		&out,
@@ -52,7 +52,7 @@ func CancelSellOrder(character string, id string) (*CancelSellOrderResponse, err
 	}
 
 	var out CancelSellOrderResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/grandexchange/cancel", character),
 		&payload,
 		&out,
@@ -72,7 +72,7 @@ func HitSellOrder(character string, id string, quantity int) (*BuyItemResponse, 
 	}
 
 	var out BuyItemResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/grandexchange/buy", character),
 		&payload,
 		&out,

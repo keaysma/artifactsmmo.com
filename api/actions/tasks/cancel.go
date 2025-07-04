@@ -14,7 +14,7 @@ type CancelTaskResponse struct {
 
 func CancelTask(character string) (*CompleteTaskResponse, error) {
 	var out CompleteTaskResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/task/cancel", character),
 		&map[string]interface{}{},
 		&out,

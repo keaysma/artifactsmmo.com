@@ -22,7 +22,7 @@ func EquipItem(character string, code string, slot string, quantity int) (*Equip
 	}
 
 	var out EquipResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/equip", character),
 		&payload,
 		&out,

@@ -15,7 +15,7 @@ type ExchangeTaskCoinsResponse struct {
 
 func ExchangeTaskCoins(character string) (*ExchangeTaskCoinsResponse, error) {
 	var out ExchangeTaskCoinsResponse
-	err := api.PostDataResponseFuture(
+	err := api.PostDataResponse(
 		fmt.Sprintf("my/%s/action/task/exchange", character),
 		&map[string]interface{}{},
 		&out,
