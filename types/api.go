@@ -121,6 +121,7 @@ type Character struct {
 	Attack_earth           int
 	Attack_water           int
 	Attack_air             int
+	Dmg                    int
 	Dmg_fire               int
 	Dmg_earth              int
 	Dmg_water              int
