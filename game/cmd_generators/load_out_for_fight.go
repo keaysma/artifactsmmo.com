@@ -28,7 +28,7 @@ type EquipConfig struct {
 // we could have a middle-interface that turns this into an equip string
 // we could pass the raw result on to the fight simulator to emulate how a character would fare if equipped w/ best items
 func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sorts []steps.SortCri) (*types.ItemDetails, error) {
-	log := kernel.LogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
+	log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
 
 	char := kernel.CharacterState.Ref()
 	level := char.Level
@@ -85,7 +85,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 }
 
 func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.ItemDetails, error) {
-	log := kernel.LogPre(fmt.Sprintf("[loadout]<%s>: ", target))
+	log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>: ", target))
 
 	monsterData, err := api.GetMonsterByCode(target)
 	if err != nil {
@@ -284,6 +284,19 @@ func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.Item
 
 	// TODO: Fight simulations to determine utility1, utility2
 	// TODO: artifacts
+
+	if len(loadout) > 0 {
+		displayLoadout := ""
+
+		for slot, item := range loadout {
+			if item == nil {
+				continue
+			}
+			displayLoadout += fmt.Sprintf("%s:%s ", slot, item.Code)
+		}
+
+		kernel.Log(fmt.Sprintf("[loadout]<%s>: %s", target, displayLoadout))
+	}
 
 	return loadout, nil
 }
