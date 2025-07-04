@@ -7,6 +7,7 @@ import (
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
 
@@ -29,6 +30,12 @@ func PickClosestMap(coord coords.Coord, maps *[]api.MapTile) *api.MapTile {
 
 func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[string]api.MapTile, error) {
 	mapCodeTile := &map[string]api.MapTile{}
+
+	allEvents, err := api.GetAllEvents("", 1, 100)
+	if err != nil || allEvents == nil {
+		kernel.Log(fmt.Sprintf("failed to get event info: %s", err))
+		return nil, err
+	}
 
 	for code, action := range mapCodeAction {
 		if action == "withdraw" {
@@ -61,51 +68,35 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 				monster_code := (*monsters)[0].Code
 				kernel.Log(fmt.Sprintf("monster: %s", monster_code))
 
+				var eventInfo *types.EventDetails = nil
+				for _, ev := range *allEvents {
+					if ev.Content.Code == monster_code {
+						eventInfo = &ev
+					}
+				}
+
 				tiles, err := api.GetAllMapsByContentType("monster", monster_code)
 				if err != nil {
 					kernel.Log(fmt.Sprintf("failed to get map info for monster %s: %s", monster_code, err))
 					return nil, err
 				}
 
+				if eventInfo != nil {
+					kernel.Log(fmt.Sprintf("monster %s is this an event monster", monster_code))
+					kernel.Log(fmt.Sprintf("event: %s", eventInfo.Code))
+					(*mapCodeTile)[code] = api.MapTile{
+						Content: api.MapTileContent{
+							Type: "event",
+							Code: monster_code,
+						},
+					}
+
+					continue
+				}
+
 				if len(*tiles) == 0 {
-					// kernel.Log(fmt.Sprintf("no maps for monster %s", monster_code))
-					// return nil, err
-
-					kernel.Log(fmt.Sprintf("no maps for monster %s, is this an event monster?", monster_code))
-
-					events, err := api.GetAllEvents(1, 100)
-					if err != nil {
-						kernel.Log(fmt.Sprintf("failed to get event info: %s", err))
-						return nil, err
-					}
-
-					if len(*events) == 0 {
-						kernel.Log(fmt.Sprintf("no event info found for %s", monster_code))
-						return nil, fmt.Errorf("no event info found for %s", monster_code)
-					}
-
-					didFindEventInfo := false
-					for _, event := range *events {
-						if event.Content.Code == monster_code {
-							kernel.Log(fmt.Sprintf("event: %s", event.Code))
-							(*mapCodeTile)[code] = api.MapTile{
-								Content: api.MapTileContent{
-									Type: "event",
-									Code: monster_code,
-								},
-							}
-
-							didFindEventInfo = true
-							break
-						}
-					}
-
-					if didFindEventInfo {
-						continue
-					}
-
-					kernel.Log(fmt.Sprintf("no relevant event info found for resource %s", monster_code))
-					return nil, fmt.Errorf("no relevant event info found for resource %s", monster_code)
+					kernel.Log(fmt.Sprintf("no relevant event info found for monster %s", monster_code))
+					return nil, fmt.Errorf("no relevant event info found for monster %s", monster_code)
 				}
 
 				// TODO: pick the best map
@@ -150,40 +141,27 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 			return nil, err
 		}
 
+		var eventInfo *types.EventDetails = nil
+		for _, ev := range *allEvents {
+			if ev.Content.Code == resource_code {
+				eventInfo = &ev
+			}
+		}
+
+		if eventInfo != nil {
+			kernel.Log(fmt.Sprintf("resource %s is this an event resource", resource_code))
+			kernel.Log(fmt.Sprintf("event: %s", eventInfo.Code))
+			(*mapCodeTile)[code] = api.MapTile{
+				Content: api.MapTileContent{
+					Type: "event",
+					Code: resource_code,
+				},
+			}
+
+			continue
+		}
+
 		if len(*tiles) == 0 {
-			kernel.Log(fmt.Sprintf("no maps for resource %s, is this an event resource?", resource_code))
-
-			events, err := api.GetAllEvents(1, 100)
-			if err != nil {
-				kernel.Log(fmt.Sprintf("failed to get event info: %s", err))
-				return nil, err
-			}
-
-			if len(*events) == 0 {
-				kernel.Log(fmt.Sprintf("no event info found for %s", resource_code))
-				return nil, fmt.Errorf("no event info found for %s", resource_code)
-			}
-
-			didFindEventInfo := false
-			for _, event := range *events {
-				if event.Content.Code == resource_code {
-					kernel.Log(fmt.Sprintf("event: %s", event.Code))
-					(*mapCodeTile)[code] = api.MapTile{
-						Content: api.MapTileContent{
-							Type: "event",
-							Code: resource_code,
-						},
-					}
-
-					didFindEventInfo = true
-					break
-				}
-			}
-
-			if didFindEventInfo {
-				continue
-			}
-
 			kernel.Log(fmt.Sprintf("no relevant event info found for resource %s", resource_code))
 			return nil, fmt.Errorf("no relevant event info found for resource %s", resource_code)
 		}

@@ -11,10 +11,14 @@ type EventsResponse = []types.EventDetails
 
 type ActiveEventsResponse = []types.ActiveEventDetails
 
-func GetAllEvents(page int, size int) (*EventsResponse, error) {
+func GetAllEvents(itype string, page int, size int) (*EventsResponse, error) {
 	payload := map[string]string{
 		"page": fmt.Sprintf("%d", page),
 		"size": fmt.Sprintf("%d", size),
+	}
+
+	if itype != "" {
+		payload["type"] = itype
 	}
 
 	var out EventsResponse
