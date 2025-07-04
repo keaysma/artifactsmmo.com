@@ -912,159 +912,211 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	case "best":
 		if len(parts) < 2 {
 			log("usage: best <type:string>[ <level-range>][ <effect0:equation> [...]]")
+			log("usage: best <type:string | 'loadout'> against <monster:string>")
 			return false
 		}
 
 		search_type := parts[1]
 
-		var min_level int64 = 0
-		var max_level int64 = 999
+		// ... kind of hacky
+		if len(parts) == 4 && parts[2] == "against" {
+			// 'against' functionality
 
-		var sorts = make([]steps.SortCri, 0)
+			target := parts[3]
 
-		if len(parts) >= 3 {
-			maybe_range := parts[2]
+			// assumed level range of 0 -> current level
+			currentLevel := 0
+			kernel.CharacterState.Read(func(value *types.Character) { currentLevel = value.Level })
 
-			regx_range, err := regexp.Compile(`(\d*)\.\.(\d*)`)
+			log(fmt.Sprintf("find the best type=%s, target=%s, max_level=%d", search_type, target, currentLevel))
+			results, err := steps.GetAllItemsWithTarget(
+				api.GetAllItemsFilter{
+					Itype:          search_type,
+					Craft_material: "",
+					Craft_skill:    "",
+					Min_level:      strconv.FormatInt(0, 10),
+					Max_level:      strconv.FormatInt(int64(currentLevel), 10),
+				},
+				target,
+			)
 			if err != nil {
-				log("failed to compile regexp for level range match")
+				log(fmt.Sprintf("Failed to get items: %s", err))
 				return false
 			}
 
-			regx_single, err := regexp.Compile(`(\d+)`)
+			for _, res := range (*results)[:min(len(*results), 10)] {
+				lvlstr := strconv.FormatInt(int64(res.ItemDetails.Level), 10)
+				out := fmt.Sprintf("[%d]", res.ItemDetails.Level) + strings.Repeat(" ", max(0, 3-len(lvlstr)))
+
+				out += res.ItemDetails.Name[:min(len(res.ItemDetails.Name), 24)] + strings.Repeat(" ", max(0, 25-len(res.ItemDetails.Name)))
+
+				totalStr := strconv.FormatInt(int64(res.FightScore+res.ResistanceScore), 10)
+				out += fmt.Sprintf(" total=%s", totalStr) + strings.Repeat(" ", 6-min(len(totalStr), 6))
+
+				fightScoreStr := strconv.FormatInt(int64(res.FightScore), 10)
+				out += fmt.Sprintf(" fight=%s", fightScoreStr) + strings.Repeat(" ", 6-min(len(fightScoreStr), 6))
+
+				resistScoreStr := strconv.FormatInt(int64(res.ResistanceScore), 10)
+				out += fmt.Sprintf(" resist=%s", resistScoreStr) // + strings.Repeat(" ", 12-max(len(resistScoreStr), 12))
+
+				log(out)
+			}
+
+			return true
+
+		} else {
+			// original search functionality
+
+			var min_level int64 = 0
+			var max_level int64 = 999
+
+			var sorts = make([]steps.SortCri, 0)
+
+			if len(parts) >= 3 {
+				maybe_range := parts[2]
+
+				regx_range, err := regexp.Compile(`(\d*)\.\.(\d*)`)
+				if err != nil {
+					log("failed to compile regexp for level range match")
+					return false
+				}
+
+				regx_single, err := regexp.Compile(`(\d+)`)
+				if err != nil {
+					log("failed to compile regexp for level single match")
+					return false
+				}
+
+				criteria_start := 3
+				matches_range := regx_range.FindStringSubmatch(maybe_range)
+				matches_single := regx_single.FindStringSubmatch(maybe_range)
+				if len(matches_range) > 0 {
+					// log("range found")
+					maybe_min_level := matches_range[1]
+					maybe_max_level := matches_range[2]
+
+					min_level, err = strconv.ParseInt(maybe_min_level, 10, 64)
+					if err != nil {
+						min_level = 0
+					}
+
+					max_level, err = strconv.ParseInt(maybe_max_level, 10, 64)
+					if err != nil {
+						max_level = 999
+					}
+				} else if len(matches_single) > 0 {
+					maybe_level := matches_single[1]
+					// log(fmt.Sprintf("single found: '%s', %v", maybe_level, matches_single))
+					min_level, err = strconv.ParseInt(maybe_level, 10, 64)
+					if err != nil {
+						min_level = 0
+					}
+
+					max_level, err = strconv.ParseInt(maybe_level, 10, 64)
+					if err != nil {
+						max_level = 999
+					}
+				} else {
+					// log("no level")
+					criteria_start = 2
+				}
+
+				// log(fmt.Sprintf("%d, %v, %d", criteria_start, parts[criteria_start:], len(parts[criteria_start:])))
+
+				for _, cri := range parts[criteria_start:] {
+					if cri[0] == '-' {
+						sorts = append(sorts, steps.SortCri{
+							Equation: []steps.SortEq{
+								{
+									Prop: cri[1:],
+									Op:   "Sub",
+								},
+							},
+						})
+					} else {
+						sorts = append(sorts, steps.SortCri{
+							Equation: []steps.SortEq{
+								{
+									Prop: cri,
+									Op:   "Add",
+								},
+							},
+						})
+					}
+				}
+
+			}
+
+			sort_str := ""
+			if len(sorts) > 0 {
+				sort_str = ", sort by "
+			}
+			for i, c := range sorts {
+				if i > 0 {
+					sort_str += ", "
+				}
+				eq := ""
+				for i, e := range c.Equation {
+					if i == 0 {
+						if e.Op == "Sub" {
+							eq += "-"
+						}
+					} else {
+						switch e.Op {
+						case "Add":
+							eq += " + "
+						case "Sub":
+							eq += " - "
+						}
+					}
+
+					eq += e.Prop
+				}
+				sort_str += eq
+			}
+
+			log(fmt.Sprintf("find the best type=%s, min_level=%d, max_level=%d%s", search_type, min_level, max_level, sort_str))
+			allItems, err := steps.GetAllItemsWithFilter(api.GetAllItemsFilter{
+				Itype:          search_type,
+				Craft_material: "",
+				Craft_skill:    "",
+				Min_level:      strconv.FormatInt(min_level, 10),
+				Max_level:      strconv.FormatInt(max_level, 10),
+			}, sorts)
 			if err != nil {
-				log("failed to compile regexp for level single match")
+				log(fmt.Sprintf("Failed to get items: %s", err))
 				return false
 			}
 
-			criteria_start := 3
-			matches_range := regx_range.FindStringSubmatch(maybe_range)
-			matches_single := regx_single.FindStringSubmatch(maybe_range)
-			if len(matches_range) > 0 {
-				// log("range found")
-				maybe_min_level := matches_range[1]
-				maybe_max_level := matches_range[2]
+			for _, item := range (*allItems)[:min(len(*allItems), 10)] {
+				lvlstr := strconv.FormatInt(int64(item.Level), 10)
+				out := fmt.Sprintf("[%d]", item.Level) + strings.Repeat(" ", max(0, 3-len(lvlstr)))
 
-				min_level, err = strconv.ParseInt(maybe_min_level, 10, 64)
-				if err != nil {
-					min_level = 0
-				}
+				out += item.Name[:min(len(item.Name), 24)] + strings.Repeat(" ", max(0, 25-len(item.Name)))
 
-				max_level, err = strconv.ParseInt(maybe_max_level, 10, 64)
-				if err != nil {
-					max_level = 999
-				}
-			} else if len(matches_single) > 0 {
-				maybe_level := matches_single[1]
-				// log(fmt.Sprintf("single found: '%s', %v", maybe_level, matches_single))
-				min_level, err = strconv.ParseInt(maybe_level, 10, 64)
-				if err != nil {
-					min_level = 0
-				}
+				for i, cri := range sorts {
+					summation := 0
 
-				max_level, err = strconv.ParseInt(maybe_level, 10, 64)
-				if err != nil {
-					max_level = 999
-				}
-			} else {
-				// log("no level")
-				criteria_start = 2
-			}
+					for _, eq := range cri.Equation {
+						idx := slices.IndexFunc(item.Effects, func(e types.Effect) bool {
+							return e.Code == eq.Prop
+						})
 
-			// log(fmt.Sprintf("%d, %v, %d", criteria_start, parts[criteria_start:], len(parts[criteria_start:])))
-
-			for _, cri := range parts[criteria_start:] {
-				if cri[0] == '-' {
-					sorts = append(sorts, steps.SortCri{
-						Equation: []steps.SortEq{
-							{
-								Prop: cri[1:],
-								Op:   "Sub",
-							},
-						},
-					})
-				} else {
-					sorts = append(sorts, steps.SortCri{
-						Equation: []steps.SortEq{
-							{
-								Prop: cri,
-								Op:   "Add",
-							},
-						},
-					})
-				}
-			}
-
-		}
-
-		sort_str := ""
-		if len(sorts) > 0 {
-			sort_str = ", sort by "
-		}
-		for i, c := range sorts {
-			if i > 0 {
-				sort_str += ", "
-			}
-			eq := ""
-			for i, e := range c.Equation {
-				if i == 0 {
-					if e.Op == "Sub" {
-						eq += "-"
+						if idx >= 0 {
+							effect := item.Effects[idx]
+							summation += effect.Value
+						}
 					}
-				} else {
-					switch e.Op {
-					case "Add":
-						eq += " + "
-					case "Sub":
-						eq += " - "
-					}
+
+					out += fmt.Sprintf(" eq[%d]=%d", i, summation) + strings.Repeat(" ", max(0, 12))
 				}
 
-				eq += e.Prop
-			}
-			sort_str += eq
-		}
-
-		log(fmt.Sprintf("find the best type=%s, min_level=%d, max_level=%d%s", search_type, min_level, max_level, sort_str))
-		allItems, err := steps.GetAllItemsWithFilter(api.GetAllItemsFilter{
-			Itype:          search_type,
-			Craft_material: "",
-			Craft_skill:    "",
-			Min_level:      strconv.FormatInt(min_level, 10),
-			Max_level:      strconv.FormatInt(max_level, 10),
-		}, sorts)
-		if err != nil {
-			log(fmt.Sprintf("Failed to get items: %s", err))
-			return false
-		}
-
-		for _, item := range (*allItems)[:min(len(*allItems), 10)] {
-			lvlstr := strconv.FormatInt(int64(item.Level), 10)
-			out := fmt.Sprintf("[%d]", item.Level) + strings.Repeat(" ", max(0, 3-len(lvlstr)))
-
-			out += item.Name[:min(len(item.Name), 24)] + strings.Repeat(" ", max(0, 25-len(item.Name)))
-
-			for i, cri := range sorts {
-				summation := 0
-
-				for _, eq := range cri.Equation {
-					idx := slices.IndexFunc(item.Effects, func(e types.Effect) bool {
-						return e.Code == eq.Prop
-					})
-
-					if idx >= 0 {
-						effect := item.Effects[idx]
-						summation += effect.Value
-					}
-				}
-
-				out += fmt.Sprintf(" eq[%d]=%d", i, summation) + strings.Repeat(" ", max(0, 12))
+				log(out)
 			}
 
-			log(out)
+			return true
 		}
 
-		return true
 	case "simulate-fight":
 		if len(parts) != 2 {
 			log("usage: simulate-fight <monster_code:string> [[<slot:string>:]<code:string>[:<quantity:int>][,...]]")
