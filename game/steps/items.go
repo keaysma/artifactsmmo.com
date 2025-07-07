@@ -106,11 +106,12 @@ func fightScoreCalc(element string, item types.ItemDetails, monster types.Monste
 
 // armor: the sum of resistance provided for which the monster has attacks for
 func resistScoreCalc(element string, item types.ItemDetails, monster types.Monster) int {
-	resist_code := fmt.Sprintf("Res_%s", element)
+	resist_code := fmt.Sprintf("res_%s", element)
 
 	score := 0
 	for _, effect := range item.Effects {
-		if effect.Code == resist_code {
+		attackMonster := utils.GetFieldFromStructByName(monster, resist_code).Int()
+		if effect.Code == resist_code && attackMonster > 0 {
 			score += effect.Value
 		}
 	}

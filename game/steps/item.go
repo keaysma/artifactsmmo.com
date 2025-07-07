@@ -1,6 +1,8 @@
 package steps
 
 import (
+	"fmt"
+
 	"artifactsmmo.com/m/api"
 )
 
@@ -21,8 +23,24 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 
 	if len(res.Craft.Items) == 0 {
 		action := "gather"
-		// TODO: This is a hack to make the tree work for now
-		// Confirm if subtype of food is always a fight?
+
+		switch res.Subtype {
+		case "alchemy":
+		case "fishing":
+		case "woodcutting":
+		case "mining":
+			action = "gather"
+		case "mob":
+		case "food":
+			action = "fight"
+		case "task":
+			// TODO: Handling for task coins -> jasper crystal
+			action = "withdraw" // "task"
+		case "npc":
+			action = "npc"
+		default:
+			return nil, fmt.Errorf("unknown subtype for %s: %s", res.Code, res.Subtype)
+		}
 		if res.Subtype == "mob" || res.Subtype == "food" {
 			action = "fight"
 		}

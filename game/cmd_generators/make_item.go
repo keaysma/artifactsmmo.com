@@ -10,7 +10,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var INVENTORY_CLEAR_THRESHOLD = 0.9
+var INVENTORY_CLEAR_THRESHOLD = 0.95
 var BANK_CLEAR_THRESHOLD = 1.0
 
 func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string {
@@ -33,7 +33,7 @@ func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string 
 	}
 	kernel.CharacterState.Unlock()
 
-	if float64(currentInventoryCount) < (float64(maxInventoryCount)*INVENTORY_CLEAR_THRESHOLD) && currentFilledSlots < totalSlots {
+	if currentInventoryCount < int(float64(maxInventoryCount)*INVENTORY_CLEAR_THRESHOLD) && currentFilledSlots < totalSlots {
 		// Inventory is not full
 		// Skip this check
 		return ""
@@ -63,6 +63,7 @@ func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string 
 		}
 	}
 	bankIsFull := float64(currentBankCount) >= (float64(maxBankCount) * BANK_CLEAR_THRESHOLD)
+	log(fmt.Sprintf("bank is full: %v", bankIsFull))
 
 	// First try to get rid of things we do not need
 	for code := range heldCodeQuantity {
@@ -95,6 +96,8 @@ func DepositCheck(kernel *game.Kernel, needsCodeQuantity map[string]int) string 
 		spaceRequiredPerCraft += v
 	}
 	maxCanMake := max(1, float64(maxInventoryCount)/float64(spaceRequiredPerCraft))
+	log(fmt.Sprintf("max can make: %f", maxCanMake))
+
 	for code, quantity := range heldCodeQuantity {
 		maxNeeded := int(maxCanMake * float64(needsCodeQuantity[code]))
 		excessHeldQuantity := quantity - maxNeeded
@@ -145,6 +148,8 @@ func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, target
 	}
 	kernel.CharacterState.Unlock()
 
+	inventoryFullLimit := int(float64(maxInventoryCount) * INVENTORY_CLEAR_THRESHOLD)
+
 	freeSpace := maxInventoryCount - currentInventoryCount
 	log(fmt.Sprintf("free space: %d", freeSpace))
 	if freeSpace <= 0 {
@@ -178,7 +183,7 @@ func WithdrawCheck(kernel *game.Kernel, needsCodeQuantity map[string]int, target
 		maxWithdrawQuantity := targetQuantity - heldQuantity
 		log(fmt.Sprintf("%s wants to withdraw: %d", slot.Code, maxWithdrawQuantity))
 
-		amountToWithdraw := min(maxWithdrawQuantity, storedQuantity, freeSpace)
+		amountToWithdraw := min(maxWithdrawQuantity, storedQuantity, freeSpace, inventoryFullLimit)
 		if amountToWithdraw > 0 {
 			log(fmt.Sprintf("%s withdrawing: %d", slot.Code, amountToWithdraw))
 			return fmt.Sprintf("withdraw %d %s", amountToWithdraw, slot.Code)
@@ -198,7 +203,7 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string]api.MapTile, last string, top bool) (string, bool) {
+func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string]api.MapTile, last string, success bool, top bool) (string, bool) {
 	if !top {
 		var currentComponentQuantity int
 		kernel.CharacterState.Read(func(value *types.Character) {
@@ -304,8 +309,21 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		}
 	}
 
+	if component.Action == "npc" {
+		// 1.
+	}
+
+	if component.Action == "task" {
+		// 1. Withdraw needed item (component.Code) <- our algo may handle this already though
+
+		// 2. Determine if there are task_coin available, exchange them
+
+		// 3. Run Tasks(kernel, "monster")
+		Tasks(kernel, "monster")(last, success)
+	}
+
 	for _, subcomponent := range component.Components {
-		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, last, false)
+		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, last, success, false)
 		if next_command != "" {
 			return next_command, is_top
 		}
@@ -381,7 +399,7 @@ func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) g
 
 		is_top := false
 		log := kernel.DebugLogPre("<next-make-action>: ")
-		next_command, is_top = NextMakeAction(data, kernel, log, resource_tile_map, last, true)
+		next_command, is_top = NextMakeAction(data, kernel, log, resource_tile_map, last, success, true)
 
 		log(fmt.Sprintf("next command: %s, (is_top: %v)", next_command, is_top))
 

@@ -116,6 +116,7 @@ type Character struct {
 	Max_hp                 int
 	Haste                  int
 	Critical_strike        int
+	Wisdom                 int
 	Stamina                int
 	Attack_fire            int
 	Attack_earth           int
