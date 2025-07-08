@@ -248,7 +248,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 			}
 
 			// bad state?
-			if retries == 10 {
+			if retries == 3 {
 				return "ping"
 			}
 
