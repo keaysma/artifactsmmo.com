@@ -222,6 +222,13 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		}
 
 		if component.Action == "fight" {
+			character := kernel.CharacterState.Ref()
+			hp, maxHp := character.Hp, character.Max_hp
+			kernel.CharacterState.Unlock()
+			if hp < maxHp {
+				return "rest", top
+			}
+
 			equipCommand, err := LoadOutCommand(kernel, tile.Content.Code)
 			if err != nil {
 				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
