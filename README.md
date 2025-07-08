@@ -11,14 +11,14 @@ My implementation of an artifacts-mmo API client, written in Golang
     - [x] Use the cached bank state to make bank decisions, only busting cache when a bank operation is done
 - [x] Something like generators that looks out for events and acts on them while they're active
 - [x] display of all active generators
-- [ ] Fighting armor + weapon set picker
+- [x] Fighting armor + weapon set picker
     - [x] `best` command that accepts params and finds items that match that description: 
         - `best <type>[ <range:number>][ ((^)/_)<effect0:string> [...]]`
     - [x] `equip` can automatically pick-out items from the bank
     - [x] `equip` can accept "all" or "max" which will replenish potions to either 50, or equip how ever many you have
         - [x] `unequip` can unequip how many of that item you have equiped
     - [x] update the fight algorithm to run `equip` based on best equipment for enemy
-    - [ ] solve the 'chicken-egg' problem for equip: run fight simulations assuming the best available armor is already equipped
+    - [x] solve the 'chicken-egg' problem for equip: run fight simulations assuming the best available armor is already equipped
 - [ ] `move to:<monster/resource>` to move to the closest monster/resource
 - [x] Generators do not "lock in" event locations when active - `gen make demon_horn` when demons are present ends up getting stuck after the event ends
 - [ ] Revised fight simulator
