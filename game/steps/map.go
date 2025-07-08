@@ -38,6 +38,12 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 	}
 
 	for code, action := range mapCodeAction {
+		if action == "task" {
+			kernel.Log(fmt.Sprintf("task handle: %s", code))
+
+			continue
+		}
+
 		if action == "withdraw" {
 			kernel.Log(fmt.Sprintf("get from bank: %s", code))
 

@@ -22,31 +22,28 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 	}
 
 	if len(res.Craft.Items) == 0 {
-		action := "gather"
+		action := ""
 
 		switch res.Subtype {
-		case "alchemy":
-		case "fishing":
-		case "woodcutting":
-		case "mining":
+		case "mining", "woodcutting", "fishing", "alchemy":
 			action = "gather"
-		case "mob":
-		case "food":
+		case "mob", "food":
 			action = "fight"
 		case "task":
 			// TODO: Handling for task coins -> jasper crystal
-			action = "withdraw" // "task"
+			// action = "withdraw"
+			action = "task"
 		case "npc":
 			action = "npc"
 		default:
 			return nil, fmt.Errorf("unknown subtype for %s: %s", res.Code, res.Subtype)
 		}
-		if res.Subtype == "mob" || res.Subtype == "food" {
-			action = "fight"
-		}
-		if res.Subtype == "task" {
-			action = "withdraw"
-		}
+		// if res.Subtype == "mob" || res.Subtype == "food" {
+		// 	action = "fight"
+		// }
+		// if res.Subtype == "task" {
+		// 	action = "withdraw"
+		// }
 		return &ItemComponentTree{
 			Code:       code,
 			Action:     action,

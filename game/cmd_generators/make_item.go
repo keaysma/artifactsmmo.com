@@ -6,6 +6,7 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
+	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -203,7 +204,7 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string]api.MapTile, last string, success bool, top bool) (string, bool) {
+func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string]api.MapTile, onTask game.Generator, last string, success bool, top bool) (string, bool) {
 	if !top {
 		var currentComponentQuantity int
 		kernel.CharacterState.Read(func(value *types.Character) {
@@ -322,15 +323,41 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 
 	if component.Action == "task" {
 		// 1. Withdraw needed item (component.Code) <- our algo may handle this already though
+		componentBankQuantity := 0
+		state.GlobalState.BankState.Read(func(value *[]types.InventoryItem) {
+			componentBankQuantity = utils.CountBank(value, component.Code)
+		})
+		if componentBankQuantity >= component.Quantity {
+			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
+			return withdraw, top
+		}
 
-		// 2. Determine if there are task_coin available, exchange them
+		// 2. Determine if there are tasks_coin available, exchange them
+		taskCoinQuantityInventory := 0
+		kernel.CharacterState.Read(func(value *types.Character) {
+			taskCoinQuantityInventory = utils.CountInventory(&value.Inventory, "tasks_coin")
+		})
+		if taskCoinQuantityInventory >= 6 {
+			return "exchange-tasks-coins", top
+		}
+
+		taskCoinQuantityBank := 0
+		state.GlobalState.BankState.Read(func(value *[]types.InventoryItem) {
+			taskCoinQuantityBank = utils.CountBank(value, "tasks_coin")
+		})
+		if taskCoinQuantityBank+taskCoinQuantityInventory >= 6 {
+			// TODO: Can we safely grab more than the absolute minimum number of task coins?
+			withdrawQuantity := 6 - taskCoinQuantityInventory
+			withdraw := fmt.Sprintf("withdraw %d %s", withdrawQuantity, "tasks_coin")
+			return withdraw, top
+		}
 
 		// 3. Run Tasks(kernel, "monster")
-		Tasks(kernel, "monster")(last, success)
+		return onTask(last, success), top
 	}
 
 	for _, subcomponent := range component.Components {
-		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, last, success, false)
+		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, onTask, last, success, false)
 		if next_command != "" {
 			return next_command, is_top
 		}
@@ -364,6 +391,7 @@ func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) g
 
 	var retries = 0
 	var finished_count = 0
+	var onTask game.Generator = Tasks(kernel, "monster")
 
 	return func(last string, success bool) string {
 		next_command := "clear-gen"
@@ -406,7 +434,7 @@ func Make(kernel *game.Kernel, code string, count int, needsFinishedItem bool) g
 
 		is_top := false
 		log := kernel.DebugLogPre("<next-make-action>: ")
-		next_command, is_top = NextMakeAction(data, kernel, log, resource_tile_map, last, success, true)
+		next_command, is_top = NextMakeAction(data, kernel, log, resource_tile_map, onTask, last, success, true)
 
 		log(fmt.Sprintf("next command: %s, (is_top: %v)", next_command, is_top))
 
