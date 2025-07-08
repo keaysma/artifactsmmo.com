@@ -57,3 +57,9 @@ pause-gen # pauses all
 clear-gen 0 # clears 0
 pause-gen 1 # pauses 1
 ```
+
+# 'gen auto'
+Allow generators to setup generators a level above themselves, examples:
+`gen level gearcrafting` can detect that there are multiple gear items for the current effiency level and induce a cycle between all items by returning `gen auto make item1 10`, `gen auto make item2 10`, ...
+`gen make x` can detect that it needs at item that requires task coins and start a singular task coin loop: `gen auto tasks monsters-finish`
+`gen level cooking` can detect that the next target requires a higher fishing level than present and run: `gen auto level fishing 30`
