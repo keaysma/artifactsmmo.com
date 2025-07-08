@@ -950,8 +950,14 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 				out += res.ItemDetails.Name[:min(len(res.ItemDetails.Name), 24)] + strings.Repeat(" ", max(0, 25-len(res.ItemDetails.Name)))
 
-				totalStr := strconv.FormatInt(int64(res.FightScore+res.ResistanceScore), 10)
+				totalStr := strconv.FormatInt(int64(res.HpScore+res.AuxDmgScore+res.FightScore+res.ResistanceScore), 10)
 				out += fmt.Sprintf(" total=%s", totalStr) + strings.Repeat(" ", 6-min(len(totalStr), 6))
+
+				hpScoreStr := strconv.FormatInt(int64(res.HpScore), 10)
+				out += fmt.Sprintf(" hp=%s", hpScoreStr) + strings.Repeat(" ", 6-min(len(hpScoreStr), 6))
+
+				auxScoreStr := strconv.FormatInt(int64(res.AuxDmgScore), 10)
+				out += fmt.Sprintf(" aux=%s", auxScoreStr) + strings.Repeat(" ", 6-min(len(auxScoreStr), 6))
 
 				fightScoreStr := strconv.FormatInt(int64(res.FightScore), 10)
 				out += fmt.Sprintf(" fight=%s", fightScoreStr) + strings.Repeat(" ", 6-min(len(fightScoreStr), 6))

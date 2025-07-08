@@ -2,6 +2,7 @@ package steps
 
 import (
 	"fmt"
+	"math"
 	"slices"
 	"sort"
 
@@ -90,27 +91,57 @@ func GetAllItemsWithFilter(filter api.GetAllItemsFilter, sorts []SortCri) (*api.
 func fightScoreCalc(element string, item types.ItemDetails, monster types.Monster) int {
 	attack_code := fmt.Sprintf("attack_%s", element)
 	dmg_code := fmt.Sprintf("dmg_%s", element)
+	resistance := utils.GetFieldFromStructByName(monster, fmt.Sprintf("Res_%s", element)).Int()
 
 	score := 0
 	for _, effect := range item.Effects {
-		if effect.Code == attack_code || effect.Code == dmg_code || effect.Code == "dmg" {
+
+		if effect.Code == attack_code || effect.Code == dmg_code {
 			score += effect.Value
 		}
 	}
 
-	resistance := utils.GetFieldFromStructByName(monster, fmt.Sprintf("Res_%s", element)).Int()
-	score = int(float64(score) * (1 - (float64(resistance) / 100)))
+	score = int(math.Round(float64(score) * (1.0 - (float64(resistance) / 100.0))))
+
+	return score
+}
+
+func AuxDmgScoreCalc(item types.ItemDetails) int {
+	score := 0
+	for _, effect := range item.Effects {
+		if effect.Code == "dmg" {
+			score += effect.Value
+		}
+
+	}
+
+	return score
+}
+
+func HpScoreCalc(item types.ItemDetails, monster types.Monster) int {
+	score := 0
+	for _, effect := range item.Effects {
+		if effect.Code == "hp" {
+			score += effect.Value
+		}
+
+	}
+
+	monsterAttack := monster.Attack_air + monster.Attack_earth + monster.Attack_fire + monster.Attack_water
+	score = int(math.Round(float64(score) / (0.6 * float64(monsterAttack))))
 
 	return score
 }
 
 // armor: the sum of resistance provided for which the monster has attacks for
+// better: sum(attack * resistance_provided)
 func resistScoreCalc(element string, item types.ItemDetails, monster types.Monster) int {
+	attack_code := fmt.Sprintf("attack_%s", element)
 	resist_code := fmt.Sprintf("res_%s", element)
 
 	score := 0
 	for _, effect := range item.Effects {
-		attackMonster := utils.GetFieldFromStructByName(monster, resist_code).Int()
+		attackMonster := utils.GetFieldFromStructByName(monster, attack_code).Int()
 		if effect.Code == resist_code && attackMonster > 0 {
 			score += effect.Value
 		}
@@ -121,6 +152,8 @@ func resistScoreCalc(element string, item types.ItemDetails, monster types.Monst
 
 type ItemDetailsWithScore struct {
 	ItemDetails     types.ItemDetails
+	HpScore         int
+	AuxDmgScore     int
 	FightScore      int
 	ResistanceScore int
 }
@@ -149,6 +182,8 @@ func GetAllItemsWithTarget(filter api.GetAllItemsFilter, target string) (*[]Item
 		}
 
 		for _, item := range *items {
+			hpScore := HpScoreCalc(item, *monsterInfo)
+			auxDmgScore := AuxDmgScoreCalc(item)
 			fightScore := 0
 			resistanceScore := 0
 
@@ -159,6 +194,8 @@ func GetAllItemsWithTarget(filter api.GetAllItemsFilter, target string) (*[]Item
 
 			scoreCard := ItemDetailsWithScore{
 				ItemDetails:     item,
+				HpScore:         hpScore,
+				AuxDmgScore:     auxDmgScore,
 				FightScore:      fightScore,
 				ResistanceScore: resistanceScore,
 			}
@@ -176,8 +213,8 @@ func GetAllItemsWithTarget(filter api.GetAllItemsFilter, target string) (*[]Item
 	sort.Slice(allItems, func(i, j int) bool {
 		l, r := allItems[i], allItems[j]
 
-		scoreL := l.FightScore + l.ResistanceScore
-		scoreR := r.FightScore + r.ResistanceScore
+		scoreL := l.HpScore + l.AuxDmgScore + l.FightScore + l.ResistanceScore
+		scoreR := r.HpScore + r.AuxDmgScore + r.FightScore + r.ResistanceScore
 
 		if scoreL != scoreR {
 			return scoreL > scoreR
