@@ -382,6 +382,12 @@ func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.Item
 		ContextField string
 	}
 
+	// have separate tryEquip algorithms for weapons vs armor
+	// weapon version can just focus on attack
+	// armor version can focus on damage or resistance and contextualize on weapon results
+	// removes some of this hacky if/else-ing
+	// can have weapon version always return a result and then just choose to add if it's actually new
+
 	slotConfig := []EquipSlotConfig{
 		{"weapon", "weapon", ""},
 		{"shield", "shield", ""},
