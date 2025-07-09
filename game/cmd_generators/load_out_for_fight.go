@@ -312,7 +312,7 @@ func LoadOutForFightV1(kernel *game.Kernel, target string) (map[string]*types.It
 	return loadout, nil
 }
 
-func tryEquipByScore(kernel *game.Kernel, target string, itype string, slot string) (*types.ItemDetails, error) {
+func tryEquipByScore(kernel *game.Kernel, target string, itype string, slot string, dmgCtx *[]types.Effect) (*types.ItemDetails, error) {
 	log := kernel.DebugLogPre(fmt.Sprintf("[loadout]<%s>[%s]: ", target, slot))
 
 	char := kernel.CharacterState.Ref()
@@ -328,6 +328,7 @@ func tryEquipByScore(kernel *game.Kernel, target string, itype string, slot stri
 			Max_level:      strconv.FormatInt(int64(level), 10),
 		},
 		target,
+		dmgCtx,
 	)
 	if err != nil {
 		return nil, err
@@ -375,30 +376,58 @@ func LoadOutForFight(kernel *game.Kernel, target string) (map[string]*types.Item
 
 	loadout := map[string]*types.ItemDetails{}
 
-	mapSlotType := map[string]string{
-		"weapon":     "weapon",
-		"shield":     "shield",
-		"helmet":     "helmet",
-		"body_armor": "body_armor",
-		"leg_armor":  "leg_armor",
-		"boots":      "boots",
-		"amulet":     "amulet",
-		"ring1":      "ring",
-		"ring2":      "ring",
+	type EquipSlotConfig struct {
+		Slot         string
+		Itype        string
+		ContextField string
 	}
 
-	for slot, itype := range mapSlotType {
+	slotConfig := []EquipSlotConfig{
+		{"weapon", "weapon", ""},
+		{"shield", "shield", ""},
+		{"helmet", "helmet", ""},
+		{"body_armor", "body_armor", ""},
+		{"leg_armor", "leg_armor", ""},
+		{"boots", "boots", ""},
+		{"amulet", "amulet", ""},
+		{"ring1", "ring", ""},
+		{"ring2", "ring", ""},
+	}
+
+	for _, cfg := range slotConfig {
+		var dmgCtx *[]types.Effect = nil
+		if cfg.Slot != "weapon" {
+			_, containsWeapon := loadout["weapon"]
+			if containsWeapon {
+				dmgCtx = &loadout["weapon"].Effects
+			} else {
+				currentWeapon := ""
+				kernel.CharacterState.Read(func(value *types.Character) {
+					currentWeapon = value.Weapon_slot
+				})
+
+				if currentWeapon != "" {
+					itemDetails, err := api.GetItemDetails(currentWeapon)
+					if err != nil {
+						return nil, err
+					}
+					dmgCtx = &itemDetails.Effects
+				}
+			}
+		}
+
 		item, err := tryEquipByScore(
 			kernel,
 			target,
-			itype,
-			slot,
+			cfg.Itype,
+			cfg.Slot,
+			dmgCtx,
 		)
 		if err != nil {
 			return nil, err
 		}
 		if item != nil {
-			loadout[slot] = item
+			loadout[cfg.Slot] = item
 		}
 	}
 

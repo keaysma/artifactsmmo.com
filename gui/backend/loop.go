@@ -950,64 +950,98 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	case "best":
 		if len(parts) < 2 {
 			log("usage: best <type:string>[ <level-range>][ <effect0:equation> [...]]")
-			log("usage: best <type:string | 'loadout'> against <monster:string>")
+			log("usage: best <type:string | 'loadout'> against <monster:string>[ given <weapon:string>]")
 			return false
 		}
 
 		search_type := parts[1]
 
 		// ... kind of hacky
-		if len(parts) == 4 && parts[2] == "against" {
+		if len(parts) >= 4 && parts[2] == "against" {
 			// 'against' functionality
-
 			target := parts[3]
 
 			// assumed level range of 0 -> current level
 			currentLevel := 0
 			kernel.CharacterState.Read(func(value *types.Character) { currentLevel = value.Level })
 
-			log(fmt.Sprintf("find the best type=%s, target=%s, max_level=%d", search_type, target, currentLevel))
-			results, err := steps.GetAllItemsWithTarget(
-				api.GetAllItemsFilter{
-					Itype:          search_type,
-					Craft_material: "",
-					Craft_skill:    "",
-					Min_level:      strconv.FormatInt(0, 10),
-					Max_level:      strconv.FormatInt(int64(currentLevel), 10),
-				},
-				target,
-			)
-			if err != nil {
-				log(fmt.Sprintf("Failed to get items: %s", err))
-				return false
+			if search_type == "loadout" {
+				log(fmt.Sprintf("find the best loadout, target=%s, max_level=%d", target, currentLevel))
+				res, err := generators.LoadOutForFight(kernel, target)
+				if err != nil {
+					log(fmt.Sprintf("Failed to get loadout: %s", err))
+					return false
+				}
+				for slot, item := range res {
+					log(fmt.Sprintf("%s=%s", slot, item.Code))
+				}
+
+				return true
+			} else {
+				selectedWeapon := ""
+				if len(parts) == 6 && parts[4] == "given" {
+					selectedWeapon = parts[5]
+				} else {
+					kernel.CharacterState.Read(func(value *types.Character) {
+						selectedWeapon = value.Weapon_slot
+					})
+				}
+
+				var dmgCtx *[]types.Effect = nil
+				details, err := api.GetItemDetails(selectedWeapon)
+				if err != nil {
+					log(fmt.Sprintf("error getting item details for weapon %s: %s", selectedWeapon, err))
+					return false
+				}
+				dmgCtx = &details.Effects
+
+				log(fmt.Sprintf("find the best type=%s, target=%s, max_level=%d, weapon=%s", search_type, target, currentLevel, selectedWeapon))
+				results, err := steps.GetAllItemsWithTarget(
+					api.GetAllItemsFilter{
+						Itype:          search_type,
+						Craft_material: "",
+						Craft_skill:    "",
+						Min_level:      strconv.FormatInt(0, 10),
+						Max_level:      strconv.FormatInt(int64(currentLevel), 10),
+					},
+					target,
+					dmgCtx,
+				)
+				if err != nil {
+					log(fmt.Sprintf("Failed to get items: %s", err))
+					return false
+				}
+
+				precision := 3
+				for _, res := range (*results)[:min(len(*results), 10)] {
+					lvlstr := strconv.FormatInt(int64(res.ItemDetails.Level), 10)
+					out := fmt.Sprintf("[%d]", res.ItemDetails.Level) + strings.Repeat(" ", max(0, 3-len(lvlstr)))
+
+					out += res.ItemDetails.Name[:min(len(res.ItemDetails.Name), 24)] + strings.Repeat(" ", max(0, 25-len(res.ItemDetails.Name)))
+
+					totalStr := strconv.FormatFloat(float64(res.HpScore+res.AuxDmgScore+res.AttackScore+res.DmgScore+res.ResistanceScore), 'f', precision, 64)
+					out += fmt.Sprintf(" total=%s", totalStr) + strings.Repeat(" ", 6-min(len(totalStr), 6))
+
+					hpScoreStr := strconv.FormatFloat(float64(res.HpScore), 'f', precision, 64)
+					out += fmt.Sprintf(" hp=%s", hpScoreStr) + strings.Repeat(" ", 6-min(len(hpScoreStr), 6))
+
+					auxScoreStr := strconv.FormatFloat(float64(res.AuxDmgScore), 'f', precision, 64)
+					out += fmt.Sprintf(" aux=%s", auxScoreStr) + strings.Repeat(" ", 6-min(len(auxScoreStr), 6))
+
+					attackScoreStr := strconv.FormatFloat(float64(res.AttackScore), 'f', precision, 64)
+					out += fmt.Sprintf(" atk=%s", attackScoreStr) + strings.Repeat(" ", 6-min(len(attackScoreStr), 6))
+
+					dmgScoreStr := strconv.FormatFloat(float64(res.DmgScore), 'f', precision, 64)
+					out += fmt.Sprintf(" dmg=%s", dmgScoreStr) + strings.Repeat(" ", 6-min(len(dmgScoreStr), 6))
+
+					resistScoreStr := strconv.FormatFloat(float64(res.ResistanceScore), 'f', precision, 64)
+					out += fmt.Sprintf(" resist=%s", resistScoreStr) // + strings.Repeat(" ", 12-max(len(resistScoreStr), 12))
+
+					log(out)
+				}
+
+				return true
 			}
-
-			for _, res := range (*results)[:min(len(*results), 10)] {
-				lvlstr := strconv.FormatInt(int64(res.ItemDetails.Level), 10)
-				out := fmt.Sprintf("[%d]", res.ItemDetails.Level) + strings.Repeat(" ", max(0, 3-len(lvlstr)))
-
-				out += res.ItemDetails.Name[:min(len(res.ItemDetails.Name), 24)] + strings.Repeat(" ", max(0, 25-len(res.ItemDetails.Name)))
-
-				totalStr := strconv.FormatInt(int64(res.HpScore+res.AuxDmgScore+res.FightScore+res.ResistanceScore), 10)
-				out += fmt.Sprintf(" total=%s", totalStr) + strings.Repeat(" ", 6-min(len(totalStr), 6))
-
-				hpScoreStr := strconv.FormatInt(int64(res.HpScore), 10)
-				out += fmt.Sprintf(" hp=%s", hpScoreStr) + strings.Repeat(" ", 6-min(len(hpScoreStr), 6))
-
-				auxScoreStr := strconv.FormatInt(int64(res.AuxDmgScore), 10)
-				out += fmt.Sprintf(" aux=%s", auxScoreStr) + strings.Repeat(" ", 6-min(len(auxScoreStr), 6))
-
-				fightScoreStr := strconv.FormatInt(int64(res.FightScore), 10)
-				out += fmt.Sprintf(" fight=%s", fightScoreStr) + strings.Repeat(" ", 6-min(len(fightScoreStr), 6))
-
-				resistScoreStr := strconv.FormatInt(int64(res.ResistanceScore), 10)
-				out += fmt.Sprintf(" resist=%s", resistScoreStr) // + strings.Repeat(" ", 12-max(len(resistScoreStr), 12))
-
-				log(out)
-			}
-
-			return true
-
 		} else {
 			// original search functionality
 
