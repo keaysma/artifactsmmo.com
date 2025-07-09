@@ -3,6 +3,7 @@ package generators
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"artifactsmmo.com/m/api"
@@ -14,8 +15,9 @@ import (
 )
 
 type LevelTarget struct {
-	Level  int
-	Target string
+	Level        int
+	Target       string
+	CraftDetails *types.ItemCraftDetails
 }
 
 func GetLevelBySkill(char *types.Character, skill string) int {
@@ -123,8 +125,9 @@ func GenLevelTargetsFromItemsByCraftSkill(kernel *game.Kernel, skill string) (*[
 
 		for _, item := range *segment {
 			targets = append(targets, LevelTarget{
-				Level:  item.Level,
-				Target: item.Code,
+				Level:        item.Level,
+				Target:       item.Code,
+				CraftDetails: &item.Craft,
 			})
 		}
 
@@ -162,8 +165,9 @@ func GenLevelTargetsFromResourceBySkill(kernel *game.Kernel, skill string) (*[]L
 		for _, item := range *segment {
 			for _, drop := range item.Drops {
 				targets = append(targets, LevelTarget{
-					Level:  item.Level,
-					Target: drop.Code,
+					Level:        item.Level,
+					Target:       drop.Code,
+					CraftDetails: nil,
 				})
 			}
 		}
@@ -290,6 +294,21 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 			isEfficient := false
 			var newLevelTarget *LevelTarget = nil
 			for _, target := range *mapLevelTarget {
+				if strings.Contains(skill, "crafting") {
+					// weapon, gear, jewelry crafintg - avoid jasper crystals
+					details := target.CraftDetails
+					if details == nil {
+						log(fmt.Sprintf("failed to gen item details for %s: CraftDetails is nil", target.Target))
+						return "clear-gen"
+					}
+
+					for _, comp := range details.Items {
+						if comp.Code == "jasper_crystal" {
+							targetBlacklist = append(targetBlacklist, target.Target)
+							break
+						}
+					}
+				}
 				if utils.Contains(targetBlacklist, target.Target) {
 					continue
 				}
