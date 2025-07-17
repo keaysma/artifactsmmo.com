@@ -37,6 +37,8 @@ TODOs:
 - Monster block chance
 */
 
+var ELEMENTS = [4]string{"fire", "earth", "water", "air"}
+
 type FightSimulationMetadata struct {
 	CharacterEndHp int
 	MonsterEndHp   int
@@ -90,7 +92,74 @@ func handleElementalDamageMonsterAttack(element string, character *types.Charact
 	return hit, false
 }
 
-var ELEMENTS = []string{"fire", "earth", "water", "air"}
+type FightState struct {
+	monsterHp      int
+	monsterMaxHp   int
+	characterHp    int
+	characterMaxHp int
+}
+
+func simulationTurnCharacter(character *types.Character, monster *types.Monster, fightState FightState, fightDetails *types.FightDetails, isCriticalStrike bool, lightweight bool) (*FightState, *[]string) {
+	logs := []string{}
+
+	criticalMultiplier := 1.0
+	if isCriticalStrike {
+		criticalMultiplier = 1.5
+	}
+
+	for _, element := range ELEMENTS {
+		hit := handleElementalDamageCharacterAttack(element, character, monster, criticalMultiplier)
+		if hit == 0 {
+			continue
+		}
+
+		fightState.monsterHp = max(0, fightState.monsterHp-hit)
+		if !lightweight {
+			logMessage := fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage. (Monster HP: %d/%d)", fightDetails.Turns, element, int(hit), fightState.monsterHp, fightState.monsterMaxHp)
+			if isCriticalStrike {
+				logMessage = fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", fightDetails.Turns, element, int(hit), fightState.monsterHp, fightState.monsterMaxHp)
+			}
+			logs = append(logs, logMessage)
+		}
+	}
+
+	return &fightState, &logs
+}
+
+func simulationTurnMonster(character *types.Character, monster *types.Monster, fightState FightState, fightDetails *types.FightDetails, isCriticalStrike bool, lightweight bool) (*FightState, *[]string) {
+	logs := []string{}
+
+	criticalMultiplier := 1.0
+	if isCriticalStrike {
+		criticalMultiplier = 1.5
+	}
+
+	for _, element := range ELEMENTS {
+		hit, didBlock := handleElementalDamageMonsterAttack(element, character, monster, criticalMultiplier)
+		if hit == 0 {
+			continue
+		}
+
+		if didBlock {
+			blockHitsField := utils.GetFieldFromStructByName(fightDetails.Player_blocked_hits, element)
+			blockHitsField.SetInt(blockHitsField.Int() + 1)
+			if !lightweight {
+				logs = append(logs, fmt.Sprintf("Turn %d: The monster used %s attack but the character blocked it. (Character HP: %d/%d)", fightDetails.Turns, element, fightState.characterHp, character.Max_hp))
+			}
+		} else {
+			fightState.characterHp = max(0, fightState.characterHp-hit)
+			if !lightweight {
+				logMessage := fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage. (Character HP: %d/%d)", fightDetails.Turns, element, int(hit), fightState.characterHp, character.Max_hp)
+				if isCriticalStrike {
+					logMessage = fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage (Critical Strike). (Character HP: %d/%d)", fightDetails.Turns, element, int(hit), fightState.characterHp, character.Max_hp)
+				}
+				logs = append(logs, logMessage)
+			}
+		}
+	}
+
+	return &fightState, &logs
+}
 
 func simulateFight(character *types.Character, monster *types.Monster, lightweight bool) *FightSimulationData {
 	result := types.FightDetails{
@@ -115,16 +184,20 @@ func simulateFight(character *types.Character, monster *types.Monster, lightweig
 		}
 	}
 
+	state := &FightState{
+		monsterHp:      monster.Hp,
+		monsterMaxHp:   monster.Hp,
+		characterHp:    character.Max_hp,
+		characterMaxHp: character.Max_hp,
+	}
+
 	characterTurn := true
-	monsterMaxHp := monster.Hp
 
 	// Reset HP
-	monsterHp := monster.Hp
-	characterHp := character.Max_hp
 
 	// Initial log
 	if !lightweight {
-		log(fmt.Sprintf("Fight start: Character HP: %d/%d, Monster HP: %d/%d", characterHp, character.Max_hp, monsterHp, monsterMaxHp))
+		log(fmt.Sprintf("Fight start: Character HP: %d/%d, Monster HP: %d/%d", state.characterHp, character.Max_hp, state.monsterHp, state.monsterMaxHp))
 	}
 	for {
 		if characterTurn {
@@ -134,26 +207,9 @@ func simulateFight(character *types.Character, monster *types.Monster, lightweig
 				Turn 1: The character used water attack and dealt 20 damage. (Monster HP: 427/480)
 			*/
 			isCriticalStrike := rand.Float64() < (float64(character.Critical_strike) / 100.0)
-			criticalMultiplier := 1.0
-			if isCriticalStrike {
-				criticalMultiplier = 1.5
-			}
-
-			for _, element := range ELEMENTS {
-				hit := handleElementalDamageCharacterAttack(element, character, monster, criticalMultiplier)
-				if hit == 0 {
-					continue
-				}
-
-				monsterHp = max(0, monsterHp-hit)
-				if !lightweight {
-					logMessage := fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, element, int(hit), monsterHp, monsterMaxHp)
-					if isCriticalStrike {
-						logMessage = fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", result.Turns, element, int(hit), monsterHp, monsterMaxHp)
-					}
-					log(logMessage)
-				}
-			}
+			turn, logs := simulationTurnCharacter(character, monster, *state, &result, isCriticalStrike, lightweight)
+			state = turn
+			result.Logs = append(result.Logs, *logs...)
 		} else {
 			// Monster's turn
 			/*
@@ -161,45 +217,20 @@ func simulateFight(character *types.Character, monster *types.Monster, lightweig
 			*/
 
 			isCriticalStrike := rand.Float64() < (float64(monster.Critical_strike) / 100.0)
-			criticalMultiplier := 1.0
-			if isCriticalStrike {
-				criticalMultiplier = 1.5
-			}
-
-			for _, element := range ELEMENTS {
-				hit, didBlock := handleElementalDamageMonsterAttack(element, character, monster, criticalMultiplier)
-				if hit == 0 {
-					continue
-				}
-
-				if didBlock {
-					blockHitsField := utils.GetFieldFromStructByName(result.Player_blocked_hits, element)
-					blockHitsField.SetInt(blockHitsField.Int() + 1)
-					if !lightweight {
-						log(fmt.Sprintf("Turn %d: The monster used %s attack but the character blocked it. (Character HP: %d/%d)", result.Turns, element, characterHp, character.Max_hp))
-					}
-				} else {
-					characterHp = max(0, characterHp-hit)
-					if !lightweight {
-						logMessage := fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, element, int(hit), characterHp, character.Max_hp)
-						if isCriticalStrike {
-							logMessage = fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage (Critical Strike). (Character HP: %d/%d)", result.Turns, element, int(hit), characterHp, character.Max_hp)
-						}
-						log(logMessage)
-					}
-				}
-			}
+			turn, logs := simulationTurnMonster(character, monster, *state, &result, isCriticalStrike, lightweight)
+			state = turn
+			result.Logs = append(result.Logs, *logs...)
 		}
 
-		if characterHp <= 0 || monsterHp <= 0 {
+		if state.characterHp <= 0 || state.monsterHp <= 0 {
 			// Fight result: win. (Character HP: 235/550, Monster HP: 0/480)
-			if characterHp <= 0 {
+			if state.characterHp <= 0 {
 				result.Result = "lose"
 			} else {
 				result.Result = "win"
 			}
 			if !lightweight {
-				log(fmt.Sprintf("Fight result: %s. (Character HP: %d/%d, Monster HP: %d/%d)", result.Result, characterHp, character.Max_hp, monsterHp, monsterMaxHp))
+				log(fmt.Sprintf("Fight result: %s. (Character HP: %d/%d, Monster HP: %d/%d)", result.Result, state.characterHp, character.Max_hp, state.monsterHp, state.monsterMaxHp))
 			}
 			break
 		}
@@ -212,9 +243,9 @@ func simulateFight(character *types.Character, monster *types.Monster, lightweig
 		FightDetails: result,
 		Metadata: FightSimulationMetadata{
 			Cooldown:       GetCooldown(result.Turns, character.Haste),
-			CharacterEndHp: characterHp,
-			MonsterEndHp:   monsterHp,
-			Score:          (float64(characterHp) / float64(character.Max_hp)) - (float64(monsterHp) / float64(monster.Hp)),
+			CharacterEndHp: state.characterHp,
+			MonsterEndHp:   state.monsterHp,
+			Score:          (float64(state.characterHp) / float64(character.Max_hp)) - (float64(state.monsterHp) / float64(state.monsterMaxHp)),
 		},
 	}
 }
