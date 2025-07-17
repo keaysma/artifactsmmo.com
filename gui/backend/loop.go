@@ -950,7 +950,8 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	case "best":
 		if len(parts) < 2 {
 			log("usage: best <type:string>[ <level-range>][ <effect0:equation> [...]]")
-			log("usage: best <type:string | 'loadout'> against <monster:string>[ given <weapon:string>]")
+			log("usage: best <type:string> against <monster:string>[ given <weapon:string>]")
+			log("usage: best loadout against <monster:string>[ <algo:'v2'|'DAG'|'sim'>]")
 			return false
 		}
 
@@ -966,14 +967,45 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			kernel.CharacterState.Read(func(value *types.Character) { currentLevel = value.Level })
 
 			if search_type == "loadout" {
-				log(fmt.Sprintf("find the best loadout, target=%s, max_level=%d", target, currentLevel))
-				res, err := generators.LoadOutForFight(kernel, target)
+				algoName := "v2"
+				if len(parts) >= 5 {
+					algoName = parts[4]
+				}
+				algo := generators.LoadOutForFightV2
+				switch algoName {
+				case "v1":
+					algo = generators.LoadOutForFightV1
+				case "v2":
+					algo = generators.LoadOutForFightV2
+				case "v3", "dag":
+					algo = generators.LoadOutForFightDAG
+				case "v4", "sim":
+					algo = generators.LoadOutForFightBruteForce
+				default:
+					log(fmt.Sprintf("unknown algo: %s", algoName))
+					return false
+				}
+
+				log(fmt.Sprintf("find the best loadout, target=%s, max_level=%d, algo=%s", target, currentLevel, algoName))
+				res, err := algo(kernel, target)
 				if err != nil {
 					log(fmt.Sprintf("Failed to get loadout: %s", err))
 					return false
 				}
-				for slot, item := range res {
-					log(fmt.Sprintf("%s=%s", slot, item.Code))
+				if len(res) > 0 {
+					for slot, item := range res {
+						char := kernel.CharacterState.Ref()
+						curItem := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", slot)).String()
+						kernel.CharacterState.Unlock()
+
+						if curItem == item.Code {
+							continue
+						}
+
+						log(fmt.Sprintf("%s=%s", slot, item.Code))
+					}
+				} else {
+					log("current loadout is best")
 				}
 
 				return true
@@ -1227,6 +1259,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			}
 
 			log(fmt.Sprintf("Cooldown: %d", (*res)[0].Metadata.Cooldown))
+			log(fmt.Sprintf("Score: %f", (*res)[0].Metadata.Score))
 		} else {
 			log("no results")
 		}
