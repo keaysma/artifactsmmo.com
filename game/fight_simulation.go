@@ -41,6 +41,7 @@ type FightSimulationMetadata struct {
 	CharacterEndHp int
 	MonsterEndHp   int
 	Cooldown       int
+	Score          float64 // Scoring info for automation - determines how well the fight went
 }
 
 type FightSimulationData struct {
@@ -52,7 +53,7 @@ func GetCooldown(turns int, haste int) int {
 	return int(math.Round(float64(2*turns) * (1 - (0.01 * float64(haste)))))
 }
 
-func handleElementalDamageCharacterAttack(element string, character types.Character, monster types.Monster, criticalMultiplier float64) int {
+func handleElementalDamageCharacterAttack(element string, character *types.Character, monster *types.Monster, criticalMultiplier float64) int {
 	elementAttackField := fmt.Sprintf("Attack_%s", element)
 	elementAttackValue := utils.GetFieldFromStructByName(character, elementAttackField).Int()
 
@@ -68,7 +69,7 @@ func handleElementalDamageCharacterAttack(element string, character types.Charac
 	return hit
 }
 
-func handleElementalDamageMonsterAttack(element string, character types.Character, monster types.Monster, criticalMultiplier float64) (int, bool) {
+func handleElementalDamageMonsterAttack(element string, character *types.Character, monster *types.Monster, criticalMultiplier float64) (int, bool) {
 	elementAttackField := fmt.Sprintf("Attack_%s", element)
 	elementAttackValue := utils.GetFieldFromStructByName(monster, elementAttackField).Int()
 
@@ -80,15 +81,18 @@ func handleElementalDamageMonsterAttack(element string, character types.Characte
 		return 0, false
 	}
 
-	pBlock := (float64(elementResValue) / 10.0) / 100.0
-	if rand.Float64() <= pBlock {
-		return 0, true
-	}
+	// blocking disabled https://docs.artifactsmmo.com/resources/updates#update-290625-season-5
+	// pBlock := (float64(elementResValue) / 10.0) / 100.0
+	// if rand.Float64() <= pBlock {
+	// 	return 0, true
+	// }
 
 	return hit, false
 }
 
-func simulateFight(character types.Character, monster types.Monster) *FightSimulationData {
+var ELEMENTS = []string{"fire", "earth", "water", "air"}
+
+func simulateFight(character *types.Character, monster *types.Monster, lightweight bool) *FightSimulationData {
 	result := types.FightDetails{
 		Turns:                1,
 		Monster_blocked_hits: types.BlockedHits{},
@@ -102,18 +106,26 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 		Drops: []types.InventoryItem{},
 	}
 
+	log := func(m string) {}
+	if !lightweight {
+		log = func(m string) {
+			result.Logs = append(
+				result.Logs, m,
+			)
+		}
+	}
+
 	characterTurn := true
 	monsterMaxHp := monster.Hp
 
 	// Reset HP
-	character.Hp = character.Max_hp
+	monsterHp := monster.Hp
+	characterHp := character.Max_hp
 
 	// Initial log
-	result.Logs = append(
-		result.Logs,
-		fmt.Sprintf("Fight start: Character HP: %d/%d, Monster HP: %d/%d", character.Hp, character.Max_hp, monster.Hp, monsterMaxHp),
-	)
-
+	if !lightweight {
+		log(fmt.Sprintf("Fight start: Character HP: %d/%d, Monster HP: %d/%d", characterHp, character.Max_hp, monsterHp, monsterMaxHp))
+	}
 	for {
 		if characterTurn {
 			// Character's turn
@@ -127,18 +139,20 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				criticalMultiplier = 1.5
 			}
 
-			for _, element := range []string{"fire", "earth", "water", "air"} {
+			for _, element := range ELEMENTS {
 				hit := handleElementalDamageCharacterAttack(element, character, monster, criticalMultiplier)
 				if hit == 0 {
 					continue
 				}
 
-				logMessage := fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, element, int(hit), monster.Hp, monsterMaxHp)
-				if isCriticalStrike {
-					logMessage = fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", result.Turns, element, int(hit), monster.Hp, monsterMaxHp)
+				monsterHp = max(0, monsterHp-hit)
+				if !lightweight {
+					logMessage := fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage. (Monster HP: %d/%d)", result.Turns, element, int(hit), monsterHp, monsterMaxHp)
+					if isCriticalStrike {
+						logMessage = fmt.Sprintf("Turn %d: The character used %s attack and dealt %d damage (Critical Strike). (Monster HP: %d/%d)", result.Turns, element, int(hit), monsterHp, monsterMaxHp)
+					}
+					log(logMessage)
 				}
-				result.Logs = append(result.Logs, logMessage)
-				monster.Hp = max(0, monster.Hp-hit)
 			}
 		} else {
 			// Monster's turn
@@ -152,7 +166,7 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				criticalMultiplier = 1.5
 			}
 
-			for _, element := range []string{"fire", "earth", "water", "air"} {
+			for _, element := range ELEMENTS {
 				hit, didBlock := handleElementalDamageMonsterAttack(element, character, monster, criticalMultiplier)
 				if hit == 0 {
 					continue
@@ -161,32 +175,32 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 				if didBlock {
 					blockHitsField := utils.GetFieldFromStructByName(result.Player_blocked_hits, element)
 					blockHitsField.SetInt(blockHitsField.Int() + 1)
-					result.Logs = append(
-						result.Logs,
-						fmt.Sprintf("Turn %d: The monster used %s attack but the character blocked it. (Character HP: %d/%d)", result.Turns, element, character.Hp, character.Max_hp),
-					)
-				} else {
-					logMessage := fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, element, int(hit), character.Hp, character.Max_hp)
-					if isCriticalStrike {
-						logMessage = fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage (Critical Strike). (Character HP: %d/%d)", result.Turns, element, int(hit), character.Hp, character.Max_hp)
+					if !lightweight {
+						log(fmt.Sprintf("Turn %d: The monster used %s attack but the character blocked it. (Character HP: %d/%d)", result.Turns, element, characterHp, character.Max_hp))
 					}
-					result.Logs = append(result.Logs, logMessage)
-					character.Hp = max(0, character.Hp-hit)
+				} else {
+					characterHp = max(0, characterHp-hit)
+					if !lightweight {
+						logMessage := fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage. (Character HP: %d/%d)", result.Turns, element, int(hit), characterHp, character.Max_hp)
+						if isCriticalStrike {
+							logMessage = fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage (Critical Strike). (Character HP: %d/%d)", result.Turns, element, int(hit), characterHp, character.Max_hp)
+						}
+						log(logMessage)
+					}
 				}
 			}
 		}
 
-		if character.Hp <= 0 || monster.Hp <= 0 {
+		if characterHp <= 0 || monsterHp <= 0 {
 			// Fight result: win. (Character HP: 235/550, Monster HP: 0/480)
-			if character.Hp <= 0 {
+			if characterHp <= 0 {
 				result.Result = "lose"
 			} else {
 				result.Result = "win"
 			}
-			result.Logs = append(
-				result.Logs,
-				fmt.Sprintf("Fight result: %s. (Character HP: %d/%d, Monster HP: %d/%d)", result.Result, character.Hp, character.Max_hp, monster.Hp, monsterMaxHp),
-			)
+			if !lightweight {
+				log(fmt.Sprintf("Fight result: %s. (Character HP: %d/%d, Monster HP: %d/%d)", result.Result, characterHp, character.Max_hp, monsterHp, monsterMaxHp))
+			}
 			break
 		}
 
@@ -198,17 +212,21 @@ func simulateFight(character types.Character, monster types.Monster) *FightSimul
 		FightDetails: result,
 		Metadata: FightSimulationMetadata{
 			Cooldown:       GetCooldown(result.Turns, character.Haste),
-			CharacterEndHp: character.Hp,
-			MonsterEndHp:   monster.Hp,
+			CharacterEndHp: characterHp,
+			MonsterEndHp:   monsterHp,
+			Score:          (float64(characterHp) / float64(character.Max_hp)) - (float64(monsterHp) / float64(monster.Hp)),
 		},
 	}
 }
 
-func RunSimulations(character string, monster string, iterations int, applyLoadout *map[string]*types.ItemDetails) (*[]FightSimulationData, error) {
-	characterData, err := api.GetCharacterByName(character)
-	if err != nil {
-		return nil, err
-	}
+func RunSimulationsCore(
+	characterData *types.Character,
+	monsterData *types.Monster,
+	iterations int,
+	applyLoadout *map[string]*types.ItemDetails,
+	lightweight bool,
+) (*[]*FightSimulationData, error) {
+	char := *characterData
 
 	if applyLoadout != nil {
 		for slot, item := range *applyLoadout {
@@ -216,7 +234,7 @@ func RunSimulations(character string, monster string, iterations int, applyLoado
 				continue
 			}
 
-			curEquip := utils.GetFieldFromStructByName(characterData, fmt.Sprintf("%s_slot", utils.Caser.String(slot))).String()
+			curEquip := utils.GetFieldFromStructByName(&char, fmt.Sprintf("%s_slot", slot)).String()
 			if curEquip != "" {
 				curEquipInfo, err := api.GetItemDetails(curEquip)
 				if err != nil {
@@ -225,9 +243,9 @@ func RunSimulations(character string, monster string, iterations int, applyLoado
 
 				// simulate unequipping that item
 				for _, effect := range curEquipInfo.Effects {
-					currentEffectValue := utils.GetFieldFromStructByName(characterData, effect.Code)
+					currentEffectValue := utils.GetFieldFromStructByName(&char, effect.Code)
 					if !currentEffectValue.IsValid() {
-						return nil, fmt.Errorf("applyLoadout: %s: invalid effect: %s", item.Code, effect.Code)
+						continue
 					}
 					currentEffectValue.SetInt(currentEffectValue.Int() - int64(effect.Value))
 				}
@@ -235,25 +253,35 @@ func RunSimulations(character string, monster string, iterations int, applyLoado
 
 			// simulate equipping the new item
 			for _, effect := range item.Effects {
-				currentEffectValue := utils.GetFieldFromStructByName(characterData, effect.Code)
+				currentEffectValue := utils.GetFieldFromStructByName(&char, effect.Code)
 				if !currentEffectValue.IsValid() {
-					return nil, fmt.Errorf("applyLoadout: %s: invalid effect: %s", item.Code, effect.Code)
+					continue
 				}
 				currentEffectValue.SetInt(currentEffectValue.Int() + int64(effect.Value))
 			}
 		}
 	}
 
-	monster_data, err := api.GetMonsterByCode(monster)
+	results := make([]*FightSimulationData, iterations)
+	for i := 0; i < iterations; i++ {
+		result := simulateFight(&char, monsterData, lightweight)
+		// results = append(results, result)
+		results[i] = result
+	}
+
+	return &results, nil
+}
+
+func RunSimulations(character string, monster string, iterations int, applyLoadout *map[string]*types.ItemDetails) (*[]*FightSimulationData, error) {
+	characterData, err := api.GetCharacterByName(character)
 	if err != nil {
 		return nil, err
 	}
 
-	results := []FightSimulationData{}
-	for i := 0; i < iterations; i++ {
-		result := *simulateFight(*characterData, *monster_data)
-		results = append(results, result)
+	monsterData, err := api.GetMonsterByCode(monster)
+	if err != nil {
+		return nil, err
 	}
 
-	return &results, nil
+	return RunSimulationsCore(characterData, monsterData, iterations, applyLoadout, false)
 }
