@@ -7,6 +7,7 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/gui/backend"
 	"artifactsmmo.com/m/gui/ui_displays/playerframe"
 	"artifactsmmo.com/m/utils"
@@ -33,6 +34,11 @@ var wxs = []GUIWidget{}
 
 func UI() {
 	var err error
+
+	_, err = steps.GetAllBankItems(true)
+	if err != nil {
+		log.Fatalf("failed to get bank: %s", err)
+	}
 
 	characters, err := api.GetAllCharacters()
 	if err != nil {
