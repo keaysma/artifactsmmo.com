@@ -1,6 +1,8 @@
 package utils
 
-import "sync"
+import (
+	"sync"
+)
 
 type SyncData[T any] struct {
 	Value T
@@ -45,4 +47,12 @@ func (t *SyncData[T]) ShallowCopy() T {
 	return t.Value
 }
 
-// var TestData = SyncData[int]{value: 4}
+func (t *SyncData[T]) DeepCopy() T {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	new, err := DeepCopyJSON(t.Value)
+	if err != nil {
+		panic(err)
+	}
+	return new
+}

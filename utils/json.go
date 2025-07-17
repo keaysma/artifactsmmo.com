@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+func DeepCopyJSON[T any](original T) (T, error) {
+	var copied T
+	bytes, err := json.Marshal(original)
+	if err != nil {
+		return copied, err
+	}
+	err = json.Unmarshal(bytes, &copied)
+	return copied, err
+}
+
 func PrettyPrint(data interface{}) string {
 	out, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
