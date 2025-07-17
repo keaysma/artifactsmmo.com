@@ -208,11 +208,29 @@ func (m *Mainframe) ResizeWidgets(w int, h int) {
 func (m *Mainframe) BackgroundLoop() {
 	select {
 	case line := <-m.kernel.LogsChannel:
-		m.loglines = append(m.loglines, line)
-	case line := <-utils.LogsChannel:
-		m.loglines = append(m.loglines, line)
+		if strings.HasPrefix(line, game.LOG_CONTINUE) {
+			cleanLine := line[2:]
+			if len(m.loglines) > 0 {
+				m.loglines[len(m.loglines)-1] += cleanLine
+			} else {
+				m.loglines = append(m.loglines, cleanLine)
+			}
+		} else {
+			m.loglines = append(m.loglines, line)
+		}
 	default:
 	}
+
+	b := true
+	for b {
+		select {
+		case line := <-utils.LogsChannel:
+			m.loglines = append(m.loglines, line)
+		default:
+			b = false
+		}
+	}
+
 	h := m.Logs.Inner.Dy()
 	if len(m.loglines) > h {
 		m.loglines = m.loglines[max(0, len(m.loglines)-h):]

@@ -9,6 +9,8 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
+const LOG_CONTINUE = "…"
+
 var s = utils.GetSettings()
 
 type Kernel struct {
@@ -56,6 +58,11 @@ func (kernel *Kernel) WaitForDown(cooldown types.Cooldown) {
 func (kernel *Kernel) Log(content string) {
 	t := time.Now()
 	logline := fmt.Sprintf("[%s] %s", t.Format(time.DateTime), content)
+	kernel.LogsChannel <- logline
+}
+
+func (kernel *Kernel) LogExt(content string) {
+	logline := fmt.Sprintf("%s%s", LOG_CONTINUE, content)
 	kernel.LogsChannel <- logline
 }
 
