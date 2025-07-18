@@ -9,7 +9,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-const LOG_CONTINUE = "…"
+const LOG_CONTINUE = "::"
 
 var s = utils.GetSettings()
 

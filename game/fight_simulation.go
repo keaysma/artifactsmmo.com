@@ -272,7 +272,7 @@ type FightStateNode struct {
 func RunFightAnalysis(
 	characterData *types.Character,
 	monsterData *types.Monster,
-	// applyLoadout *map[string]*types.ItemDetails,
+	applyLoadout *map[string]*types.ItemDetails,
 ) (*FightAnalysisData, error) {
 	/*
 		The idea here is that we should, at each step
@@ -282,8 +282,45 @@ func RunFightAnalysis(
 		Collect a curve of what outcomes are most likely
 	*/
 
+	char := *characterData
+
+	if applyLoadout != nil {
+		for slot, item := range *applyLoadout {
+			if item == nil {
+				continue
+			}
+
+			curEquip := utils.GetFieldFromStructByName(&char, fmt.Sprintf("%s_slot", slot)).String()
+			if curEquip != "" {
+				curEquipInfo, err := api.GetItemDetails(curEquip)
+				if err != nil {
+					return nil, fmt.Errorf("failed to get items details for %s: %s", curEquip, err)
+				}
+
+				// simulate unequipping that item
+				for _, effect := range curEquipInfo.Effects {
+					currentEffectValue := utils.GetFieldFromStructByName(&char, effect.Code)
+					if !currentEffectValue.IsValid() {
+						continue
+					}
+					currentEffectValue.SetInt(currentEffectValue.Int() - int64(effect.Value))
+				}
+			}
+
+			// simulate equipping the new item
+			for _, effect := range item.Effects {
+				currentEffectValue := utils.GetFieldFromStructByName(&char, effect.Code)
+				if !currentEffectValue.IsValid() {
+					continue
+				}
+				currentEffectValue.SetInt(currentEffectValue.Int() + int64(effect.Value))
+			}
+		}
+	}
+
 	analysis := FightAnalysisData{
 		EndResults: []FightAnalysisEndResult{},
+		TotalNodes: 0,
 	}
 
 	seed := &FightStateNode{
@@ -293,8 +330,8 @@ func RunFightAnalysis(
 			characterTurn:  true,
 			monsterHp:      monsterData.Hp,
 			monsterMaxHp:   monsterData.Hp,
-			characterHp:    characterData.Max_hp,
-			characterMaxHp: characterData.Max_hp,
+			characterHp:    char.Max_hp,
+			characterMaxHp: char.Max_hp,
 		},
 	}
 
@@ -307,12 +344,12 @@ func RunFightAnalysis(
 			analysis.TotalNodes++
 			if node.state.characterTurn {
 				// utils.UniversalLog(fmt.Sprintf("char turn %d/%d", node.state.characterHp, node.state.monsterHp))
-				criticalRate := float64(characterData.Critical_strike) / 100.0
+				criticalRate := float64(char.Critical_strike) / 100.0
 				newTurns := node.turns + 1
 
 				// No Crit
 				noCritNewProbability := node.probability * (1.0 - criticalRate)
-				newStateNoCrit, _ := simulationTurnCharacter(characterData, monsterData, node.state, node.turns, false, true)
+				newStateNoCrit, _ := simulationTurnCharacter(&char, monsterData, node.state, node.turns, false, true)
 				if newStateNoCrit.monsterHp <= 0 {
 					endResult := FightAnalysisEndResult{
 						CharacterWin: true,
@@ -335,7 +372,7 @@ func RunFightAnalysis(
 				// Yes Crit
 				yesCritNewProbability := node.probability * criticalRate
 				if yesCritNewProbability > 0 {
-					newStateYesCrit, _ := simulationTurnCharacter(characterData, monsterData, node.state, node.turns, true, true)
+					newStateYesCrit, _ := simulationTurnCharacter(&char, monsterData, node.state, node.turns, true, true)
 					if newStateYesCrit.monsterHp <= 0 {
 						endResult := FightAnalysisEndResult{
 							CharacterWin: true,
@@ -362,7 +399,7 @@ func RunFightAnalysis(
 
 				// No Crit
 				noCritNewProbability := node.probability * (1.0 - criticalRate)
-				newStateNoCrit, _ := simulationTurnMonster(characterData, monsterData, node.state, node.turns, false, true)
+				newStateNoCrit, _ := simulationTurnMonster(&char, monsterData, node.state, node.turns, false, true)
 				if newStateNoCrit.characterHp <= 0 {
 					endResult := FightAnalysisEndResult{
 						CharacterWin: false,
@@ -385,7 +422,7 @@ func RunFightAnalysis(
 				// Yes Crit
 				yesCritNewProbability := node.probability * criticalRate
 				if yesCritNewProbability > 0 {
-					newStateYesCrit, _ := simulationTurnMonster(characterData, monsterData, node.state, node.turns, true, true)
+					newStateYesCrit, _ := simulationTurnMonster(&char, monsterData, node.state, node.turns, true, true)
 					if newStateYesCrit.characterHp <= 0 {
 						endResult := FightAnalysisEndResult{
 							CharacterWin: false,

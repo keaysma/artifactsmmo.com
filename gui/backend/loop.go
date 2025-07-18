@@ -981,6 +981,8 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 					algo = generators.LoadOutForFightDAG
 				case "v4", "sim":
 					algo = generators.LoadOutForFightBruteForce
+				case "v5", "anlyze":
+					algo = generators.LoadOutForFightAnalysis
 				default:
 					log(fmt.Sprintf("unknown algo: %s", algoName))
 					return false
@@ -1282,7 +1284,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		characterData := kernel.CharacterState.DeepCopy()
 
-		res, err := game.RunFightAnalysis(&characterData, monsterData)
+		res, err := game.RunFightAnalysis(&characterData, monsterData, nil)
 		if err != nil {
 			log("failed to simulate fight: %s", err)
 			return false
