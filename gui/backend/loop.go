@@ -69,7 +69,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 	}
 
 	command := parts[0]
-	log := kernel.LogPre(fmt.Sprintf("%s: ", command))
+	log := kernel.LogPreF(fmt.Sprintf("%s: ", command))
 	switch command {
 	case "ping":
 		log("pong")
@@ -1263,6 +1263,69 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		} else {
 			log("no results")
 		}
+
+		return true
+	case "analyze-fight":
+		if len(parts) != 2 {
+			log("usage: analyze-fight <monster_code:string>")
+			return false
+		}
+
+		monsterCode := parts[1]
+		monsterData, err := api.GetMonsterByCode(monsterCode)
+		if err != nil {
+			log("failed to get monster info: %s", err)
+			return false
+		}
+
+		// TODO: Support custom load-out for fight
+
+		characterData := kernel.CharacterState.DeepCopy()
+
+		res, err := game.RunFightAnalysis(&characterData, monsterData)
+		if err != nil {
+			log("failed to simulate fight: %s", err)
+			return false
+		}
+
+		// log("%v", res)
+		turns := make([]int, len(res.EndResults))
+		wins, loses := 0, 0
+		endHpChar, endHpMonster := 0.0, 0.0
+		pWin, pLose := 0.0, 0.0
+		for i, r := range res.EndResults {
+			if r.CharacterWin {
+				wins++
+				endHpChar += float64(r.CharacterHp)
+				pWin += r.Probability
+			} else {
+				loses++
+				endHpMonster += float64(r.MonsterHp)
+				pLose += r.Probability
+			}
+			turns[i] = r.Turns
+		}
+
+		avgTurns := 0.0
+		for _, t := range turns {
+			avgTurns += float64(t)
+		}
+		avgTurns /= float64(len(turns))
+		endHpChar /= float64(max(1, wins))
+		endHpMonster /= float64(max(1, loses))
+
+		log("win")
+		log("prb: %f", pWin)
+		log("tot: %d", wins)
+		log("hp: %f", endHpChar)
+
+		log("lose")
+		log("prb: %f", pLose)
+		log("tot: %d", loses)
+		log("hp: %f", endHpMonster)
+
+		log("turns: %d <-- %f --> %d", slices.Min(turns), avgTurns, slices.Max(turns))
+		log("nodes: %d", res.TotalNodes)
 
 		return true
 	default:

@@ -66,6 +66,10 @@ func (kernel *Kernel) LogExt(content string) {
 	kernel.LogsChannel <- logline
 }
 
+func (kernel *Kernel) LogF(base string, args ...interface{}) {
+	kernel.Log(fmt.Sprintf(base, args...))
+}
+
 func (kernel *Kernel) LogPre(pre string) func(string) {
 	return func(content string) {
 		kernel.Log(fmt.Sprintf("%s%s", pre, content))
