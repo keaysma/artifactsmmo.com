@@ -259,7 +259,7 @@ type FightAnalysisEndResult struct {
 }
 
 type FightAnalysisData struct {
-	EndResults []FightAnalysisEndResult
+	EndResults []*FightAnalysisEndResult
 	TotalNodes int
 }
 
@@ -273,6 +273,7 @@ func RunFightAnalysis(
 	characterData *types.Character,
 	monsterData *types.Monster,
 	applyLoadout *map[string]*types.ItemDetails,
+	probabilityLimitSetting float64,
 ) (*FightAnalysisData, error) {
 	/*
 		The idea here is that we should, at each step
@@ -283,6 +284,15 @@ func RunFightAnalysis(
 	*/
 
 	char := *characterData
+
+	autoLimit := false
+	probabilityLimit := probabilityLimitSetting
+	if probabilityLimitSetting < 0 {
+		// Automatically tailor per turns
+		autoLimit = true
+		probabilityLimit = 2 // (float64(char.Critical_strike) / 100) * (float64(monsterData.Critical_strike) / 100) * 2
+		// utils.UniversalLog(fmt.Sprintf("autoLimit c:%d m:%d", char.Critical_strike, monsterData.Critical_strike))
+	}
 
 	if applyLoadout != nil {
 		for slot, item := range *applyLoadout {
@@ -319,7 +329,7 @@ func RunFightAnalysis(
 	}
 
 	analysis := FightAnalysisData{
-		EndResults: []FightAnalysisEndResult{},
+		EndResults: []*FightAnalysisEndResult{},
 		TotalNodes: 0,
 	}
 
@@ -340,106 +350,91 @@ func RunFightAnalysis(
 	for len(*nodes) > 0 {
 		newNodes := []*FightStateNode{}
 
+		n0 := (*nodes)[0]
+		if autoLimit {
+			if n0.state.characterTurn {
+				probabilityLimit *= float64(char.Critical_strike) / 100.0
+				// probabilityLimit *= float64(n0.turns)
+			} else {
+				probabilityLimit *= float64(monsterData.Critical_strike) / 100.0
+				// probabilityLimit *= float64(n0.turns) - 1
+			}
+			// probabilityLimit *= (float64(n0.turns))
+			probabilityLimit *= (float64(n0.turns) / 1.5)
+			// utils.UniversalLog(fmt.Sprintf("lim: %10f", probabilityLimit))
+		}
+
 		for _, node := range *nodes {
 			analysis.TotalNodes++
 			if node.state.characterTurn {
-				// utils.UniversalLog(fmt.Sprintf("char turn %d/%d", node.state.characterHp, node.state.monsterHp))
 				criticalRate := float64(char.Critical_strike) / 100.0
 				newTurns := node.turns + 1
 
-				// No Crit
-				noCritNewProbability := node.probability * (1.0 - criticalRate)
-				newStateNoCrit, _ := simulationTurnCharacter(&char, monsterData, node.state, node.turns, false, true)
-				if newStateNoCrit.monsterHp <= 0 {
-					endResult := FightAnalysisEndResult{
-						CharacterWin: true,
-						Probability:  noCritNewProbability,
-						Turns:        newTurns,
-						CharacterHp:  node.state.characterHp,
-						MonsterHp:    node.state.monsterHp,
+				for _, isCrit := range []bool{true, false} {
+					probabilityRate := criticalRate
+					if !isCrit {
+						probabilityRate = 1 - criticalRate
 					}
-					analysis.EndResults = append(analysis.EndResults, endResult)
-				} else {
-					newStateNoCrit.characterTurn = !newStateNoCrit.characterTurn
-					newNodeNoCrit := FightStateNode{
-						probability: noCritNewProbability,
-						turns:       newTurns,
-						state:       *newStateNoCrit,
-					}
-					newNodes = append(newNodes, &newNodeNoCrit)
-				}
 
-				// Yes Crit
-				yesCritNewProbability := node.probability * criticalRate
-				if yesCritNewProbability > 0 {
-					newStateYesCrit, _ := simulationTurnCharacter(&char, monsterData, node.state, node.turns, true, true)
-					if newStateYesCrit.monsterHp <= 0 {
+					newProbability := node.probability * probabilityRate
+					if newProbability <= probabilityLimit {
+						continue
+					}
+
+					newState, _ := simulationTurnCharacter(&char, monsterData, node.state, node.turns, isCrit, true)
+					if newState.monsterHp <= 0 {
 						endResult := FightAnalysisEndResult{
 							CharacterWin: true,
-							Probability:  yesCritNewProbability,
+							Probability:  newProbability,
 							Turns:        newTurns,
 							CharacterHp:  node.state.characterHp,
 							MonsterHp:    node.state.monsterHp,
 						}
-						analysis.EndResults = append(analysis.EndResults, endResult)
+						analysis.EndResults = append(analysis.EndResults, &endResult)
 					} else {
-						newStateYesCrit.characterTurn = !newStateYesCrit.characterTurn
-						newNodeYesCrit := FightStateNode{
-							probability: yesCritNewProbability,
+						newState.characterTurn = !newState.characterTurn
+						newNodeNoCrit := FightStateNode{
+							probability: newProbability,
 							turns:       newTurns,
-							state:       *newStateYesCrit,
+							state:       *newState,
 						}
-						newNodes = append(newNodes, &newNodeYesCrit)
+						newNodes = append(newNodes, &newNodeNoCrit)
 					}
+
 				}
 			} else {
-				// utils.UniversalLog(fmt.Sprintf("monster turn %d/%d", node.state.characterHp, node.state.monsterHp))
 				criticalRate := float64(monsterData.Critical_strike) / 100.0
 				newTurns := node.turns + 1
 
-				// No Crit
-				noCritNewProbability := node.probability * (1.0 - criticalRate)
-				newStateNoCrit, _ := simulationTurnMonster(&char, monsterData, node.state, node.turns, false, true)
-				if newStateNoCrit.characterHp <= 0 {
-					endResult := FightAnalysisEndResult{
-						CharacterWin: false,
-						Probability:  noCritNewProbability,
-						Turns:        newTurns,
-						CharacterHp:  node.state.characterHp,
-						MonsterHp:    node.state.monsterHp,
+				for _, isCrit := range []bool{true, false} {
+					probabilityRate := criticalRate
+					if !isCrit {
+						probabilityRate = 1 - criticalRate
 					}
-					analysis.EndResults = append(analysis.EndResults, endResult)
-				} else {
-					newStateNoCrit.characterTurn = !newStateNoCrit.characterTurn
-					newNodeNoCrit := FightStateNode{
-						probability: noCritNewProbability,
-						turns:       newTurns,
-						state:       *newStateNoCrit,
-					}
-					newNodes = append(newNodes, &newNodeNoCrit)
-				}
 
-				// Yes Crit
-				yesCritNewProbability := node.probability * criticalRate
-				if yesCritNewProbability > 0 {
-					newStateYesCrit, _ := simulationTurnMonster(&char, monsterData, node.state, node.turns, true, true)
-					if newStateYesCrit.characterHp <= 0 {
+					newProbability := node.probability * probabilityRate
+					if newProbability <= probabilityLimit {
+						continue
+					}
+
+					newState, _ := simulationTurnMonster(&char, monsterData, node.state, node.turns, isCrit, true)
+					if newState.characterHp <= 0 {
 						endResult := FightAnalysisEndResult{
 							CharacterWin: false,
-							Probability:  yesCritNewProbability,
+							Probability:  newProbability,
 							Turns:        newTurns,
 							CharacterHp:  node.state.characterHp,
 							MonsterHp:    node.state.monsterHp,
 						}
-						analysis.EndResults = append(analysis.EndResults, endResult)
+						analysis.EndResults = append(analysis.EndResults, &endResult)
 					} else {
-						newStateYesCrit.characterTurn = !newStateYesCrit.characterTurn
-						newNodeYesCrit := FightStateNode{
-							probability: yesCritNewProbability,
+						newState.characterTurn = !newState.characterTurn
+						newNodeNoCrit := FightStateNode{
+							probability: newProbability,
 							turns:       newTurns,
-							state:       *newStateYesCrit,
+							state:       *newState,
 						}
-						newNodes = append(newNodes, &newNodeYesCrit)
+						newNodes = append(newNodes, &newNodeNoCrit)
 					}
 				}
 			}

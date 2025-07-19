@@ -982,7 +982,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 					algo = generators.LoadOutForFightDAG
 				case "v4", "sim":
 					algo = generators.LoadOutForFightBruteForce
-				case "v5", "anlyze":
+				case "v5", "prb":
 					algo = generators.LoadOutForFightAnalysis
 				default:
 					log(fmt.Sprintf("unknown algo: %s", algoName))
@@ -1269,8 +1269,8 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		return true
 	case "analyze-fight":
-		if len(parts) != 2 {
-			log("usage: analyze-fight <monster_code:string>")
+		if len(parts) < 2 || len(parts) > 3 {
+			log("usage: analyze-fight <monster_code:string>[ <probability_limit:float64>]")
 			return false
 		}
 
@@ -1281,14 +1281,24 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 			return false
 		}
 
+		prbLim := 0.0
+		if len(parts) >= 3 {
+			prbLimRaw := parts[2]
+			prbLim, _ = strconv.ParseFloat(prbLimRaw, 64)
+		}
 		// TODO: Support custom load-out for fight
 
 		characterData := kernel.CharacterState.DeepCopy()
 
-		res, err := game.RunFightAnalysis(&characterData, monsterData, nil)
+		res, err := game.RunFightAnalysis(&characterData, monsterData, nil, prbLim)
 		if err != nil {
 			log("failed to simulate fight: %s", err)
 			return false
+		}
+
+		if len(res.EndResults) == 0 {
+			log("no results")
+			return true
 		}
 
 		// log("%v", res)
