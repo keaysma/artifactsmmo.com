@@ -2,6 +2,7 @@ package backend
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"slices"
 	"strconv"
@@ -1328,6 +1329,49 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		log("turns: %d <-- %f --> %d", slices.Min(turns), avgTurns, slices.Max(turns))
 		log("nodes: %d", res.TotalNodes)
+
+		maxHpMonster := monsterData.Hp
+		maxHp := 0
+		kernel.CharacterState.Read(func(value *types.Character) { maxHp = value.Max_hp })
+
+		colsPerSide := 8
+		prbs := make([]float64, colsPerSide*2)
+		charPortion := float64(maxHp) / float64(colsPerSide)
+		monsterPortion := float64(maxHpMonster) / float64(colsPerSide)
+
+		for _, r := range res.EndResults {
+			if r.CharacterWin {
+				bucket := int(math.Floor(float64(r.CharacterHp-1) / charPortion))
+
+				// log("char hp: %d", r.CharacterHp)
+				// log("bucket: %d", bucket)
+				// log("index: %d", colsPerSide+bucket)
+
+				prbs[colsPerSide+bucket] += r.Probability
+			} else {
+				bucket := int(math.Floor(float64(r.MonsterHp-1) / monsterPortion))
+				prbs[colsPerSide-bucket] += r.Probability
+			}
+		}
+
+		// log("%v", prbs)
+
+		for i, prb := range prbs {
+			hp := 0
+			if i < colsPerSide {
+				// monster
+				hp = -(int(float64(maxHpMonster)/float64(colsPerSide)) * (colsPerSide - i))
+			} else {
+				hp = int(math.Ceil(float64(maxHp)/float64(colsPerSide))) * (i - colsPerSide + 1)
+			}
+
+			hpstr := strconv.FormatInt(int64(hp), 10)
+			hpout := strings.Repeat(" ", max(0, 5-len(hpstr))) + hpstr
+
+			prbout := strings.Repeat("::", int(math.Ceil(prb/0.1)))
+
+			log("%s - %s", hpout, prbout)
+		}
 
 		return true
 	default:
