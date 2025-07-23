@@ -267,3 +267,11 @@ type FightDetails struct {
 	Logs                 []string
 	Result               string
 }
+
+type Transaction struct {
+	Code        string
+	Quantity    int
+	Currency    string
+	Price       int
+	Total_price int
+}

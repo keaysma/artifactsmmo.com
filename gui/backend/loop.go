@@ -371,6 +371,44 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		return true
+	case "npc-buy":
+		if len(parts) != 3 {
+			log("usage: npc-buy <quantity:number> <code:string>")
+			return false
+		}
+		raw_quantity, code := parts[1], parts[2]
+		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
+		if err != nil {
+			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
+			return false
+		}
+
+		err = steps.NPCBuy(kernel, code, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to buy %d %s: %s", quantity, code, err))
+			return false
+		}
+
+		return true
+	case "npc-sell":
+		if len(parts) != 3 {
+			log("usage: npc-sell <quantity:number> <code:string>")
+			return false
+		}
+		raw_quantity, code := parts[1], parts[2]
+		quantity, err := strconv.ParseInt(raw_quantity, 10, 64)
+		if err != nil {
+			log(fmt.Sprintf("can't parse quantity: %s", raw_quantity))
+			return false
+		}
+
+		err = steps.NPCSell(kernel, code, int(quantity))
+		if err != nil {
+			log(fmt.Sprintf("failed to sell %d %s: %s", quantity, code, err))
+			return false
+		}
+
+		return true
 	case "list-bank":
 		if len(parts) > 2 {
 			log("usage: list-bank[ <code-partial:string>]")

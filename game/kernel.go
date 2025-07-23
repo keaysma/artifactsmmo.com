@@ -65,6 +65,12 @@ func (kernel *Kernel) LogPre(pre string) func(string) {
 	}
 }
 
+func (kernel *Kernel) LogPreF(pre string, pargs ...interface{}) func(string, ...interface{}) {
+	return func(content string, cargs ...interface{}) {
+		kernel.Log(fmt.Sprintf("%s%s", fmt.Sprintf(pre, pargs...), fmt.Sprintf(content, cargs...)))
+	}
+}
+
 func (kernel *Kernel) DebugLog(content string) {
 	if !s.Debug {
 		return

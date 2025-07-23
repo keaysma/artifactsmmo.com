@@ -2,6 +2,7 @@ package generators
 
 import (
 	"fmt"
+	"math"
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/game"
@@ -204,7 +205,7 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 	}
 }
 
-func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string]api.MapTile, onTask game.Generator, last string, success bool, top bool) (string, bool) {
+func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string][]api.MapTile, onTask game.Generator, last string, success bool, top bool) (string, bool) {
 	if !top {
 		var currentComponentQuantity int
 		kernel.CharacterState.Read(func(value *types.Character) {
@@ -216,10 +217,29 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 	}
 
 	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
-		tile, ok := (*skill_map)[component.Code]
+		tiles, ok := (*skill_map)[component.Code]
 		if !ok {
-			log(fmt.Sprintf("no map for resource %s", component.Code))
+			log(fmt.Sprintf("no maps for resource %s", component.Code))
 			return "cancel-task", top
+		}
+
+		x, y := 0, 0
+		kernel.CharacterState.Read(func(value *types.Character) {
+			x, y = value.X, value.Y
+		})
+		var closest float64 = math.Inf(0)
+		var tile *api.MapTile = nil
+		for _, t := range tiles {
+			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X+x), 2))
+			if distance < closest {
+				closest = distance
+				tile = &t
+			}
+		}
+
+		if tile == nil {
+			log(fmt.Sprintf("no map selected for resource %s: %v", component.Code, tiles))
+			return "clear-gen", top
 		}
 
 		if component.Action == "fight" {
@@ -318,7 +338,95 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 	}
 
 	if component.Action == "npc" {
-		// 1.
+		// 1. Withdraw needed item (component.Code) <- our algo may handle this already though
+		componentBankQuantity := 0
+		state.GlobalState.BankState.Read(func(value *[]types.InventoryItem) {
+			componentBankQuantity = utils.CountBank(value, component.Code)
+		})
+		if componentBankQuantity >= component.Quantity {
+			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
+			return withdraw, top
+		}
+
+		// 2. Trade with NPC
+		tiles, ok := (*skill_map)[component.Code]
+		if !ok {
+			log(fmt.Sprintf("no maps for resource %s", component.Code))
+			return "cancel-task", top
+		}
+
+		x, y := 0, 0
+		kernel.CharacterState.Read(func(value *types.Character) {
+			x, y = value.X, value.Y
+		})
+		var closest float64 = math.Inf(0)
+		var tile *api.MapTile = nil
+		for _, t := range tiles {
+			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X+x), 2))
+			if distance < closest {
+				closest = distance
+				tile = &t
+			}
+		}
+
+		if tile == nil {
+			log(fmt.Sprintf("no map selected for resource %s: %v", component.Code, tiles))
+			return "clear-gen", top
+		}
+
+		if tile.Content.Type == "event" {
+			log(fmt.Sprintf("find event tile for resource %s", component.Code))
+			events, err := api.GetAllActiveEvents(1, 100)
+			if err != nil {
+				log(fmt.Sprintf("failed to get event info: %s", err))
+				return "sleep 10", top
+			}
+
+			if len(*events) == 0 {
+				log(fmt.Sprintf("no event info found for %s", component.Code))
+				return "noop", top // return "sleep 10"
+			}
+
+			didFindActiveEvent := false
+			for _, event := range *events {
+				// tile.Content.Code is the code for the npc
+				if event.Map.Content.Code == tile.Content.Code {
+					didFindActiveEvent = true
+					log(fmt.Sprintf("event: %s", event.Code))
+					var x int
+					var y int
+					{
+						character := kernel.CharacterState.Ref()
+						x, y = character.X, character.Y
+						kernel.CharacterState.Unlock()
+					}
+					if x != event.Map.X || y != event.Map.Y {
+						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y), top
+					}
+				}
+			}
+
+			if !didFindActiveEvent {
+				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
+				return "noop", top // "sleep 10", top
+			}
+		} else {
+			var x int
+			var y int
+			{
+				character := kernel.CharacterState.Ref()
+				x, y = character.X, character.Y
+				kernel.CharacterState.Unlock()
+			}
+			if x != tile.X || y != tile.Y {
+				move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
+				log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
+				return move, top
+			}
+		}
+
+		return fmt.Sprintf("npc-buy %d %s", component.Quantity, component.Code), top
+
 	}
 
 	if component.Action == "task" {
