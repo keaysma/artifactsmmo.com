@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
-
-	_ "modernc.org/sqlite"
+	// _ "modernc.org/sqlite"
 )
 
 type Connection struct {
