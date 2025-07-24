@@ -1290,7 +1290,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		characterData := kernel.CharacterState.DeepCopy()
 
-		res, err := game.RunFightAnalysis(&characterData, monsterData, nil, prbLim)
+		res, err := game.RunFightAnalysisCore(&characterData, monsterData, nil, prbLim)
 		if err != nil {
 			log("failed to simulate fight: %s", err)
 			return false

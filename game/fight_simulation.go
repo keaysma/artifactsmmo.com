@@ -298,7 +298,7 @@ type FightStateNode struct {
 	state       FightState
 }
 
-func RunFightAnalysis(
+func RunFightAnalysisCore(
 	characterData *types.Character,
 	monsterData *types.Monster,
 	applyLoadout *map[string]*types.ItemDetails,
@@ -482,6 +482,20 @@ func RunFightAnalysis(
 	}
 
 	return &analysis, nil
+}
+
+func RunFightAnalysis(character string, monster string, applyLoadout *map[string]*types.ItemDetails) (*FightAnalysisData, error) {
+	characterData, err := api.GetCharacterByName(character)
+	if err != nil {
+		return nil, err
+	}
+
+	monsterData, err := api.GetMonsterByCode(monster)
+	if err != nil {
+		return nil, err
+	}
+
+	return RunFightAnalysisCore(characterData, monsterData, applyLoadout, 0.0)
 }
 
 func RunSimulationsCore(

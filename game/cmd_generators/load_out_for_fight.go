@@ -1013,7 +1013,7 @@ func LoadOutForFightBruteForce(kernel *game.Kernel, monsterName string) (map[str
 func scoreLoadoutByAnalysis(kernel *game.Kernel, monsterData *types.Monster, loadout *map[string]*types.ItemDetails) float64 {
 	characterData := kernel.CharacterState.DeepCopy()
 
-	result, err := game.RunFightAnalysis(&characterData, monsterData, loadout, 0.0005)
+	result, err := game.RunFightAnalysisCore(&characterData, monsterData, loadout, 0.0005)
 	if err != nil {
 		kernel.Log(fmt.Sprintf("Failed to run fight simulation: %s", err))
 		return 0

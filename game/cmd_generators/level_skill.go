@@ -327,7 +327,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 							return "clear-gen"
 						}
 
-						res, err := game.RunSimulations(characterName, target.Target, 10_000, &loadout)
+						res, err := game.RunFightAnalysis(characterName, target.Target, &loadout)
 						if err != nil {
 							log(fmt.Sprintf("Failed to run fight simulation: %s", err))
 							return "clear-gen"
@@ -342,14 +342,14 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 						highestHp := 0
 						countWins := 0
 						countLosses := 1 // slight loss bias, but also prevent x/0
-						for _, r := range *res {
-							if r.FightDetails.Result == "win" {
+						for _, r := range (*res).EndResults {
+							if r.CharacterWin {
 								countWins++
 							} else {
 								countLosses++
 							}
 
-							hpDelta := r.Metadata.CharacterEndHp - r.Metadata.MonsterEndHp
+							hpDelta := r.CharacterHp - r.MonsterHp
 							highestHp = max(highestHp, hpDelta)
 							lowestHp = min(lowestHp, hpDelta)
 						}

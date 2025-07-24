@@ -13,7 +13,7 @@ import (
 	"artifactsmmo.com/m/utils"
 )
 
-var simulationCount = 10_000
+// var simulationCount = 10_000
 var totalFightCooldownThreshold = 7000 // 1800.0
 
 func Tasks(kernel *game.Kernel, task_type string) game.Generator {
@@ -114,15 +114,16 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 					return "clear-gen"
 				}
 
-				fightResult, err := game.RunSimulations(characterName, current_task, simulationCount, &loadout)
+				fightResult, err := game.RunFightAnalysis(characterName, current_task, &loadout)
 				if err != nil {
 					log(fmt.Sprintf("Failed to get fight simulation results, abort: %s", err))
 					return "clear-gen"
 				}
 
+				simulationCount := len((*fightResult).EndResults)
 				wins := 0
-				for _, result := range *fightResult {
-					if result.FightDetails.Result == "win" {
+				for _, result := range (*fightResult).EndResults {
+					if result.CharacterWin {
 						wins++
 					}
 				}
@@ -134,9 +135,9 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 
 				cooldownSum := 0
 				endHpSum := 0
-				for _, result := range *fightResult {
-					cooldown := game.GetCooldown(result.FightDetails.Turns, characterHaste)
-					endHpSum += result.Metadata.CharacterEndHp
+				for _, result := range (*fightResult).EndResults {
+					cooldown := game.GetCooldown(result.Turns, characterHaste)
+					endHpSum += result.CharacterHp
 					// log(fmt.Sprintf("cooldown: %d", cooldown))
 
 					cooldownSum += cooldown
