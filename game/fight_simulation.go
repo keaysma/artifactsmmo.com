@@ -93,15 +93,26 @@ func handleElementalDamageMonsterAttack(element string, character *types.Charact
 }
 
 type FightState struct {
-	characterTurn  bool
-	monsterHp      int
-	monsterMaxHp   int
-	characterHp    int
-	characterMaxHp int
+	characterTurn       bool
+	monsterHp           int
+	monsterMaxHp        int
+	monsterPoisonEffect int
+	characterHp         int
+	characterMaxHp      int
+	characterPoisoned   int
 }
 
 func simulationTurnCharacter(character *types.Character, monster *types.Monster, fightState FightState, turnNo int, isCriticalStrike bool, lightweight bool) (*FightState, *[]string) {
 	logs := []string{}
+
+	if fightState.characterPoisoned > 0 {
+		// Turn 3: The character suffers from poison and loses 20 HP. (Character HP: 535/625)
+		fightState.characterHp = max(0, fightState.characterHp-fightState.characterPoisoned)
+		if !lightweight {
+			poisonedMessage := fmt.Sprintf("Turn %d: The character suffers from poison and loses %d HP. (Character HP: %d/%d)", turnNo, fightState.characterPoisoned, fightState.characterHp, fightState.characterMaxHp)
+			logs = append(logs, poisonedMessage)
+		}
+	}
 
 	criticalMultiplier := 1.0
 	if isCriticalStrike {
@@ -129,6 +140,15 @@ func simulationTurnCharacter(character *types.Character, monster *types.Monster,
 
 func simulationTurnMonster(character *types.Character, monster *types.Monster, fightState FightState, turnNo int, isCriticalStrike bool, lightweight bool) (*FightState, *[]string) {
 	logs := []string{}
+
+	if fightState.monsterPoisonEffect > 0 && fightState.characterPoisoned == 0 {
+		fightState.characterPoisoned = fightState.monsterPoisonEffect
+		if !lightweight {
+			// Turn 2: The monster applies a poison of 20 on your character. (Character poison: 20)
+			poisonedLog := fmt.Sprintf("Turn %d: The monster applies a poison of %d on your character. (Character poison: %d)", turnNo, fightState.monsterPoisonEffect, fightState.characterPoisoned)
+			logs = append(logs, poisonedLog)
+		}
+	}
 
 	criticalMultiplier := 1.0
 	if isCriticalStrike {
@@ -185,12 +205,21 @@ func simulateFight(character *types.Character, monster *types.Monster, lightweig
 		}
 	}
 
+	monsterPoison := 0
+	for _, effect := range monster.Effects {
+		if effect.Code == "poison" {
+			monsterPoison = effect.Value
+		}
+	}
+
 	state := &FightState{
-		characterTurn:  true,
-		monsterHp:      monster.Hp,
-		monsterMaxHp:   monster.Hp,
-		characterHp:    character.Max_hp,
-		characterMaxHp: character.Max_hp,
+		characterTurn:       true,
+		monsterHp:           monster.Hp,
+		monsterMaxHp:        monster.Hp,
+		monsterPoisonEffect: monsterPoison,
+		characterHp:         character.Max_hp,
+		characterMaxHp:      character.Max_hp,
+		characterPoisoned:   0,
 	}
 
 	// Reset HP
@@ -333,15 +362,24 @@ func RunFightAnalysis(
 		TotalNodes: 0,
 	}
 
+	monsterPoison := 0
+	for _, effect := range monsterData.Effects {
+		if effect.Code == "poison" {
+			monsterPoison = effect.Value
+		}
+	}
+
 	seed := &FightStateNode{
 		probability: 1,
 		turns:       1,
 		state: FightState{
-			characterTurn:  true,
-			monsterHp:      monsterData.Hp,
-			monsterMaxHp:   monsterData.Hp,
-			characterHp:    char.Max_hp,
-			characterMaxHp: char.Max_hp,
+			characterTurn:       true,
+			monsterHp:           monsterData.Hp,
+			monsterMaxHp:        monsterData.Hp,
+			monsterPoisonEffect: monsterPoison,
+			characterHp:         char.Max_hp,
+			characterMaxHp:      char.Max_hp,
+			characterPoisoned:   0,
 		},
 	}
 
@@ -382,7 +420,7 @@ func RunFightAnalysis(
 					}
 
 					newState, _ := simulationTurnCharacter(&char, monsterData, node.state, node.turns, isCrit, true)
-					if newState.monsterHp <= 0 {
+					if newState.characterHp <= 0 || newState.monsterHp <= 0 {
 						endResult := FightAnalysisEndResult{
 							CharacterWin: true,
 							Probability:  newProbability,
@@ -418,7 +456,7 @@ func RunFightAnalysis(
 					}
 
 					newState, _ := simulationTurnMonster(&char, monsterData, node.state, node.turns, isCrit, true)
-					if newState.characterHp <= 0 {
+					if newState.characterHp <= 0 || newState.monsterHp <= 0 {
 						endResult := FightAnalysisEndResult{
 							CharacterWin: false,
 							Probability:  newProbability,

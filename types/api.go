@@ -248,6 +248,7 @@ type Monster struct {
 	Min_gold        int
 	Max_gold        int
 	Drops           []ResourceDrop
+	Effects         []Effect
 }
 
 type BlockedHits struct {
