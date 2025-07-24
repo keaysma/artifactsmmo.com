@@ -349,6 +349,14 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		}
 
 		// 2. Trade with NPC
+		// 2.1 Get the currency item
+		subcomponent := component.Components[0]
+		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, onTask, last, success, false)
+		if next_command != "" {
+			return next_command, is_top
+		}
+
+		// 2.2 Go do the trade
 		tiles, ok := (*skill_map)[component.Code]
 		if !ok {
 			log(fmt.Sprintf("no maps for resource %s", component.Code))

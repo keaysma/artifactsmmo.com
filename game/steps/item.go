@@ -44,14 +44,39 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 		// if res.Subtype == "task" {
 		// 	action = "withdraw"
 		// }
-		return &ItemComponentTree{
+		componentTree := ItemComponentTree{
 			Code:       code,
 			Action:     action,
 			Subtype:    res.Subtype,
 			CraftSkill: nil,
 			Quantity:   1, // This will be overridden by the parent's craft recipe
 			Components: []ItemComponentTree{},
-		}, nil
+		}
+
+		// Special case: need to list the currency
+		if res.Subtype == "npc" {
+			res, err := api.GetAllNPCItems(api.GetAllNPCItemsParams{
+				Code: &code,
+			})
+
+			if err != nil {
+				return nil, fmt.Errorf("failed to get npc info for %s: %s", code, err)
+			}
+
+			if res == nil || len(*res) == 0 {
+				return nil, fmt.Errorf("failed to get npc info for %s: no info found", code)
+			}
+
+			currency := (*res)[0].Currency
+			subtree, err := GetItemComponentsTree(currency)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get component info for %s: %s", currency, err)
+			}
+
+			componentTree.Components = append(componentTree.Components, *subtree)
+		}
+
+		return &componentTree, nil
 	}
 
 	tree := ItemComponentTree{
