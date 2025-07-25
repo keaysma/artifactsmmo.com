@@ -67,12 +67,19 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 				return nil, fmt.Errorf("failed to get npc info for %s: no info found", code)
 			}
 
-			currency := (*res)[0].Currency
+			itemInfo := (*res)[0]
+
+			currency := itemInfo.Currency
 			subtree, err := GetItemComponentsTree(currency)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get component info for %s: %s", currency, err)
 			}
 
+			buyPrice := 1
+			if itemInfo.Buy_price != nil {
+				buyPrice = *itemInfo.Buy_price
+			}
+			subtree.Quantity = buyPrice
 			componentTree.Components = append(componentTree.Components, *subtree)
 		}
 

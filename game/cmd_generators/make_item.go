@@ -207,11 +207,13 @@ func BuildResourceCountMap(component *steps.ItemComponentTree, resourceMap map[s
 
 func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log func(string), skill_map *map[string][]api.MapTile, onTask game.Generator, last string, success bool, top bool) (string, bool) {
 	if !top {
+		log(fmt.Sprintf("check for %d %s", component.Quantity, component.Code))
 		var currentComponentQuantity int
 		kernel.CharacterState.Read(func(value *types.Character) {
 			currentComponentQuantity = utils.CountInventory(&value.Inventory, component.Code)
 		})
 		if currentComponentQuantity >= component.Quantity {
+			log(fmt.Sprintf("pass check for %d %s", component.Quantity, component.Code))
 			return "", top
 		}
 	}
@@ -338,25 +340,14 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 	}
 
 	if component.Action == "npc" {
-		// 1. Withdraw needed item (component.Code) <- our algo may handle this already though
-		componentBankQuantity := 0
-		state.GlobalState.BankState.Read(func(value *[]types.InventoryItem) {
-			componentBankQuantity = utils.CountBank(value, component.Code)
-		})
-		if componentBankQuantity >= component.Quantity {
-			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
-			return withdraw, top
-		}
-
-		// 2. Trade with NPC
-		// 2.1 Get the currency item
+		// 1. Get the currency item
 		subcomponent := component.Components[0]
 		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, onTask, last, success, false)
 		if next_command != "" {
 			return next_command, is_top
 		}
 
-		// 2.2 Go do the trade
+		// 2. Go do the trade
 		tiles, ok := (*skill_map)[component.Code]
 		if !ok {
 			log(fmt.Sprintf("no maps for resource %s", component.Code))
@@ -401,13 +392,6 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 				if event.Map.Content.Code == tile.Content.Code {
 					didFindActiveEvent = true
 					log(fmt.Sprintf("event: %s", event.Code))
-					var x int
-					var y int
-					{
-						character := kernel.CharacterState.Ref()
-						x, y = character.X, character.Y
-						kernel.CharacterState.Unlock()
-					}
 					if x != event.Map.X || y != event.Map.Y {
 						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y), top
 					}
@@ -419,13 +403,6 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 				return "noop", top // "sleep 10", top
 			}
 		} else {
-			var x int
-			var y int
-			{
-				character := kernel.CharacterState.Ref()
-				x, y = character.X, character.Y
-				kernel.CharacterState.Unlock()
-			}
 			if x != tile.X || y != tile.Y {
 				move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
 				log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
@@ -433,7 +410,7 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 			}
 		}
 
-		return fmt.Sprintf("npc-buy %d %s", component.Quantity, component.Code), top
+		return fmt.Sprintf("npc-buy %d %s", 1, component.Code), top
 
 	}
 

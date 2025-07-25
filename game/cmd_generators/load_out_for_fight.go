@@ -1245,6 +1245,16 @@ func LoadOutForFightAnalysis(kernel *game.Kernel, monsterName string) (map[strin
 var LoadOutForFight = LoadOutForFightV2
 
 func LoadOutCommand(kernel *game.Kernel, target string) (string, error) {
+	hp, maxHp := 0, 0
+	kernel.CharacterState.Read(func(value *types.Character) {
+		hp = value.Hp
+		maxHp = value.Max_hp
+	})
+
+	if hp < maxHp {
+		return "rest", nil
+	}
+
 	loadout, err := LoadOutForFightV2(kernel, target)
 	if err != nil {
 		return "", err
