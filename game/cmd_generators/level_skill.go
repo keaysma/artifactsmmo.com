@@ -399,11 +399,11 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 				switch skill {
 				case "fight":
 					char := kernel.CharacterState.Ref()
-					hp, maxHp := char.X, char.Y
+					hp, maxHp := char.Hp, char.Max_hp
 					kernel.CharacterState.Unlock()
 
 					if hp < maxHp {
-						log("hp < map hp - this can mess with equip/unequip actions, resting")
+						log(fmt.Sprintf("hp < map hp - this can mess with equip/unequip actions, resting, %d < %d", hp, maxHp))
 						return "rest"
 					}
 
