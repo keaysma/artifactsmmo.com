@@ -1242,26 +1242,9 @@ func LoadOutForFightAnalysis(kernel *game.Kernel, monsterName string) (map[strin
 	return loadoutDiff, nil
 }
 
-var LoadOutForFight = LoadOutForFightV2
-
-func LoadOutCommand(kernel *game.Kernel, target string) (string, error) {
-	hp, maxHp := 0, 0
-	kernel.CharacterState.Read(func(value *types.Character) {
-		hp = value.Hp
-		maxHp = value.Max_hp
-	})
-
-	if hp < maxHp {
-		return "rest", nil
-	}
-
-	loadout, err := LoadOutForFightV2(kernel, target)
-	if err != nil {
-		return "", err
-	}
-
-	for len(loadout) == 0 {
-		return "", nil
+func LoadoutCommandFromResults(kernel *game.Kernel, loadout map[string]*types.ItemDetails) string {
+	if len(loadout) == 0 {
+		return ""
 	}
 
 	cmd := "loadout "
@@ -1280,5 +1263,26 @@ func LoadOutCommand(kernel *game.Kernel, target string) (string, error) {
 	// snip that extra space
 	cmd = cmd[:len(cmd)-1]
 
-	return cmd, nil
+	return cmd
+}
+
+var LoadOutForFight = LoadOutForFightV2
+
+func LoadOutCommand(kernel *game.Kernel, target string) (string, error) {
+	hp, maxHp := 0, 0
+	kernel.CharacterState.Read(func(value *types.Character) {
+		hp = value.Hp
+		maxHp = value.Max_hp
+	})
+
+	if hp < maxHp {
+		return "rest", nil
+	}
+
+	loadout, err := LoadOutForFightV2(kernel, target)
+	if err != nil {
+		return "", err
+	}
+
+	return LoadoutCommandFromResults(kernel, loadout), nil
 }

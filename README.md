@@ -23,8 +23,13 @@ My implementation of an artifacts-mmo API client, written in Golang
 - [x] Generators do not "lock in" event locations when active - `gen make demon_horn` when demons are present ends up getting stuck after the event ends
 - [ ] Revised fight simulator
     - [ ] Includes items
-    - [ ] Includes crits
-    - [ ] Includes enemy dodging
+    - [ ] Includes custom loadouts
+    - [x] Includes crits
+    - [x] Includes lifesteal
+    - [ ] Includes healing
+    - [ ] Includes reconstitution
+    - [ ] Includes poison
+    - [ ] Includes corruption
     - [ ] Can be forced to include nothing
 - [ ] Scrolling on logs
 - [ ] Command history per kernel

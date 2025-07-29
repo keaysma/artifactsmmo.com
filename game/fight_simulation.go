@@ -93,23 +93,24 @@ func handleElementalDamageMonsterAttack(element string, character *types.Charact
 }
 
 type FightState struct {
-	characterTurn       bool
-	monsterHp           int
-	monsterMaxHp        int
-	monsterPoisonEffect int
-	characterHp         int
-	characterMaxHp      int
-	characterPoisoned   int
+	characterTurn          bool
+	monsterHp              int
+	monsterMaxHp           int
+	monsterEffectPoison    int
+	monsterEffectLifesteal int
+	characterHp            int
+	characterMaxHp         int
+	characterReceivePoison int
 }
 
 func simulationTurnCharacter(character *types.Character, monster *types.Monster, fightState FightState, turnNo int, isCriticalStrike bool, lightweight bool) (*FightState, *[]string) {
 	logs := []string{}
 
-	if fightState.characterPoisoned > 0 {
+	if fightState.characterReceivePoison > 0 {
 		// Turn 3: The character suffers from poison and loses 20 HP. (Character HP: 535/625)
-		fightState.characterHp = max(0, fightState.characterHp-fightState.characterPoisoned)
+		fightState.characterHp = max(0, fightState.characterHp-fightState.characterReceivePoison)
 		if !lightweight {
-			poisonedMessage := fmt.Sprintf("Turn %d: The character suffers from poison and loses %d HP. (Character HP: %d/%d)", turnNo, fightState.characterPoisoned, fightState.characterHp, fightState.characterMaxHp)
+			poisonedMessage := fmt.Sprintf("Turn %d: The character suffers from poison and loses %d HP. (Character HP: %d/%d)", turnNo, fightState.characterReceivePoison, fightState.characterHp, fightState.characterMaxHp)
 			logs = append(logs, poisonedMessage)
 		}
 	}
@@ -141,11 +142,11 @@ func simulationTurnCharacter(character *types.Character, monster *types.Monster,
 func simulationTurnMonster(character *types.Character, monster *types.Monster, fightState FightState, turnNo int, isCriticalStrike bool, lightweight bool) (*FightState, *[]string) {
 	logs := []string{}
 
-	if fightState.monsterPoisonEffect > 0 && fightState.characterPoisoned == 0 {
-		fightState.characterPoisoned = fightState.monsterPoisonEffect
+	if fightState.monsterEffectPoison > 0 && fightState.characterReceivePoison == 0 {
+		fightState.characterReceivePoison = fightState.monsterEffectPoison
 		if !lightweight {
 			// Turn 2: The monster applies a poison of 20 on your character. (Character poison: 20)
-			poisonedLog := fmt.Sprintf("Turn %d: The monster applies a poison of %d on your character. (Character poison: %d)", turnNo, fightState.monsterPoisonEffect, fightState.characterPoisoned)
+			poisonedLog := fmt.Sprintf("Turn %d: The monster applies a poison of %d on your character. (Character poison: %d)", turnNo, fightState.monsterEffectPoison, fightState.characterReceivePoison)
 			logs = append(logs, poisonedLog)
 		}
 	}
@@ -175,6 +176,17 @@ func simulationTurnMonster(character *types.Character, monster *types.Monster, f
 					logMessage = fmt.Sprintf("Turn %d: The monster used %s attack and dealt %d damage (Critical Strike). (Character HP: %d/%d)", turnNo, element, int(hit), fightState.characterHp, character.Max_hp)
 				}
 				logs = append(logs, logMessage)
+			}
+
+			if isCriticalStrike && fightState.monsterEffectLifesteal > 0 {
+				// Turn 8: Monster used air attack and dealt 62 damage (Critical strike). (Character HP: 412/665)
+				// Turn 8: The monster used lifesteal and healed 6 HP. (Monster HP: 504/680)
+				restoredHp := int(math.Floor(float64(hit) * (float64(fightState.monsterEffectLifesteal) / 100.0)))
+				fightState.monsterHp += restoredHp
+				if !lightweight {
+					lifestealLog := fmt.Sprintf("Turn %d: The monster used lifesteal and healed %d HP. (Monster HP: %d/%d)", turnNo, restoredHp, fightState.monsterHp, fightState.monsterMaxHp)
+					logs = append(logs, lifestealLog)
+				}
 			}
 		}
 	}
@@ -213,13 +225,13 @@ func simulateFight(character *types.Character, monster *types.Monster, lightweig
 	}
 
 	state := &FightState{
-		characterTurn:       true,
-		monsterHp:           monster.Hp,
-		monsterMaxHp:        monster.Hp,
-		monsterPoisonEffect: monsterPoison,
-		characterHp:         character.Max_hp,
-		characterMaxHp:      character.Max_hp,
-		characterPoisoned:   0,
+		characterTurn:          true,
+		monsterHp:              monster.Hp,
+		monsterMaxHp:           monster.Hp,
+		monsterEffectPoison:    monsterPoison,
+		characterHp:            character.Max_hp,
+		characterMaxHp:         character.Max_hp,
+		characterReceivePoison: 0,
 	}
 
 	// Reset HP
@@ -338,7 +350,13 @@ func RunFightAnalysisCore(
 
 				// simulate unequipping that item
 				for _, effect := range curEquipInfo.Effects {
-					currentEffectValue := utils.GetFieldFromStructByName(&char, effect.Code)
+					effectCode := effect.Code
+					// special case
+					if effectCode == "hp" {
+						effectCode = "max_hp"
+					}
+
+					currentEffectValue := utils.GetFieldFromStructByName(&char, effectCode)
 					if !currentEffectValue.IsValid() {
 						continue
 					}
@@ -348,13 +366,20 @@ func RunFightAnalysisCore(
 
 			// simulate equipping the new item
 			for _, effect := range item.Effects {
-				currentEffectValue := utils.GetFieldFromStructByName(&char, effect.Code)
+				effectCode := effect.Code
+				// special case
+				if effectCode == "hp" {
+					effectCode = "max_hp"
+				}
+
+				currentEffectValue := utils.GetFieldFromStructByName(&char, effectCode)
 				if !currentEffectValue.IsValid() {
 					continue
 				}
 				currentEffectValue.SetInt(currentEffectValue.Int() + int64(effect.Value))
 			}
 		}
+
 	}
 
 	analysis := FightAnalysisData{
@@ -373,13 +398,13 @@ func RunFightAnalysisCore(
 		probability: 1,
 		turns:       1,
 		state: FightState{
-			characterTurn:       true,
-			monsterHp:           monsterData.Hp,
-			monsterMaxHp:        monsterData.Hp,
-			monsterPoisonEffect: monsterPoison,
-			characterHp:         char.Max_hp,
-			characterMaxHp:      char.Max_hp,
-			characterPoisoned:   0,
+			characterTurn:          true,
+			monsterHp:              monsterData.Hp,
+			monsterMaxHp:           monsterData.Hp,
+			monsterEffectPoison:    monsterPoison,
+			characterHp:            char.Max_hp,
+			characterMaxHp:         char.Max_hp,
+			characterReceivePoison: 0,
 		},
 	}
 
