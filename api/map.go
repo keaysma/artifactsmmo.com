@@ -23,9 +23,11 @@ func (mapTile MapTile) IntoCoord() coords.Coord {
 	}
 }
 
-func GetAllMapsByContentType(content_type string, content_code string) (*[]MapTile, error) {
-	payload := map[string]string{
-		"content_type": content_type,
+func GetAllMaps(content_type string, content_code string) (*[]MapTile, error) {
+	payload := map[string]string{}
+
+	if content_type != "" {
+		payload["content_type"] = content_type
 	}
 
 	if content_code != "" {

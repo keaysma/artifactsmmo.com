@@ -117,6 +117,47 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 		}
 
 		return true
+	case "goto":
+		if len(parts) != 2 {
+			log("usage: goto <code:string>")
+			return false
+		}
+		raw_code := parts[1]
+		if raw_code == "" {
+			log("bad input")
+			return false
+		}
+
+		tiles, err := api.GetAllMaps("", raw_code)
+		if err != nil {
+			log("could not get maps: %s", err)
+			return false
+		}
+
+		var tile *api.MapTile = nil
+		closest := math.Inf(0)
+		kernel.CharacterState.Read(func(v *types.Character) {
+			for _, t := range *tiles {
+				distance := math.Sqrt(math.Pow(float64(t.Y-v.Y), 2) + math.Pow(float64(t.X-v.X), 2))
+				if distance < closest {
+					closest = distance
+					tile = &t
+				}
+			}
+		})
+
+		if tile == nil {
+			log("could not find tile for %s", raw_code)
+			return false
+		}
+
+		_, err = steps.Move(kernel, tile.IntoCoord())
+		if err != nil {
+			log(fmt.Sprintf("failed to move to %v: %s", *tile, err))
+			return false
+		}
+
+		return true
 	case "use":
 		if len(parts) != 3 {
 			log("usage: use <quantity:number> <code:string>")

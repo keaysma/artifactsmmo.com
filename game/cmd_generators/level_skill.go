@@ -421,7 +421,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 					x, y := char.X, char.Y
 					kernel.CharacterState.Unlock()
 
-					maps, err := api.GetAllMapsByContentType("monster", currentTarget.Target)
+					maps, err := api.GetAllMaps("monster", currentTarget.Target)
 					if err != nil {
 						log(fmt.Sprintf("failed to get maps for monster %s: %s", currentTarget.Target, err))
 						return "clear-gen"
@@ -459,7 +459,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 					x, y := char.X, char.Y
 					kernel.CharacterState.Unlock()
 
-					maps, err := api.GetAllMapsByContentType("resource", currentTarget.Target)
+					maps, err := api.GetAllMaps("resource", currentTarget.Target)
 					if err != nil {
 						log(fmt.Sprintf("failed to get maps for resource %s: %s", currentTarget.Target, err))
 						return "clear-gen"

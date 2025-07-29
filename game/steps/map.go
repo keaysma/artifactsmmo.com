@@ -45,7 +45,7 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 		case "withdraw":
 			kernel.Log(fmt.Sprintf("get from bank: %s", code))
 
-			bankTiles, err := api.GetAllMapsByContentType("bank", "")
+			bankTiles, err := api.GetAllMaps("bank", "")
 			if err != nil {
 				return nil, fmt.Errorf("failed to get bank tiles for withdraw action: %s", err)
 			}
@@ -95,7 +95,7 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 				continue
 			}
 
-			tiles, err := api.GetAllMapsByContentType("npc", npcCode)
+			tiles, err := api.GetAllMaps("npc", npcCode)
 			if err != nil {
 				kernel.Log(fmt.Sprintf("failed to get map info for npc %s: %s", npcCode, err))
 				return nil, err
@@ -144,7 +144,7 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 				continue
 			}
 
-			tiles, err := api.GetAllMapsByContentType("monster", monster_code)
+			tiles, err := api.GetAllMaps("monster", monster_code)
 			if err != nil {
 				kernel.Log(fmt.Sprintf("failed to get map info for monster %s: %s", monster_code, err))
 				return nil, err
@@ -206,7 +206,7 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 				continue
 			}
 
-			tiles, err := api.GetAllMapsByContentType("resource", resource_code)
+			tiles, err := api.GetAllMaps("resource", resource_code)
 			if err != nil {
 				kernel.Log(fmt.Sprintf("failed to get map info for resource %s: %s", resource_code, err))
 				return nil, err

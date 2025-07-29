@@ -232,7 +232,7 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		var closest float64 = math.Inf(0)
 		var tile *api.MapTile = nil
 		for _, t := range tiles {
-			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X+x), 2))
+			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X-x), 2))
 			if distance < closest {
 				closest = distance
 				tile = &t
@@ -361,7 +361,7 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		var closest float64 = math.Inf(0)
 		var tile *api.MapTile = nil
 		for _, t := range tiles {
-			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X+x), 2))
+			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X-x), 2))
 			if distance < closest {
 				closest = distance
 				tile = &t

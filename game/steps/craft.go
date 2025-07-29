@@ -57,7 +57,7 @@ func AutoCraft(kernel *game.Kernel, code string, quantity int) (*types.Character
 
 	var skill = res.Craft.Skill
 
-	tiles, err := api.GetAllMapsByContentType("workshop", skill)
+	tiles, err := api.GetAllMaps("workshop", skill)
 	if err != nil {
 		log("failed to get map info")
 		return nil, fmt.Errorf("failed to get map info")

@@ -19,7 +19,7 @@ My implementation of an artifacts-mmo API client, written in Golang
         - [x] `unequip` can unequip how many of that item you have equiped
     - [x] update the fight algorithm to run `equip` based on best equipment for enemy
     - [x] solve the 'chicken-egg' problem for equip: run fight simulations assuming the best available armor is already equipped
-- [ ] `move to:<monster/resource>` to move to the closest monster/resource
+- [x] `goto:<monster/resource>` to move to the closest monster/resource
 - [x] Generators do not "lock in" event locations when active - `gen make demon_horn` when demons are present ends up getting stuck after the event ends
 - [ ] Revised fight simulator
     - [ ] Includes items

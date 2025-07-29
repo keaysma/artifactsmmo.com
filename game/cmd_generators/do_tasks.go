@@ -202,7 +202,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 		// finish the task that's of current_task_type
 		if current_task_type == "monsters" {
 			if monstersMaps == nil {
-				monstersMaps, err = api.GetAllMapsByContentType("monster", current_task)
+				monstersMaps, err = api.GetAllMaps("monster", current_task)
 				if err != nil {
 					log(fmt.Sprintf("failed to get maps for monster %s: %s", current_task, err))
 					return "clear-gen"

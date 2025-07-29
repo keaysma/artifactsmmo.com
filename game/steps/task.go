@@ -24,7 +24,7 @@ func NewTask(kernel *game.Kernel, task_type string) (*types.Character, error) {
 	}
 
 	log("getting new task")
-	maps, err := api.GetAllMapsByContentType("tasks_master", task_type)
+	maps, err := api.GetAllMaps("tasks_master", task_type)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
@@ -82,7 +82,7 @@ func TradeTaskItem(kernel *game.Kernel, quantitySelect BankDepositQuantityCb) (*
 
 	trade_quantity := min(quantity, current_count, startTaskTotal-startTaskProgress)
 
-	maps, err := api.GetAllMapsByContentType("tasks_master", startTaskType)
+	maps, err := api.GetAllMaps("tasks_master", startTaskType)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
@@ -121,7 +121,7 @@ func CompleteTask(kernel *game.Kernel) (*types.Character, error) {
 	}
 
 	log("completing task")
-	maps, err := api.GetAllMapsByContentType("tasks_master", startTaskType)
+	maps, err := api.GetAllMaps("tasks_master", startTaskType)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
@@ -190,7 +190,7 @@ func CancelTask(kernel *game.Kernel) (*types.Character, error) {
 	}
 
 	log("canceling task")
-	maps, err := api.GetAllMapsByContentType("tasks_master", startTaskType)
+	maps, err := api.GetAllMaps("tasks_master", startTaskType)
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
@@ -228,7 +228,7 @@ func ExchangeTaskCoins(kernel *game.Kernel) (*types.Character, error) {
 	}
 
 	log("exchanging task coins")
-	maps, err := api.GetAllMapsByContentType("tasks_master", "")
+	maps, err := api.GetAllMaps("tasks_master", "")
 	if err != nil {
 		log(fmt.Sprintf("failed to get map info: %s", err))
 		return nil, err
