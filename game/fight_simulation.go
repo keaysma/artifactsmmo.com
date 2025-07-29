@@ -441,6 +441,15 @@ func RunFightAnalysisCore(
 
 					newProbability := node.probability * probabilityRate
 					if newProbability <= probabilityLimit {
+						// truncation
+						endResult := FightAnalysisEndResult{
+							CharacterWin: node.state.characterHp > node.state.monsterHp,
+							Probability:  newProbability,
+							Turns:        newTurns,
+							CharacterHp:  node.state.characterHp,
+							MonsterHp:    node.state.monsterHp,
+						}
+						analysis.EndResults = append(analysis.EndResults, &endResult)
 						continue
 					}
 
@@ -477,6 +486,15 @@ func RunFightAnalysisCore(
 
 					newProbability := node.probability * probabilityRate
 					if newProbability <= probabilityLimit {
+						// truncation
+						endResult := FightAnalysisEndResult{
+							CharacterWin: node.state.characterHp > node.state.monsterHp,
+							Probability:  newProbability,
+							Turns:        newTurns,
+							CharacterHp:  node.state.characterHp,
+							MonsterHp:    node.state.monsterHp,
+						}
+						analysis.EndResults = append(analysis.EndResults, &endResult)
 						continue
 					}
 
@@ -520,7 +538,7 @@ func RunFightAnalysis(character string, monster string, applyLoadout *map[string
 		return nil, err
 	}
 
-	return RunFightAnalysisCore(characterData, monsterData, applyLoadout, 0.0)
+	return RunFightAnalysisCore(characterData, monsterData, applyLoadout, 0.000001)
 }
 
 func RunSimulationsCore(
