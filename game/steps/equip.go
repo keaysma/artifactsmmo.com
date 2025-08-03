@@ -55,7 +55,11 @@ func EquipItem(kernel *game.Kernel, code string, slot string, rawQuantity int) e
 
 	equipQuantity := 1
 	if strings.Contains(slot, "utility") {
-		equipQuantity = 100
+		if rawQuantity == 0 {
+			equipQuantity = 100
+		} else {
+			equipQuantity = rawQuantity
+		}
 	}
 	log(fmt.Sprintf("equipping %d %s to %s", equipQuantity, code, selectedSlot))
 
