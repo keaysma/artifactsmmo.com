@@ -244,25 +244,6 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 			return "clear-gen", top
 		}
 
-		if component.Action == "fight" {
-			character := kernel.CharacterState.Ref()
-			hp, maxHp := character.Hp, character.Max_hp
-			kernel.CharacterState.Unlock()
-			if hp < maxHp {
-				return "rest", top
-			}
-
-			equipCommand, err := LoadOutCommand(kernel, tile.Content.Code)
-			if err != nil {
-				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
-				return "clear-gen", top
-			}
-
-			if equipCommand != "" {
-				return equipCommand, top
-			}
-		}
-
 		if tile.Content.Type == "event" {
 			log(fmt.Sprintf("find event tile for resource %s", component.Code))
 			events, err := api.GetAllActiveEvents(1, 100)
@@ -310,6 +291,25 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 				move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
 				log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
 				return move, top
+			}
+		}
+
+		if component.Action == "fight" {
+			character := kernel.CharacterState.Ref()
+			hp, maxHp := character.Hp, character.Max_hp
+			kernel.CharacterState.Unlock()
+			if hp < maxHp {
+				return "rest", top
+			}
+
+			equipCommand, err := LoadOutCommand(kernel, tile.Content.Code)
+			if err != nil {
+				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
+				return "clear-gen", top
+			}
+
+			if equipCommand != "" {
+				return equipCommand, top
 			}
 		}
 
