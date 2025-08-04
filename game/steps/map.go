@@ -39,7 +39,7 @@ func FindMapsForActions(kernel *game.Kernel, mapCodeAction ActionMap) (*map[stri
 
 	for code, action := range mapCodeAction {
 		switch action {
-		case "task":
+		case "task", "do-task!":
 			kernel.Log(fmt.Sprintf("task handle: %s", code))
 			continue
 		case "withdraw":

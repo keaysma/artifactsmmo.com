@@ -7,7 +7,6 @@ import (
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/game"
 	"artifactsmmo.com/m/game/steps"
-	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
 )
@@ -218,7 +217,23 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 		}
 	}
 
-	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" {
+	// Action = "npc" may need some sub-components prepared, so do this first
+	for _, subcomponent := range component.Components {
+		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, onTask, last, success, false)
+		if next_command != "" {
+			return next_command, is_top
+		}
+	}
+
+	if component.Action == "do-task!" {
+		return onTask(last, success), top
+	}
+
+	if component.Action == "task" {
+		return "exchange-tasks-coins", top
+	}
+
+	if component.Action == "gather" || component.Action == "fight" || component.Action == "withdraw" || component.Action == "npc" {
 		tiles, ok := (*skill_map)[component.Code]
 		if !ok {
 			log(fmt.Sprintf("no maps for resource %s", component.Code))
@@ -294,25 +309,6 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 			}
 		}
 
-		if component.Action == "fight" {
-			character := kernel.CharacterState.Ref()
-			hp, maxHp := character.Hp, character.Max_hp
-			kernel.CharacterState.Unlock()
-			if hp < maxHp {
-				return "rest", top
-			}
-
-			equipCommand, err := LoadOutCommand(kernel, tile.Content.Code)
-			if err != nil {
-				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
-				return "clear-gen", top
-			}
-
-			if equipCommand != "" {
-				return equipCommand, top
-			}
-		}
-
 		switch component.Action {
 		case "gather":
 			return "gather", top
@@ -325,134 +321,29 @@ func NextMakeAction(component *steps.ItemComponentTree, kernel *game.Kernel, log
 				kernel.CharacterState.Unlock()
 			}
 
-			if steps.FightHpSafetyCheck(hp, maxHp) {
-				return "fight", top
-			} else {
+			if !steps.FightHpSafetyCheck(hp, maxHp) {
 				return "rest", top
 			}
+
+			equipCommand, err := LoadOutCommand(kernel, tile.Content.Code)
+			if err != nil {
+				log(fmt.Sprintf("failed to get equipment loadout for %s: %s", component.Code, err))
+				return "clear-gen", top
+			}
+
+			if equipCommand != "" {
+				return equipCommand, top
+			}
+
+			return "fight", top
 		case "withdraw":
 			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
 			return withdraw, top
+		case "npc":
+			return fmt.Sprintf("npc-buy %d %s", 1, component.Code), top
 		default:
 			log(fmt.Sprintf("HOW DID WE GET HERE??? action is %s", component.Action))
 			return "clear-gen", top
-		}
-	}
-
-	if component.Action == "npc" {
-		// 1. Get the currency item
-		subcomponent := component.Components[0]
-		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, onTask, last, success, false)
-		if next_command != "" {
-			return next_command, is_top
-		}
-
-		// 2. Go do the trade
-		tiles, ok := (*skill_map)[component.Code]
-		if !ok {
-			log(fmt.Sprintf("no maps for resource %s", component.Code))
-			return "cancel-task", top
-		}
-
-		x, y := 0, 0
-		kernel.CharacterState.Read(func(value *types.Character) {
-			x, y = value.X, value.Y
-		})
-		var closest float64 = math.Inf(0)
-		var tile *api.MapTile = nil
-		for _, t := range tiles {
-			distance := math.Sqrt(math.Pow(float64(t.Y-y), 2) + math.Pow(float64(t.X-x), 2))
-			if distance < closest {
-				closest = distance
-				tile = &t
-			}
-		}
-
-		if tile == nil {
-			log(fmt.Sprintf("no map selected for resource %s: %v", component.Code, tiles))
-			return "clear-gen", top
-		}
-
-		if tile.Content.Type == "event" {
-			log(fmt.Sprintf("find event tile for resource %s", component.Code))
-			events, err := api.GetAllActiveEvents(1, 100)
-			if err != nil {
-				log(fmt.Sprintf("failed to get event info: %s", err))
-				return "sleep 10", top
-			}
-
-			if len(*events) == 0 {
-				log(fmt.Sprintf("no event info found for %s", component.Code))
-				return "noop", top // return "sleep 10"
-			}
-
-			didFindActiveEvent := false
-			for _, event := range *events {
-				// tile.Content.Code is the code for the npc
-				if event.Map.Content.Code == tile.Content.Code {
-					didFindActiveEvent = true
-					log(fmt.Sprintf("event: %s", event.Code))
-					if x != event.Map.X || y != event.Map.Y {
-						return fmt.Sprintf("move %d %d", event.Map.X, event.Map.Y), top
-					}
-				}
-			}
-
-			if !didFindActiveEvent {
-				log(fmt.Sprintf("no active events for %s, tile %s - noop", component.Code, tile.Content.Code))
-				return "noop", top // "sleep 10", top
-			}
-		} else {
-			if x != tile.X || y != tile.Y {
-				move := fmt.Sprintf("move %d %d", tile.X, tile.Y)
-				log(fmt.Sprintf("move: %s for %s %s", move, component.Action, component.Code))
-				return move, top
-			}
-		}
-
-		return fmt.Sprintf("npc-buy %d %s", 1, component.Code), top
-
-	}
-
-	if component.Action == "task" {
-		// 1. Withdraw needed item (component.Code) <- our algo may handle this already though
-		componentBankQuantity := 0
-		state.GlobalState.BankState.Read(func(value *[]types.InventoryItem) {
-			componentBankQuantity = utils.CountBank(value, component.Code)
-		})
-		if componentBankQuantity >= component.Quantity {
-			withdraw := fmt.Sprintf("withdraw %d %s", component.Quantity, component.Code)
-			return withdraw, top
-		}
-
-		// 2. Determine if there are tasks_coin available, exchange them
-		taskCoinQuantityInventory := 0
-		kernel.CharacterState.Read(func(value *types.Character) {
-			taskCoinQuantityInventory = utils.CountInventory(&value.Inventory, "tasks_coin")
-		})
-		if taskCoinQuantityInventory >= 6 {
-			return "exchange-tasks-coins", top
-		}
-
-		taskCoinQuantityBank := 0
-		state.GlobalState.BankState.Read(func(value *[]types.InventoryItem) {
-			taskCoinQuantityBank = utils.CountBank(value, "tasks_coin")
-		})
-		if taskCoinQuantityBank+taskCoinQuantityInventory >= 6 {
-			// TODO: Can we safely grab more than the absolute minimum number of task coins?
-			withdrawQuantity := 6 - taskCoinQuantityInventory
-			withdraw := fmt.Sprintf("withdraw %d %s", withdrawQuantity, "tasks_coin")
-			return withdraw, top
-		}
-
-		// 3. Run Tasks(kernel, "monster")
-		return onTask(last, success), top
-	}
-
-	for _, subcomponent := range component.Components {
-		next_command, is_top := NextMakeAction(&subcomponent, kernel, log, skill_map, onTask, last, success, false)
-		if next_command != "" {
-			return next_command, is_top
 		}
 	}
 

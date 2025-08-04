@@ -45,7 +45,7 @@ func FightUnsafe(kernel *game.Kernel, print_fight_logs bool) error {
 	return nil
 }
 
-var HP_SAFETY_PERCENT = 0.51
+var HP_SAFETY_PERCENT = 1.00 // 0.51
 
 func FightSafeHpAmount(max_hp int) int {
 	return int(float64(max_hp) * HP_SAFETY_PERCENT)

@@ -30,8 +30,6 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 		case "mob", "food":
 			action = "fight"
 		case "task":
-			// TODO: Handling for task coins -> jasper crystal
-			// action = "withdraw"
 			action = "task"
 		case "npc":
 			action = "npc"
@@ -51,6 +49,21 @@ func GetItemComponentsTree(code string) (*ItemComponentTree, error) {
 			CraftSkill: nil,
 			Quantity:   1, // This will be overridden by the parent's craft recipe
 			Components: []ItemComponentTree{},
+		}
+
+		// Special case: we can treat tasks_coin as a dependency, add it manually
+		if res.Subtype == "task" {
+			// As of 2025-08-03 tasks_coin res.Subtype == "",
+			// So this is going to be a bit of a manual effort
+			subtree := ItemComponentTree{
+				Code:       "tasks_coin",
+				Action:     "do-task!",
+				Subtype:    "",
+				CraftSkill: nil,
+				Quantity:   6,
+				Components: []ItemComponentTree{},
+			}
+			componentTree.Components = append(componentTree.Components, subtree)
 		}
 
 		// Special case: need to list the currency
