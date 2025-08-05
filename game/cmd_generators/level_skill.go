@@ -9,6 +9,7 @@ import (
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/game/fight_analysis"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/types"
 	"artifactsmmo.com/m/utils"
@@ -327,7 +328,7 @@ func Level(kernel *game.Kernel, skill string, untilLevel int) game.Generator {
 							return "clear-gen"
 						}
 
-						res, err := game.RunFightAnalysis(characterName, target.Target, &loadout)
+						res, err := fight_analysis.RunFightAnalysis(characterName, target.Target, &loadout)
 						if err != nil {
 							log(fmt.Sprintf("Failed to run fight simulation: %s", err))
 							return "clear-gen"

@@ -11,6 +11,7 @@ import (
 
 	"artifactsmmo.com/m/api"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/game/fight_analysis"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
@@ -780,7 +781,7 @@ func scoreCacheKey(loadout *map[string]*types.ItemDetails) string {
 func scoreLoadoutBySimulation(kernel *game.Kernel, monsterData *types.Monster, loadout *map[string]*types.ItemDetails) float64 {
 	characterData := kernel.CharacterState.DeepCopy()
 
-	results, err := game.RunSimulationsCore(&characterData, monsterData, 1_000, loadout, true)
+	results, err := fight_analysis.RunSimulationsCore(&characterData, monsterData, 1_000, loadout, true)
 	if err != nil {
 		kernel.Log(fmt.Sprintf("Failed to run fight simulation: %s", err))
 		return 0
@@ -1013,7 +1014,7 @@ func LoadOutForFightBruteForce(kernel *game.Kernel, monsterName string) (map[str
 func scoreLoadoutByAnalysis(kernel *game.Kernel, monsterData *types.Monster, loadout *map[string]*types.ItemDetails) float64 {
 	characterData := kernel.CharacterState.DeepCopy()
 
-	result, err := game.RunFightAnalysisCore(&characterData, monsterData, loadout, 0.0005)
+	result, err := fight_analysis.RunFightAnalysisCore(&characterData, monsterData, loadout, 0.0005)
 	if err != nil {
 		kernel.Log(fmt.Sprintf("Failed to run fight simulation: %s", err))
 		return 0

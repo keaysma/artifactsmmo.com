@@ -13,6 +13,7 @@ import (
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
 	generators "artifactsmmo.com/m/game/cmd_generators"
+	"artifactsmmo.com/m/game/fight_analysis"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
@@ -1281,7 +1282,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		// TODO: Support custom load-out for fight
 
-		res, err := game.RunSimulations(kernel.CharacterName, monster_code, 1, nil)
+		res, err := fight_analysis.RunSimulations(kernel.CharacterName, monster_code, 1, nil)
 		if err != nil {
 			log(fmt.Sprintf("failed to simulate fight: %s", err))
 			return false
@@ -1331,7 +1332,7 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 
 		characterData := kernel.CharacterState.DeepCopy()
 
-		res, err := game.RunFightAnalysisCore(&characterData, monsterData, nil, prbLim)
+		res, err := fight_analysis.RunFightAnalysisCore(&characterData, monsterData, nil, prbLim)
 		if err != nil {
 			log("failed to simulate fight: %s", err)
 			return false

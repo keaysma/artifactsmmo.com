@@ -8,6 +8,7 @@ import (
 	"artifactsmmo.com/m/api"
 	coords "artifactsmmo.com/m/consts/places"
 	"artifactsmmo.com/m/game"
+	"artifactsmmo.com/m/game/fight_analysis"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/utils"
@@ -114,7 +115,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 					return "clear-gen"
 				}
 
-				fightResult, err := game.RunFightAnalysis(characterName, current_task, &loadout)
+				fightResult, err := fight_analysis.RunFightAnalysis(characterName, current_task, &loadout)
 				if err != nil {
 					log(fmt.Sprintf("Failed to get fight simulation results, abort: %s", err))
 					return "clear-gen"
@@ -136,7 +137,7 @@ func Tasks(kernel *game.Kernel, task_type string) game.Generator {
 				cooldownSum := 0
 				endHpSum := 0
 				for _, result := range (*fightResult).EndResults {
-					cooldown := game.GetCooldown(result.Turns, characterHaste)
+					cooldown := fight_analysis.GetCooldown(result.Turns, characterHaste)
 					endHpSum += result.CharacterHp
 					// log(fmt.Sprintf("cooldown: %d", cooldown))
 
