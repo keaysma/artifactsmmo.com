@@ -50,8 +50,8 @@ func (rdb SeqRedis) Set(key string, value interface{}) (string, error) {
 
 var CACHE_CONFIG = map[string]time.Duration{
 	"tasks/list/*":  24 * time.Hour,
-	"events":        24 * time.Hour,
 	"events/active": 30 * time.Second,
+	"events":        24 * time.Hour,
 	"resources":     24 * time.Hour,
 	"items/*":       24 * time.Hour,
 	"items":         24 * time.Hour,
@@ -96,6 +96,7 @@ func GetDataResponse[T interface{}](url string, params interface{}, response *T)
 		}
 
 		hasCacheRule = true
+		utils.UniversalDebugLog(fmt.Sprintf("cache hit for %s", rule))
 
 		entry, err := rx.Get(cacheKey)
 
@@ -112,9 +113,13 @@ func GetDataResponse[T interface{}](url string, params interface{}, response *T)
 		if err != nil {
 			return err
 		}
+		// utils.UniversalDebugLog(fmt.Sprintf("%s entry %v", rule, cacheEntry))
 
+		durationSeconds := int(duration.Seconds())
 		now := time.Now().Unix()
-		if cacheEntry.Epoch+int(duration) < int(now) {
+		// utils.UniversalDebugLog(fmt.Sprintf("entry.Epoch (%d) + duration (%d) = %d < %d ? %v then skip", cacheEntry.Epoch, durationSeconds, cacheEntry.Epoch+durationSeconds, int((now)), cacheEntry.Epoch+durationSeconds < int(now)))
+
+		if cacheEntry.Epoch+durationSeconds < int(now) {
 			break
 		}
 
