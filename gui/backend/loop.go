@@ -14,6 +14,7 @@ import (
 	"artifactsmmo.com/m/game"
 	generators "artifactsmmo.com/m/game/cmd_generators"
 	"artifactsmmo.com/m/game/fight_analysis"
+	"artifactsmmo.com/m/game/loadout"
 	"artifactsmmo.com/m/game/steps"
 	"artifactsmmo.com/m/state"
 	"artifactsmmo.com/m/types"
@@ -1014,18 +1015,18 @@ func ParseCommand(kernel *game.Kernel, rawCommand string) bool {
 				if len(parts) >= 5 {
 					algoName = parts[4]
 				}
-				algo := generators.LoadOutForFightV2
+				algo := loadout.LoadOutForFightV2
 				switch algoName {
 				case "v1":
-					algo = generators.LoadOutForFightV1
+					algo = loadout.LoadOutForFightV1
 				case "v2":
-					algo = generators.LoadOutForFightV2
+					algo = loadout.LoadOutForFightV2
 				case "v3", "dag":
-					algo = generators.LoadOutForFightDAG
+					algo = loadout.LoadOutForFightDAG
 				case "v4", "sim":
-					algo = generators.LoadOutForFightBruteForce
+					algo = loadout.LoadOutForFightBruteForce
 				case "v5", "prb":
-					algo = generators.LoadOutForFightAnalysis
+					algo = loadout.LoadOutForFightAnalysis
 				default:
 					log(fmt.Sprintf("unknown algo: %s", algoName))
 					return false
