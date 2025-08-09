@@ -38,7 +38,7 @@ func tryEquip(kernel *game.Kernel, target string, itype string, slot string, sor
 		log(fmt.Sprintf("try to equip %s", item.Code))
 
 		char := kernel.CharacterState.Ref()
-		curEquip := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(slot))).String()
+		curEquip := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", slot)).String()
 		kernel.CharacterState.Unlock()
 
 		// if it is equipped we're good

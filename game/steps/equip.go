@@ -38,11 +38,11 @@ func EquipItem(kernel *game.Kernel, code string, slot string, rawQuantity int) e
 		}
 	}
 
-	curSlot := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", utils.Caser.String(selectedSlot))).String()
+	curSlot := utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot", selectedSlot)).String()
 	if curSlot != "" {
 		useQuantity := 1
 		if strings.Contains(slot, "utility") {
-			useQuantity = int(utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot_quantity", utils.Caser.String(slot))).Int())
+			useQuantity = int(utils.GetFieldFromStructByName(char, fmt.Sprintf("%s_slot_quantity", slot)).Int())
 		}
 
 		log(fmt.Sprintf("unequipping %d %s from %s", useQuantity, curSlot, selectedSlot))
@@ -141,7 +141,7 @@ func UnequipItem(kernel *game.Kernel, slot string, quantity int) error {
 	} else {
 		kernel.CharacterState.With(func(value *types.Character) *types.Character {
 			if strings.Contains(slot, "utility") {
-				useQuantiy = int(utils.GetFieldFromStructByName(value, fmt.Sprintf("%s_slot_quantity", utils.Caser.String(slot))).Int())
+				useQuantiy = int(utils.GetFieldFromStructByName(value, fmt.Sprintf("%s_slot_quantity", slot)).Int())
 			} else {
 				useQuantiy = 1
 			}
